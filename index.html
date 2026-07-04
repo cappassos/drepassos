@@ -6607,6 +6607,7 @@
 
     async function salvarLancamentoRapidoConciliacao(event) {
         event.preventDefault();
+        try {
         const idx = parseInt(document.getElementById('lancRapidoIdx').value);
         const tipo = document.getElementById('lancRapidoTipo').value;
         const m = _conciliacaoMovimentos[idx];
@@ -6630,7 +6631,6 @@
             dados = {
                 fornecedor_id: fornecedorId,
                 categoria_id: categoriaId,
-                subcategoria_id: subcategoriaId,
                 descricao: descricao,
                 valor: valor,
                 data_competencia: data,
@@ -6645,6 +6645,7 @@
                 parcela_atual: 1,
                 total_parcelas: 1
             };
+            if (subcategoriaId) dados.subcategoria_id = subcategoriaId;
         } else {
             const clienteId = parseInt(document.getElementById('lancRapidoCliente').value);
             if (!clienteId) { alert('Selecione o cliente.'); return; }
@@ -6667,6 +6668,7 @@
             };
         }
 
+        _ultimoErroSupabase = null;
         const r = await fetchSupabase(tabela, 'POST', dados);
         if (r !== null && r.length) {
             const novo = r[0];
@@ -6680,7 +6682,15 @@
             await atualizarDashboard();
             renderizarConciliacao();
         } else {
-            alert('Não foi possível criar o lançamento. Verifique se todas as colunas necessárias existem nas tabelas (veja o Diagnóstico de Conexão).');
+            let detalhe = '';
+            if (_ultimoErroSupabase) {
+                detalhe = '\n\nDetalhe técnico (HTTP ' + _ultimoErroSupabase.status + '):\n' + _ultimoErroSupabase.body.substring(0, 300);
+            }
+            alert('Não foi possível criar o lançamento. Verifique se todas as colunas necessárias existem na tabela.' + detalhe);
+        }
+        } catch (erro) {
+            console.error('Erro ao criar lançamento rápido:', erro);
+            alert('Erro inesperado ao criar o lançamento: ' + (erro.message || erro));
         }
     }
 
