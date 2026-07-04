@@ -6253,6 +6253,22 @@
         }
     }
 
+    // Monta um texto de contexto (categoria/subcategoria/fornecedor ou cliente) para ajudar a
+    // diferenciar candidatos parecidos (ex: várias parcelas de um mesmo valor)
+    function _conciliaContextoCandidato(c) {
+        if (c._origem === 'pagar') {
+            const categoria = (dadosCache.categorias || []).find(x => x.id === c.categoria_id);
+            const subcategoria = (dadosCache.subcategorias || []).find(x => x.id === c.subcategoria_id);
+            const fornecedor = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+            const partes = [];
+            if (fornecedor) partes.push(fornecedor.nome);
+            if (categoria) partes.push(categoria.nome + (subcategoria ? ' › ' + subcategoria.nome : ''));
+            return partes.length ? ' [' + partes.join(' | ') + ']' : '';
+        }
+        const cliente = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+        return cliente ? ' [' + cliente.nome + ']' : '';
+    }
+
     function renderizarConciliacao() {
         const resultadoDiv = document.getElementById('conciliacaoResultado');
         const resumoDiv = document.getElementById('conciliacaoResumo');
@@ -6282,18 +6298,21 @@
             let statusHtml, lancamentoHtml, acaoHtml;
 
             if (m.status === 'conciliado') {
+                const candidatoConciliado = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+                const contextoConciliado = candidatoConciliado ? _conciliaContextoCandidato(candidatoConciliado) : '';
                 statusHtml = '<span class="status-badge status-recebido">✅ Conciliado</span>';
-                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoConciliado + '</span>';
                 acaoHtml = '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
                            '<button class="btn btn-danger btn-small" onclick="excluirLancamentoConciliacao(' + idx + ')">🗑️ Excluir</button>';
             } else if (m.status === 'sugerido') {
                 const candidatoSugestao = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+                const contextoSugestao = candidatoSugestao ? _conciliaContextoCandidato(candidatoSugestao) : '';
                 const notaPendente = candidatoSugestao && candidatoSugestao._statusOriginal === 'pendente'
                     ? '<br><span style="font-size:11px;color:#b8860b;">⚠ Pendente — ao confirmar, será marcado como ' + (m.lancamentoTipo === 'pagar' ? 'Pago' : 'Recebido') + '.</span>'
                     : '';
                 statusHtml = '<span class="status-badge status-pendente">🔎 Sugestão</span>';
-                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>' + notaPendente;
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoSugestao + '</span>' + notaPendente;
                 acaoHtml = '<button class="btn btn-success btn-small" onclick="confirmarSugestao(' + idx + ')">✅ Confirmar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
@@ -6302,7 +6321,7 @@
                 statusHtml = '<span class="status-badge status-atrasado">⚠️ Não encontrado</span>';
                 const opcoes = _conciliacaoCandidatos.filter(c => !c._jaUsado)
                     .map(c => '<option value="' + c._origem + ':' + c.id + '">' +
-                        (c._origem === 'pagar' ? '📤' : '📥') + ' ' + c.descricao + ' — R$ ' +
+                        (c._origem === 'pagar' ? '📤' : '📥') + ' ' + c.descricao + _conciliaContextoCandidato(c) + ' — R$ ' +
                         parseFloat(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' (' +
                         new Date(c._data + 'T12:00:00').toLocaleDateString('pt-BR') +
                         (c._statusOriginal === 'pendente' ? ', pendente' : '') + ')</option>').join('');
