@@ -1210,7 +1210,7 @@
 
             <div class="card" style="margin-top:24px;">
                 <div class="card-title">🔄 Conciliação Bancária</div>
-                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .PDF, .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas já pagas/recebidas. Itens sem correspondência podem ser vinculados manualmente.</div>
+                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .PDF, .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas pendentes, pagas ou recebidas. Se o lançamento ainda estiver pendente, ao confirmar a conciliação ele já é marcado como Pago/Recebido (com data, banco e tipo preenchidos automaticamente). Itens sem correspondência podem ser vinculados manualmente.</div>
                 <div class="filter-container" style="padding:0 0 16px;">
                     <div class="filter-row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;">
                         <div class="form-group">
@@ -5976,6 +5976,20 @@
         return isNaN(v) ? 0 : v;
     }
 
+    // Tenta inferir o tipo de pagamento/recebimento a partir da descrição do extrato importado
+    function _conciliaInferirTipoPagamento(descricao) {
+        const d = (descricao || '').toLowerCase();
+        if (d.includes('pix')) return 'PIX';
+        if (d.includes('ted') || d.includes('doc') || d.includes('transf')) return 'Transferência';
+        if (d.includes('boleto')) return 'Boleto';
+        if (d.includes('cheque')) return 'Cheque';
+        if (d.includes('cart') && (d.includes('déb') || d.includes('deb'))) return 'Cartão de Débito';
+        if (d.includes('cart') && (d.includes('créd') || d.includes('cred'))) return 'Cartão de Crédito';
+        if (d.includes('cart')) return 'Cartão de Débito';
+        if (d.includes('saque') || d.includes('dinheiro') || d.includes('dep')) return 'Dinheiro';
+        return 'PIX';
+    }
+
     function _conciliaParseData(bruto) {
         if (bruto === undefined || bruto === null || bruto === '') return null;
         const s = String(bruto).trim();
@@ -6168,26 +6182,30 @@
             }
 
             const [pagos, recebidos] = await Promise.all([
-                fetchSupabase('contas_a_pagar', 'GET', null, `status=eq.pago`),
-                fetchSupabase('contas_a_receber', 'GET', null, `status=eq.recebido`)
+                fetchSupabase('contas_a_pagar', 'GET', null, `status=in.(pendente,pago)`),
+                fetchSupabase('contas_a_receber', 'GET', null, `status=in.(pendente,recebido)`)
             ]);
 
             if (pagos === null || recebidos === null) {
                 resultadoDiv.innerHTML = '<div style="background:#f8d7da;color:#721c24;padding:16px;border-radius:8px;">' +
                     '<b>❌ Erro ao buscar os lançamentos do sistema.</b><br>' +
-                    'Não foi possível consultar as contas pagas/recebidas no Supabase. Abra o Diagnóstico de Conexão (ícone de engrenagem, se houver) ou verifique o console do navegador (F12) para mais detalhes.' +
+                    'Não foi possível consultar as contas a pagar/receber no Supabase. Abra o Diagnóstico de Conexão (ícone de engrenagem, se houver) ou verifique o console do navegador (F12) para mais detalhes.' +
                     '</div>';
                 return;
             }
 
-            // Candidatos: lançamentos já pagos/recebidos deste banco OU ainda sem banco definido
-            // (ao conciliar, o banco correto é preenchido automaticamente no lançamento)
+            // Candidatos: lançamentos pendentes OU já pagos/recebidos deste banco (ou ainda sem banco definido).
+            // Pendentes entram na comparação pela Data de Vencimento; ao conciliar, viram Pago/Recebido automaticamente.
             const pagosDoBanco = (pagos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
             const recebidosDoBanco = (recebidos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
 
             _conciliacaoCandidatos = [
-                ...pagosDoBanco.map(c => ({ ...c, _origem: 'pagar', _data: c.data_pagamento, _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
-                ...recebidosDoBanco.map(c => ({ ...c, _origem: 'receber', _data: c.data_recebimento, _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
+                ...pagosDoBanco.map(c => ({ ...c, _origem: 'pagar', _statusOriginal: c.status,
+                    _data: c.status === 'pago' ? c.data_pagamento : c.data_vencimento,
+                    _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
+                ...recebidosDoBanco.map(c => ({ ...c, _origem: 'receber', _statusOriginal: c.status,
+                    _data: c.status === 'recebido' ? c.data_recebimento : c.data_vencimento,
+                    _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
             ];
 
             if (_conciliacaoCandidatos.length === 0) {
@@ -6195,18 +6213,18 @@
                 const outroBanco = (pagos || []).filter(c => !c.conciliado && c.banco_id).length + (recebidos || []).filter(c => !c.conciliado && c.banco_id).length;
                 document.getElementById('conciliacaoResumo').style.display = 'none';
                 resultadoDiv.innerHTML = '<div style="background:#fff3cd;color:#856404;padding:16px;border-radius:8px;line-height:1.6;">' +
-                    '<b>⚠️ Nenhum lançamento Pago/Recebido disponível para o banco "' + bancoNome + '".</b><br>' +
-                    'A conciliação compara com contas marcadas como <b>Pago</b>/<b>Recebido</b> que usem esse banco (ou que ainda não tenham banco definido). Confira:<br>' +
-                    '• Total geral de contas pagas no sistema (todos os bancos): <b>' + (pagos ? pagos.length : 0) + '</b><br>' +
-                    '• Total geral de contas recebidas no sistema (todos os bancos): <b>' + (recebidos ? recebidos.length : 0) + '</b><br>' +
+                    '<b>⚠️ Nenhum lançamento disponível para o banco "' + bancoNome + '".</b><br>' +
+                    'A conciliação compara com contas <b>Pendentes</b>, <b>Pagas</b> ou <b>Recebidas</b> que usem esse banco (ou que ainda não tenham banco definido). Confira:<br>' +
+                    '• Total geral de contas a pagar (pendentes + pagas): <b>' + (pagos ? pagos.length : 0) + '</b><br>' +
+                    '• Total geral de contas a receber (pendentes + recebidas): <b>' + (recebidos ? recebidos.length : 0) + '</b><br>' +
                     '• Dessas, já com <b>outro banco</b> definido (diferente de "' + bancoNome + '") e por isso fora desta lista: <b>' + outroBanco + '</b><br><br>' +
-                    'Se o número de "outro banco" acima é igual ao total, é isso: os lançamentos estão vinculados a um banco diferente. Vá em <b>Contas Pagas</b> / <b>Contas Recebidas</b>, edite o lançamento (✏️) e ajuste o banco, ou refaça a confirmação de pagamento/recebimento escolhendo "' + bancoNome + '".' +
+                    'Se os totais acima também forem 0, não há nenhum lançamento cadastrado no sistema ainda. Se o número de "outro banco" for igual ao total, edite o lançamento (✏️) em Contas Pagas/Recebidas e ajuste o banco.' +
                     '</div>';
                 return;
             }
 
             const TOLERANCIA_VALOR = 0.01;
-            const TOLERANCIA_DIAS = 5;
+            const TOLERANCIA_DIAS = 10;
 
             _conciliacaoMovimentos = transacoes.map(t => {
                 let melhorMatch = null, melhorDiff = Infinity;
@@ -6270,8 +6288,12 @@
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
                            '<button class="btn btn-danger btn-small" onclick="excluirLancamentoConciliacao(' + idx + ')">🗑️ Excluir</button>';
             } else if (m.status === 'sugerido') {
+                const candidatoSugestao = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+                const notaPendente = candidatoSugestao && candidatoSugestao._statusOriginal === 'pendente'
+                    ? '<br><span style="font-size:11px;color:#b8860b;">⚠ Pendente — ao confirmar, será marcado como ' + (m.lancamentoTipo === 'pagar' ? 'Pago' : 'Recebido') + '.</span>'
+                    : '';
                 statusHtml = '<span class="status-badge status-pendente">🔎 Sugestão</span>';
-                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>' + notaPendente;
                 acaoHtml = '<button class="btn btn-success btn-small" onclick="confirmarSugestao(' + idx + ')">✅ Confirmar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
@@ -6282,7 +6304,8 @@
                     .map(c => '<option value="' + c._origem + ':' + c.id + '">' +
                         (c._origem === 'pagar' ? '📤' : '📥') + ' ' + c.descricao + ' — R$ ' +
                         parseFloat(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' (' +
-                        new Date(c._data + 'T12:00:00').toLocaleDateString('pt-BR') + ')</option>').join('');
+                        new Date(c._data + 'T12:00:00').toLocaleDateString('pt-BR') +
+                        (c._statusOriginal === 'pendente' ? ', pendente' : '') + ')</option>').join('');
                 lancamentoHtml = '<select id="conciliaVinculo' + idx + '" style="font-size:12px;padding:5px;max-width:240px;">' +
                     '<option value="">Vincular manualmente...</option>' + opcoes + '</select>';
                 acaoHtml = '<button class="btn btn-success btn-small" onclick="conciliarManual(' + idx + ')">Vincular</button>';
@@ -6306,12 +6329,27 @@
         const m = _conciliacaoMovimentos[idx];
         if (!m || m.status !== 'sugerido') return;
         const tabela = m.lancamentoTipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const candidato = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
         const dadosPatch = { conciliado: true, data_conciliacao: m.data };
         if (_conciliacaoBancoIdAtual) dadosPatch.banco_id = parseInt(_conciliacaoBancoIdAtual);
+        if (candidato && candidato._statusOriginal === 'pendente') {
+            const tipo = _conciliaInferirTipoPagamento(m.descricao);
+            if (m.lancamentoTipo === 'pagar') {
+                dadosPatch.status = 'pago';
+                dadosPatch.data_pagamento = m.data;
+                dadosPatch.tipo_pagamento = tipo;
+            } else {
+                dadosPatch.status = 'recebido';
+                dadosPatch.data_recebimento = m.data;
+                dadosPatch.tipo_recebimento = tipo;
+            }
+        }
         const r = await fetchSupabase(tabela, 'PATCH', dadosPatch, `id=eq.${m.lancamentoId}`);
         if (r !== null) {
             m.status = 'conciliado';
             renderizarConciliacao();
+            await Promise.all([carregarContasPagar(), carregarContasReceber(), carregarContasPagas(), carregarContasRecebidas()]);
+            await atualizarDashboard();
         } else {
             alert('Não foi possível salvar a conciliação. Verifique se as colunas "conciliado" e "data_conciliacao" existem nas tabelas de contas.');
         }
@@ -6351,6 +6389,18 @@
         const m = _conciliacaoMovimentos[idx];
         const dadosPatch = { conciliado: true, data_conciliacao: m.data };
         if (_conciliacaoBancoIdAtual) dadosPatch.banco_id = parseInt(_conciliacaoBancoIdAtual);
+        if (candidato._statusOriginal === 'pendente') {
+            const tipo = _conciliaInferirTipoPagamento(m.descricao);
+            if (origem === 'pagar') {
+                dadosPatch.status = 'pago';
+                dadosPatch.data_pagamento = m.data;
+                dadosPatch.tipo_pagamento = tipo;
+            } else {
+                dadosPatch.status = 'recebido';
+                dadosPatch.data_recebimento = m.data;
+                dadosPatch.tipo_recebimento = tipo;
+            }
+        }
         const r = await fetchSupabase(tabela, 'PATCH', dadosPatch, `id=eq.${id}`);
         if (r !== null) {
             candidato._jaUsado = true;
@@ -6359,6 +6409,8 @@
             m.lancamentoId = id;
             m.lancamentoDescricao = candidato.descricao;
             renderizarConciliacao();
+            await Promise.all([carregarContasPagar(), carregarContasReceber(), carregarContasPagas(), carregarContasRecebidas()]);
+            await atualizarDashboard();
         } else {
             alert('Não foi possível salvar a conciliação. Verifique se as colunas "conciliado" e "data_conciliacao" existem nas tabelas de contas.');
         }
