@@ -6170,10 +6170,31 @@
                 fetchSupabase('contas_a_receber', 'GET', null, `status=eq.recebido&banco_id=eq.${bancoId}`)
             ]);
 
+            if (pagos === null || recebidos === null) {
+                resultadoDiv.innerHTML = '<div style="background:#f8d7da;color:#721c24;padding:16px;border-radius:8px;">' +
+                    '<b>❌ Erro ao buscar os lançamentos do sistema.</b><br>' +
+                    'Não foi possível consultar as contas pagas/recebidas no Supabase. Abra o Diagnóstico de Conexão (ícone de engrenagem, se houver) ou verifique o console do navegador (F12) para mais detalhes.' +
+                    '</div>';
+                return;
+            }
+
             _conciliacaoCandidatos = [
                 ...(pagos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'pagar', _data: c.data_pagamento, _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
                 ...(recebidos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'receber', _data: c.data_recebimento, _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
             ];
+
+            if (_conciliacaoCandidatos.length === 0) {
+                const bancoNome = ((dadosCache.bancos || []).find(b => String(b.id) === String(bancoId)) || {}).nome || 'selecionado';
+                document.getElementById('conciliacaoResumo').style.display = 'none';
+                resultadoDiv.innerHTML = '<div style="background:#fff3cd;color:#856404;padding:16px;border-radius:8px;line-height:1.6;">' +
+                    '<b>⚠️ Nenhum lançamento Pago/Recebido foi encontrado para o banco "' + bancoNome + '".</b><br>' +
+                    'A conciliação só compara com contas que já estão marcadas como <b>Pago</b> (Contas a Pagar) ou <b>Recebido</b> (Contas a Receber) <u>usando esse mesmo banco</u>. Confira:<br>' +
+                    '• Total de contas pagas encontradas para este banco: <b>' + (pagos ? pagos.length : 0) + '</b><br>' +
+                    '• Total de contas recebidas encontradas para este banco: <b>' + (recebidos ? recebidos.length : 0) + '</b><br><br>' +
+                    'Se os dois números acima são 0, o mais provável é que, ao confirmar o pagamento/recebimento dessas contas, foi selecionado um <b>banco diferente</b> de "' + bancoNome + '" (ou nenhum lançamento foi confirmado ainda). Vá em <b>Contas Pagas</b> / <b>Contas Recebidas</b> e confira a coluna "Banco" de cada lançamento do período.' +
+                    '</div>';
+                return;
+            }
 
             const TOLERANCIA_VALOR = 0.01;
             const TOLERANCIA_DIAS = 5;
