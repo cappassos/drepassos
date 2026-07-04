@@ -5960,6 +5960,7 @@
     // ================================================================
     let _conciliacaoMovimentos = [];           // linhas do extrato importado
     let _conciliacaoCandidatos = [];           // lançamentos pagos/recebidos do banco, candidatos a match
+    let _conciliacaoBancoIdAtual = null;       // banco selecionado na sessão de conciliação atual
 
     function _conciliaParseValor(bruto) {
         if (typeof bruto === 'number') return bruto;
@@ -6129,6 +6130,7 @@
         const resultadoDiv = document.getElementById('conciliacaoResultado');
 
         if (!bancoId) { alert('Selecione o banco antes de importar o extrato.'); return; }
+        _conciliacaoBancoIdAtual = bancoId;
         if (!inputArquivo.files || !inputArquivo.files[0]) { alert('Selecione o arquivo do extrato para importar.'); return; }
 
         const arquivo = inputArquivo.files[0];
@@ -6166,8 +6168,8 @@
             }
 
             const [pagos, recebidos] = await Promise.all([
-                fetchSupabase('contas_a_pagar', 'GET', null, `status=eq.pago&banco_id=eq.${bancoId}`),
-                fetchSupabase('contas_a_receber', 'GET', null, `status=eq.recebido&banco_id=eq.${bancoId}`)
+                fetchSupabase('contas_a_pagar', 'GET', null, `status=eq.pago`),
+                fetchSupabase('contas_a_receber', 'GET', null, `status=eq.recebido`)
             ]);
 
             if (pagos === null || recebidos === null) {
@@ -6178,20 +6180,27 @@
                 return;
             }
 
+            // Candidatos: lançamentos já pagos/recebidos deste banco OU ainda sem banco definido
+            // (ao conciliar, o banco correto é preenchido automaticamente no lançamento)
+            const pagosDoBanco = (pagos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
+            const recebidosDoBanco = (recebidos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
+
             _conciliacaoCandidatos = [
-                ...(pagos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'pagar', _data: c.data_pagamento, _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
-                ...(recebidos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'receber', _data: c.data_recebimento, _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
+                ...pagosDoBanco.map(c => ({ ...c, _origem: 'pagar', _data: c.data_pagamento, _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
+                ...recebidosDoBanco.map(c => ({ ...c, _origem: 'receber', _data: c.data_recebimento, _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
             ];
 
             if (_conciliacaoCandidatos.length === 0) {
                 const bancoNome = ((dadosCache.bancos || []).find(b => String(b.id) === String(bancoId)) || {}).nome || 'selecionado';
+                const outroBanco = (pagos || []).filter(c => !c.conciliado && c.banco_id).length + (recebidos || []).filter(c => !c.conciliado && c.banco_id).length;
                 document.getElementById('conciliacaoResumo').style.display = 'none';
                 resultadoDiv.innerHTML = '<div style="background:#fff3cd;color:#856404;padding:16px;border-radius:8px;line-height:1.6;">' +
-                    '<b>⚠️ Nenhum lançamento Pago/Recebido foi encontrado para o banco "' + bancoNome + '".</b><br>' +
-                    'A conciliação só compara com contas que já estão marcadas como <b>Pago</b> (Contas a Pagar) ou <b>Recebido</b> (Contas a Receber) <u>usando esse mesmo banco</u>. Confira:<br>' +
-                    '• Total de contas pagas encontradas para este banco: <b>' + (pagos ? pagos.length : 0) + '</b><br>' +
-                    '• Total de contas recebidas encontradas para este banco: <b>' + (recebidos ? recebidos.length : 0) + '</b><br><br>' +
-                    'Se os dois números acima são 0, o mais provável é que, ao confirmar o pagamento/recebimento dessas contas, foi selecionado um <b>banco diferente</b> de "' + bancoNome + '" (ou nenhum lançamento foi confirmado ainda). Vá em <b>Contas Pagas</b> / <b>Contas Recebidas</b> e confira a coluna "Banco" de cada lançamento do período.' +
+                    '<b>⚠️ Nenhum lançamento Pago/Recebido disponível para o banco "' + bancoNome + '".</b><br>' +
+                    'A conciliação compara com contas marcadas como <b>Pago</b>/<b>Recebido</b> que usem esse banco (ou que ainda não tenham banco definido). Confira:<br>' +
+                    '• Total geral de contas pagas no sistema (todos os bancos): <b>' + (pagos ? pagos.length : 0) + '</b><br>' +
+                    '• Total geral de contas recebidas no sistema (todos os bancos): <b>' + (recebidos ? recebidos.length : 0) + '</b><br>' +
+                    '• Dessas, já com <b>outro banco</b> definido (diferente de "' + bancoNome + '") e por isso fora desta lista: <b>' + outroBanco + '</b><br><br>' +
+                    'Se o número de "outro banco" acima é igual ao total, é isso: os lançamentos estão vinculados a um banco diferente. Vá em <b>Contas Pagas</b> / <b>Contas Recebidas</b>, edite o lançamento (✏️) e ajuste o banco, ou refaça a confirmação de pagamento/recebimento escolhendo "' + bancoNome + '".' +
                     '</div>';
                 return;
             }
@@ -6297,7 +6306,9 @@
         const m = _conciliacaoMovimentos[idx];
         if (!m || m.status !== 'sugerido') return;
         const tabela = m.lancamentoTipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
-        const r = await fetchSupabase(tabela, 'PATCH', { conciliado: true, data_conciliacao: m.data }, `id=eq.${m.lancamentoId}`);
+        const dadosPatch = { conciliado: true, data_conciliacao: m.data };
+        if (_conciliacaoBancoIdAtual) dadosPatch.banco_id = parseInt(_conciliacaoBancoIdAtual);
+        const r = await fetchSupabase(tabela, 'PATCH', dadosPatch, `id=eq.${m.lancamentoId}`);
         if (r !== null) {
             m.status = 'conciliado';
             renderizarConciliacao();
@@ -6338,7 +6349,9 @@
 
         const tabela = origem === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
         const m = _conciliacaoMovimentos[idx];
-        const r = await fetchSupabase(tabela, 'PATCH', { conciliado: true, data_conciliacao: m.data }, `id=eq.${id}`);
+        const dadosPatch = { conciliado: true, data_conciliacao: m.data };
+        if (_conciliacaoBancoIdAtual) dadosPatch.banco_id = parseInt(_conciliacaoBancoIdAtual);
+        const r = await fetchSupabase(tabela, 'PATCH', dadosPatch, `id=eq.${id}`);
         if (r !== null) {
             candidato._jaUsado = true;
             m.status = 'conciliado';
