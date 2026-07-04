@@ -16,6 +16,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -1204,7 +1210,7 @@
 
             <div class="card" style="margin-top:24px;">
                 <div class="card-title">🔄 Conciliação Bancária</div>
-                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas já pagas/recebidas. Itens sem correspondência podem ser vinculados manualmente.</div>
+                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .PDF, .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas já pagas/recebidas. Itens sem correspondência podem ser vinculados manualmente.</div>
                 <div class="filter-container" style="padding:0 0 16px;">
                     <div class="filter-row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;">
                         <div class="form-group">
@@ -1212,8 +1218,8 @@
                             <select id="conciliacaoBancoId"><option value="">Selecione...</option></select>
                         </div>
                         <div class="form-group" style="min-width:260px;">
-                            <label>Arquivo do extrato (OFX, CSV ou Excel)</label>
-                            <input type="file" id="arquivoConciliacao" accept=".ofx,.csv,.xls,.xlsx">
+                            <label>Arquivo do extrato (PDF, OFX, CSV ou Excel)</label>
+                            <input type="file" id="arquivoConciliacao" accept=".pdf,.ofx,.csv,.xls,.xlsx">
                         </div>
                         <div class="form-group" style="flex:0 0 auto;">
                             <button type="button" class="btn btn-primary" onclick="importarExtratoConciliacao()">📥 Importar e Comparar</button>
@@ -6026,6 +6032,97 @@
         return transacoes;
     }
 
+    // Extrai o texto de um PDF de extrato bancário, reconstruindo as linhas
+    // visuais da tabela a partir da posição (x,y) de cada trecho de texto
+    async function _conciliaExtrairTextoPDF(arquivo) {
+        if (!window.pdfjsLib) throw new Error('Biblioteca de leitura de PDF não carregada.');
+        const buffer = await arquivo.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const linhas = [];
+        for (let p = 1; p <= pdf.numPages; p++) {
+            const page = await pdf.getPage(p);
+            const conteudo = await page.getTextContent();
+            const grupos = [];
+            conteudo.items.forEach(item => {
+                const y = Math.round(item.transform[5]);
+                const x = item.transform[4];
+                let grupo = grupos.find(g => Math.abs(g.y - y) <= 2);
+                if (!grupo) { grupo = { y: y, itens: [] }; grupos.push(grupo); }
+                grupo.itens.push({ x: x, texto: item.str });
+            });
+            grupos.sort((a, b) => b.y - a.y); // topo da página primeiro
+            grupos.forEach(g => {
+                g.itens.sort((a, b) => a.x - b.x);
+                const linha = g.itens.map(i => i.texto).join(' ').replace(/\s+/g, ' ').trim();
+                if (linha) linhas.push(linha);
+            });
+        }
+        return linhas.join('\n');
+    }
+
+    // Interpreta o texto extraído de um extrato em PDF (qualquer banco),
+    // reconhecendo linhas no padrão "DD/MM/AAAA  descrição  valor  [saldo]"
+    function _conciliaParsePDF(texto) {
+        const transacoes = [];
+        const linhas = texto.split('\n');
+        const reData = /^(\d{2}\/\d{2}\/\d{4})\s+(.*)$/;
+        const reValor = /-?\d{1,3}(?:\.\d{3})*,\d{2}/g;
+        const reSaldoAbertura = /saldo\s*(anterior|inicial)/i;
+        const reIgnorar = /(saldo\s*final|total\s*de\s*entradas|total\s*de\s*sa[íi]das|p[áa]gina\s*\d|emitido em|cooperativa\s*:|central de atendimento|ouvidoria|sac\s*[-:]|atendimento\s|documento\s*:)/i;
+        const reCredito = /(cr[eé]dito|dep[oó]sito|receb|estorno|resgate)/i;
+        const reDebito  = /(d[eé]bito|tarifa|pagamento|envio|saque|encargo|compra)/i;
+
+        let saldoAnterior = null;
+
+        linhas.forEach(linhaBruta => {
+            const m = linhaBruta.match(reData);
+            if (!m) return;
+            const data = m[1].split('/').reverse().join('-');
+            const resto = m[2];
+
+            if (reSaldoAbertura.test(resto)) {
+                const vals = resto.match(reValor);
+                if (vals && vals.length) saldoAnterior = _conciliaParseValor(vals[vals.length - 1]);
+                return;
+            }
+            if (reIgnorar.test(resto)) return;
+
+            const valores = resto.match(reValor);
+            if (!valores || valores.length === 0) return;
+
+            const descricao = resto.replace(reValor, ' ').replace(/\s+/g, ' ').trim() || '-';
+            let valor;
+
+            if (valores.length >= 2) {
+                const valorTxt = valores[valores.length - 2];
+                const saldoTxt = valores[valores.length - 1];
+                const valorNum = Math.abs(_conciliaParseValor(valorTxt));
+                const saldoNum = _conciliaParseValor(saldoTxt);
+                if (valorTxt.trim().startsWith('-')) {
+                    valor = -valorNum;
+                } else if (saldoAnterior !== null) {
+                    const delta = saldoNum - saldoAnterior;
+                    if (Math.abs(delta - valorNum) < 0.02) valor = valorNum;
+                    else if (Math.abs(delta + valorNum) < 0.02) valor = -valorNum;
+                    else valor = (reCredito.test(descricao) && !reDebito.test(descricao)) ? valorNum : -valorNum;
+                } else {
+                    valor = (reCredito.test(descricao) && !reDebito.test(descricao)) ? valorNum : -valorNum;
+                }
+                saldoAnterior = saldoNum;
+            } else {
+                const valorTxt = valores[0];
+                const valorNum = Math.abs(_conciliaParseValor(valorTxt));
+                if (valorTxt.trim().startsWith('-')) valor = -valorNum;
+                else if (reCredito.test(descricao) && !reDebito.test(descricao)) valor = valorNum;
+                else valor = -valorNum;
+            }
+
+            if (valor) transacoes.push({ data: data, descricao: descricao, valor: valor });
+        });
+
+        return transacoes;
+    }
+
     async function importarExtratoConciliacao() {
         const bancoId = document.getElementById('conciliacaoBancoId').value;
         const inputArquivo = document.getElementById('arquivoConciliacao');
@@ -6042,7 +6139,10 @@
 
         try {
             let transacoes = [];
-            if (nome.endsWith('.ofx')) {
+            if (nome.endsWith('.pdf')) {
+                const texto = await _conciliaExtrairTextoPDF(arquivo);
+                transacoes = _conciliaParsePDF(texto);
+            } else if (nome.endsWith('.ofx')) {
                 transacoes = _conciliaParseOFX(await arquivo.text());
             } else {
                 const buffer = await arquivo.arrayBuffer();
