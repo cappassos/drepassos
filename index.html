@@ -6236,12 +6236,16 @@
             if (m.status === 'conciliado') {
                 statusHtml = '<span class="status-badge status-recebido">✅ Conciliado</span>';
                 lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
-                acaoHtml = '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer</button>';
+                acaoHtml = '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer</button> ' +
+                           '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
+                           '<button class="btn btn-danger btn-small" onclick="excluirLancamentoConciliacao(' + idx + ')">🗑️ Excluir</button>';
             } else if (m.status === 'sugerido') {
                 statusHtml = '<span class="status-badge status-pendente">🔎 Sugestão</span>';
                 lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
                 acaoHtml = '<button class="btn btn-success btn-small" onclick="confirmarSugestao(' + idx + ')">✅ Confirmar</button> ' +
-                           '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button>';
+                           '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button> ' +
+                           '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
+                           '<button class="btn btn-danger btn-small" onclick="excluirLancamentoConciliacao(' + idx + ')">🗑️ Excluir</button>';
             } else {
                 statusHtml = '<span class="status-badge status-atrasado">⚠️ Não encontrado</span>';
                 const opcoes = _conciliacaoCandidatos.filter(c => !c._jaUsado)
@@ -6338,6 +6342,31 @@
             m.lancamentoTipo = null;
             m.lancamentoId = null;
             m.lancamentoDescricao = null;
+            renderizarConciliacao();
+        }
+    }
+
+    function editarLancamentoConciliacao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m || !m.lancamentoId) return;
+        editarLancamento(m.lancamentoId, m.lancamentoTipo === 'pagar' ? 'pagar' : 'receber');
+    }
+
+    async function excluirLancamentoConciliacao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m || !m.lancamentoId) return;
+        if (!confirm('Tem certeza que deseja excluir este lançamento do sistema? Essa ação não pode ser desfeita.')) return;
+        const tabela = m.lancamentoTipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const r = await fetchSupabase(tabela, 'DELETE', null, `id=eq.${m.lancamentoId}`);
+        if (r !== null) {
+            _conciliacaoCandidatos = _conciliacaoCandidatos.filter(c => !(c._origem === m.lancamentoTipo && c.id === m.lancamentoId));
+            _conciliacaoMovimentos[idx] = {
+                data: m.data, descricao: m.descricao, valor: m.valor,
+                status: 'pendente', lancamentoTipo: null, lancamentoId: null, lancamentoDescricao: null
+            };
+            await Promise.all([carregarContasPagar(), carregarContasReceber(), carregarContasPagas(), carregarContasRecebidas()]);
+            await atualizarDashboard();
+            showAlert('Lançamento excluído com sucesso!', 'alertLancarPagar', 'success');
             renderizarConciliacao();
         }
     }
