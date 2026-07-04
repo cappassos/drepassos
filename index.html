@@ -6140,16 +6140,24 @@
         try {
             let transacoes = [];
             if (nome.endsWith('.pdf')) {
+                if (typeof pdfjsLib === 'undefined') {
+                    throw new Error('A biblioteca de leitura de PDF não carregou. Verifique sua conexão com a internet (ou bloqueador de anúncios/extensão) e recarregue a página (Ctrl+Shift+R).');
+                }
                 const texto = await _conciliaExtrairTextoPDF(arquivo);
                 transacoes = _conciliaParsePDF(texto);
             } else if (nome.endsWith('.ofx')) {
                 transacoes = _conciliaParseOFX(await arquivo.text());
-            } else {
+            } else if (nome.endsWith('.csv') || nome.endsWith('.xls') || nome.endsWith('.xlsx')) {
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('A biblioteca de leitura de planilhas não carregou. Verifique sua conexão com a internet (ou bloqueador de anúncios/extensão) e recarregue a página (Ctrl+Shift+R).');
+                }
                 const buffer = await arquivo.arrayBuffer();
                 const wb = XLSX.read(buffer, { type: 'array' });
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
                 transacoes = _conciliaParsePlanilha(aoa);
+            } else {
+                throw new Error('Formato de arquivo não reconhecido. Envie um arquivo .PDF, .OFX, .CSV, .XLS ou .XLSX.');
             }
 
             if (transacoes.length === 0) {
