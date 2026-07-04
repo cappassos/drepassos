@@ -1210,7 +1210,7 @@
 
             <div class="card" style="margin-top:24px;">
                 <div class="card-title">🔄 Conciliação Bancária</div>
-                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .PDF, .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas pendentes, pagas ou recebidas. Se o lançamento ainda estiver pendente, ao confirmar a conciliação ele já é marcado como Pago/Recebido (com data, banco e tipo preenchidos automaticamente). Itens sem correspondência podem ser vinculados manualmente.</div>
+                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .PDF, .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas pendentes, pagas ou recebidas. Se o lançamento ainda estiver pendente, ao confirmar a conciliação ele já é marcado como Pago/Recebido (com data, banco e tipo preenchidos automaticamente). Para itens do extrato que não têm nenhum lançamento no sistema, use o botão <b>➕ Lançar</b> para criar o lançamento na hora, já como Pago/Recebido e conciliado.</div>
                 <div class="filter-container" style="padding:0 0 16px;">
                     <div class="filter-row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;">
                         <div class="form-group">
@@ -2491,6 +2491,69 @@
             <div class="form-actions">
                 <button type="submit" class="btn btn-success">💾 Salvar</button>
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalLancarPagar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL LANÇAMENTO RÁPIDO A PARTIR DO EXTRATO (Conciliação Bancária) -->
+<div class="modal" id="modalLancamentoRapidoConciliacao">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <span id="lancRapidoTitulo">➕ Novo Lançamento (do extrato)</span>
+            <button class="modal-close" onclick="closeModal('modalLancamentoRapidoConciliacao')">&times;</button>
+        </div>
+        <form onsubmit="salvarLancamentoRapidoConciliacao(event)">
+            <input type="hidden" id="lancRapidoIdx">
+            <input type="hidden" id="lancRapidoTipo">
+            <div class="form-group" id="lancRapidoFornecedorWrap">
+                <label>Fornecedor*</label>
+                <select id="lancRapidoFornecedor" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="form-group" id="lancRapidoClienteWrap">
+                <label>Cliente*</label>
+                <select id="lancRapidoCliente" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="form-group" id="lancRapidoCategoriaWrap">
+                <label>Categoria*</label>
+                <select id="lancRapidoCategoria" required onchange="preencherSubcategoriasLancRapido()">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="form-group" id="lancRapidoSubcategoriaWrap">
+                <label>Subcategoria</label>
+                <select id="lancRapidoSubcategoria">
+                    <option value="">Selecione a categoria primeiro...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descrição*</label>
+                <input type="text" id="lancRapidoDescricao" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor*</label>
+                    <input type="number" id="lancRapidoValor" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="lancRapidoData" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="lancRapidoObs" rows="2"></textarea>
+            </div>
+            <div style="font-size:12px;color:#888;margin-bottom:12px;">
+                Este lançamento já será criado como <b id="lancRapidoStatusLabel">Pago</b>, com o banco e a data desta conciliação, e marcado como conciliado.
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">💾 Lançar e Conciliar</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalLancamentoRapidoConciliacao')">Cancelar</button>
             </div>
         </form>
     </div>
@@ -6327,7 +6390,8 @@
                         (c._statusOriginal === 'pendente' ? ', pendente' : '') + ')</option>').join('');
                 lancamentoHtml = '<select id="conciliaVinculo' + idx + '" style="font-size:12px;padding:5px;max-width:240px;">' +
                     '<option value="">Vincular manualmente...</option>' + opcoes + '</select>';
-                acaoHtml = '<button class="btn btn-success btn-small" onclick="conciliarManual(' + idx + ')">Vincular</button>';
+                acaoHtml = '<button class="btn btn-success btn-small" onclick="conciliarManual(' + idx + ')">Vincular</button> ' +
+                           '<button class="btn btn-primary btn-small" onclick="abrirLancamentoRapidoConciliacao(' + idx + ')">➕ Lançar</button>';
             }
 
             html += '<tr>' +
@@ -6473,6 +6537,150 @@
             await atualizarDashboard();
             showAlert('Lançamento excluído com sucesso!', 'alertLancarPagar', 'success');
             renderizarConciliacao();
+        }
+    }
+
+    // ================================================================
+    // LANÇAMENTO RÁPIDO A PARTIR DO EXTRATO (linhas "Não encontrado")
+    // ================================================================
+    function abrirLancamentoRapidoConciliacao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m) return;
+        const tipo = m.valor < 0 ? 'pagar' : 'receber';
+
+        document.getElementById('lancRapidoIdx').value = idx;
+        document.getElementById('lancRapidoTipo').value = tipo;
+        document.getElementById('lancRapidoDescricao').value = m.descricao || '';
+        document.getElementById('lancRapidoValor').value = Math.abs(m.valor).toFixed(2);
+        document.getElementById('lancRapidoData').value = m.data;
+        document.getElementById('lancRapidoObs').value = '';
+        document.getElementById('lancRapidoFornecedor').value = '';
+        document.getElementById('lancRapidoCliente').value = '';
+        document.getElementById('lancRapidoCategoria').value = '';
+        document.getElementById('lancRapidoSubcategoria').innerHTML = '<option value="">Selecione a categoria primeiro...</option>';
+
+        document.getElementById('lancRapidoFornecedorWrap').style.display = tipo === 'pagar' ? '' : 'none';
+        document.getElementById('lancRapidoClienteWrap').style.display = tipo === 'receber' ? '' : 'none';
+        document.getElementById('lancRapidoCategoriaWrap').style.display = tipo === 'pagar' ? '' : 'none';
+        document.getElementById('lancRapidoSubcategoriaWrap').style.display = tipo === 'pagar' ? '' : 'none';
+        document.getElementById('lancRapidoStatusLabel').textContent = tipo === 'pagar' ? 'Pago' : 'Recebido';
+        document.getElementById('lancRapidoTitulo').textContent = tipo === 'pagar'
+            ? '➕ Novo Lançamento a Pagar (do extrato)'
+            : '➕ Novo Lançamento a Receber (do extrato)';
+
+        const selFornecedor = document.getElementById('lancRapidoFornecedor');
+        selFornecedor.innerHTML = '<option value="">Selecione...</option>';
+        (dadosCache.fornecedores || []).filter(f => f.ativo !== false).forEach(f => {
+            selFornecedor.innerHTML += '<option value="' + f.id + '">' + f.nome + '</option>';
+        });
+
+        const selCliente = document.getElementById('lancRapidoCliente');
+        selCliente.innerHTML = '<option value="">Selecione...</option>';
+        (dadosCache.clientes || []).filter(c => c.ativo !== false).forEach(c => {
+            selCliente.innerHTML += '<option value="' + c.id + '">' + c.nome + '</option>';
+        });
+
+        const selCategoria = document.getElementById('lancRapidoCategoria');
+        selCategoria.innerHTML = '<option value="">Selecione...</option>';
+        (dadosCache.categorias || []).filter(c => c.ativo !== false).forEach(c => {
+            selCategoria.innerHTML += '<option value="' + c.id + '">' + c.nome + '</option>';
+        });
+
+        document.getElementById('modalLancamentoRapidoConciliacao').classList.add('active');
+    }
+
+    function preencherSubcategoriasLancRapido() {
+        const categoriaSelecionada = document.getElementById('lancRapidoCategoria').value;
+        const selectSubcategorias = document.getElementById('lancRapidoSubcategoria');
+        if (!categoriaSelecionada) {
+            selectSubcategorias.innerHTML = '<option value="">Selecione a categoria primeiro...</option>';
+            return;
+        }
+        const subcategorias = (dadosCache.subcategorias || []).filter(s => s.categoria_id == categoriaSelecionada && s.ativo !== false);
+        selectSubcategorias.innerHTML = subcategorias.length
+            ? '<option value="">Selecione...</option>'
+            : '<option value="">Nenhuma subcategoria cadastrada</option>';
+        subcategorias.forEach(sub => {
+            selectSubcategorias.innerHTML += '<option value="' + sub.id + '">' + sub.nome + '</option>';
+        });
+    }
+
+    async function salvarLancamentoRapidoConciliacao(event) {
+        event.preventDefault();
+        const idx = parseInt(document.getElementById('lancRapidoIdx').value);
+        const tipo = document.getElementById('lancRapidoTipo').value;
+        const m = _conciliacaoMovimentos[idx];
+        if (!m) return;
+
+        const descricao = document.getElementById('lancRapidoDescricao').value;
+        const valor = parseFloat(document.getElementById('lancRapidoValor').value);
+        const data = document.getElementById('lancRapidoData').value;
+        const obs = document.getElementById('lancRapidoObs').value;
+        const tipoInferido = _conciliaInferirTipoPagamento(m.descricao);
+        const bancoId = _conciliacaoBancoIdAtual ? parseInt(_conciliacaoBancoIdAtual) : null;
+
+        let tabela, dados;
+        if (tipo === 'pagar') {
+            const fornecedorId = parseInt(document.getElementById('lancRapidoFornecedor').value);
+            const categoriaId = document.getElementById('lancRapidoCategoria').value ? parseInt(document.getElementById('lancRapidoCategoria').value) : null;
+            const subcategoriaId = document.getElementById('lancRapidoSubcategoria').value ? parseInt(document.getElementById('lancRapidoSubcategoria').value) : null;
+            if (!fornecedorId) { alert('Selecione o fornecedor.'); return; }
+            if (!categoriaId) { alert('Selecione a categoria.'); return; }
+            tabela = 'contas_a_pagar';
+            dados = {
+                fornecedor_id: fornecedorId,
+                categoria_id: categoriaId,
+                subcategoria_id: subcategoriaId,
+                descricao: descricao,
+                valor: valor,
+                data_competencia: data,
+                data_vencimento: data,
+                data_pagamento: data,
+                status: 'pago',
+                tipo_pagamento: tipoInferido,
+                banco_id: bancoId,
+                conciliado: true,
+                data_conciliacao: data,
+                observacoes: obs || null,
+                parcela_atual: 1,
+                total_parcelas: 1
+            };
+        } else {
+            const clienteId = parseInt(document.getElementById('lancRapidoCliente').value);
+            if (!clienteId) { alert('Selecione o cliente.'); return; }
+            tabela = 'contas_a_receber';
+            dados = {
+                cliente_id: clienteId,
+                descricao: descricao,
+                valor: valor,
+                data_competencia: data,
+                data_vencimento: data,
+                data_recebimento: data,
+                status: 'recebido',
+                tipo_recebimento: tipoInferido,
+                banco_id: bancoId,
+                conciliado: true,
+                data_conciliacao: data,
+                observacoes: obs || null,
+                parcela_atual: 1,
+                total_parcelas: 1
+            };
+        }
+
+        const r = await fetchSupabase(tabela, 'POST', dados);
+        if (r !== null && r.length) {
+            const novo = r[0];
+            m.status = 'conciliado';
+            m.lancamentoTipo = tipo;
+            m.lancamentoId = novo.id;
+            m.lancamentoDescricao = descricao;
+            closeModal('modalLancamentoRapidoConciliacao');
+            showAlert('Lançamento criado e conciliado com sucesso!', tipo === 'pagar' ? 'alertLancarPagar' : 'alertLancarReceber', 'success');
+            await Promise.all([carregarContasPagar(), carregarContasReceber(), carregarContasPagas(), carregarContasRecebidas()]);
+            await atualizarDashboard();
+            renderizarConciliacao();
+        } else {
+            alert('Não foi possível criar o lançamento. Verifique se todas as colunas necessárias existem nas tabelas (veja o Diagnóstico de Conexão).');
         }
     }
 
