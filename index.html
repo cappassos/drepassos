@@ -1201,6 +1201,31 @@
                     </table>
                 </div>
             </div>
+
+            <div class="card" style="margin-top:24px;">
+                <div class="card-title">🔄 Conciliação Bancária</div>
+                <div style="font-size:12px;color:#888;margin-bottom:16px;">Importe o extrato do banco (arquivo .OFX, .CSV ou .XLS/.XLSX) e o sistema tentará casar automaticamente com as contas já pagas/recebidas. Itens sem correspondência podem ser vinculados manualmente.</div>
+                <div class="filter-container" style="padding:0 0 16px;">
+                    <div class="filter-row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                        <div class="form-group">
+                            <label>Banco*</label>
+                            <select id="conciliacaoBancoId"><option value="">Selecione...</option></select>
+                        </div>
+                        <div class="form-group" style="min-width:260px;">
+                            <label>Arquivo do extrato (OFX, CSV ou Excel)</label>
+                            <input type="file" id="arquivoConciliacao" accept=".ofx,.csv,.xls,.xlsx">
+                        </div>
+                        <div class="form-group" style="flex:0 0 auto;">
+                            <button type="button" class="btn btn-primary" onclick="importarExtratoConciliacao()">📥 Importar e Comparar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="conciliacaoResumo" class="dashboard-grid" style="display:none;margin-bottom:16px;"></div>
+                <div id="conciliacaoAcoes" style="display:none;margin-bottom:12px;">
+                    <button type="button" class="btn btn-success btn-small" onclick="confirmarTodasSugestoes()">✅ Confirmar todas as sugestões</button>
+                </div>
+                <div id="conciliacaoResultado"></div>
+            </div>
         </div>
 
         <!-- LANÇAR CONTAS A RECEBER -->
@@ -5824,6 +5849,18 @@
             }
             selAno.value = anoAtual;
         }
+
+        const selConciliacao = document.getElementById('conciliacaoBancoId');
+        if (selConciliacao) {
+            const valConc = selConciliacao.value;
+            selConciliacao.innerHTML = '<option value="">Selecione...</option>';
+            (dadosCache.bancos || []).filter(b => b.ativo).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id; opt.textContent = b.nome;
+                selConciliacao.appendChild(opt);
+            });
+            if (valConc) selConciliacao.value = valConc;
+        }
     }
 
     async function gerarExtrato() {
@@ -5911,6 +5948,292 @@
             '<div class="stat-card" style="border-left-color:'+(fluxo>=0?'#28a745':'#dc3545')+'"><div class="stat-label">📊 Fluxo do Período</div><div class="stat-value" style="color:'+(fluxo>=0?'#28a745':'#dc3545')+';font-size:20px;">'+fmtVal(Math.abs(fluxo))+'</div><div class="stat-change">'+(fluxo>=0?'Positivo':'Negativo')+'</div></div>' +
             '<div class="stat-card" style="border-left-color:#FF7A42;"><div class="stat-label">🏦 Saldo Acumulado</div><div class="stat-value" style="color:'+(acumulado>=0?'#28a745':'#dc3545')+';font-size:20px;">'+fmtVal(acumulado)+'</div><div class="stat-change">incl. saldo inicial</div></div>';
     }
+
+    // ================================================================
+    // CONCILIAÇÃO BANCÁRIA (importação de extrato OFX / CSV / XLSX)
+    // ================================================================
+    let _conciliacaoMovimentos = [];           // linhas do extrato importado
+    let _conciliacaoCandidatos = [];           // lançamentos pagos/recebidos do banco, candidatos a match
+
+    function _conciliaParseValor(bruto) {
+        if (typeof bruto === 'number') return bruto;
+        let s = String(bruto == null ? '' : bruto).trim();
+        s = s.replace(/R\$\s*/i, '').replace(/\s/g, '');
+        if (s.includes(',') && s.includes('.')) {
+            if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+            else s = s.replace(/,/g, '');
+        } else if (s.includes(',')) {
+            s = s.replace(',', '.');
+        }
+        const v = parseFloat(s);
+        return isNaN(v) ? 0 : v;
+    }
+
+    function _conciliaParseData(bruto) {
+        if (bruto === undefined || bruto === null || bruto === '') return null;
+        const s = String(bruto).trim();
+        let m = s.match(/^(\d{4})(\d{2})(\d{2})/);              // OFX: YYYYMMDDHHMMSS
+        if (m) return m[1] + '-' + m[2] + '-' + m[3];
+        m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);               // DD/MM/YYYY
+        if (m) return m[3] + '-' + m[2] + '-' + m[1];
+        m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);                 // YYYY-MM-DD
+        if (m) return m[1] + '-' + m[2] + '-' + m[3];
+        if (/^\d+(\.\d+)?$/.test(s) && Number(s) > 20000 && Number(s) < 60000) {  // serial Excel
+            const epoch = new Date(Date.UTC(1899, 11, 30));
+            const d = new Date(epoch.getTime() + Number(s) * 86400000);
+            return d.toISOString().slice(0, 10);
+        }
+        return null;
+    }
+
+    function _conciliaParseOFX(texto) {
+        const transacoes = [];
+        const blocos = texto.split(/<STMTTRN>/i).slice(1);
+        blocos.forEach(bloco => {
+            const dtPosted = (bloco.match(/<DTPOSTED>([^<\r\n]*)/i) || [])[1] || '';
+            const valorTxt = (bloco.match(/<TRNAMT>([^<\r\n]*)/i) || [])[1] || '0';
+            const memo = (bloco.match(/<MEMO>([^<\r\n]*)/i) || [])[1]
+                      || (bloco.match(/<NAME>([^<\r\n]*)/i) || [])[1] || '';
+            const data = _conciliaParseData(dtPosted);
+            const valor = parseFloat(String(valorTxt).replace(',', '.')) || 0;
+            if (data) transacoes.push({ data: data, descricao: memo.trim(), valor: valor });
+        });
+        return transacoes;
+    }
+
+    function _conciliaParsePlanilha(aoa) {
+        const transacoes = [];
+        if (!aoa || aoa.length === 0) return transacoes;
+        const header = (aoa[0] || []).map(h => String(h == null ? '' : h).toLowerCase().trim());
+        const acha = nomes => header.findIndex(h => nomes.some(n => h.includes(n)));
+        const cData  = acha(['data', 'date']);
+        const cDesc  = acha(['descri', 'histor', 'memo']);
+        const cValor = acha(['valor', 'amount', 'value']);
+        const temCabecalho = cData >= 0 && cDesc >= 0 && cValor >= 0;
+        const idxData  = temCabecalho ? cData  : 0;
+        const idxDesc  = temCabecalho ? cDesc  : 1;
+        const idxValor = temCabecalho ? cValor : 2;
+        const inicio   = temCabecalho ? 1 : 0;
+        for (let i = inicio; i < aoa.length; i++) {
+            const linha = aoa[i];
+            if (!linha || linha.length === 0) continue;
+            const data = _conciliaParseData(linha[idxData]);
+            const valor = _conciliaParseValor(linha[idxValor]);
+            if (data && valor) {
+                transacoes.push({ data: data, descricao: String(linha[idxDesc] == null ? '' : linha[idxDesc]).trim(), valor: valor });
+            }
+        }
+        return transacoes;
+    }
+
+    async function importarExtratoConciliacao() {
+        const bancoId = document.getElementById('conciliacaoBancoId').value;
+        const inputArquivo = document.getElementById('arquivoConciliacao');
+        const resultadoDiv = document.getElementById('conciliacaoResultado');
+
+        if (!bancoId) { alert('Selecione o banco antes de importar o extrato.'); return; }
+        if (!inputArquivo.files || !inputArquivo.files[0]) { alert('Selecione o arquivo do extrato para importar.'); return; }
+
+        const arquivo = inputArquivo.files[0];
+        const nome = arquivo.name.toLowerCase();
+        resultadoDiv.innerHTML = '<p style="color:#666;">⏳ Lendo e comparando o extrato...</p>';
+        document.getElementById('conciliacaoResumo').style.display = 'none';
+        document.getElementById('conciliacaoAcoes').style.display = 'none';
+
+        try {
+            let transacoes = [];
+            if (nome.endsWith('.ofx')) {
+                transacoes = _conciliaParseOFX(await arquivo.text());
+            } else {
+                const buffer = await arquivo.arrayBuffer();
+                const wb = XLSX.read(buffer, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+                transacoes = _conciliaParsePlanilha(aoa);
+            }
+
+            if (transacoes.length === 0) {
+                resultadoDiv.innerHTML = '<p style="color:#dc3545;">Nenhuma transação foi reconhecida no arquivo. Confira se é um .OFX válido ou se a planilha tem colunas de Data, Descrição e Valor.</p>';
+                return;
+            }
+
+            const [pagos, recebidos] = await Promise.all([
+                fetchSupabase('contas_a_pagar', 'GET', null, `status=eq.pago&banco_id=eq.${bancoId}`),
+                fetchSupabase('contas_a_receber', 'GET', null, `status=eq.recebido&banco_id=eq.${bancoId}`)
+            ]);
+
+            _conciliacaoCandidatos = [
+                ...(pagos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'pagar', _data: c.data_pagamento, _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
+                ...(recebidos || []).filter(c => !c.conciliado).map(c => ({ ...c, _origem: 'receber', _data: c.data_recebimento, _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
+            ];
+
+            const TOLERANCIA_VALOR = 0.01;
+            const TOLERANCIA_DIAS = 5;
+
+            _conciliacaoMovimentos = transacoes.map(t => {
+                let melhorMatch = null, melhorDiff = Infinity;
+                _conciliacaoCandidatos.forEach(c => {
+                    if (c._jaUsado) return;
+                    if (Math.abs(c._valorComSinal - t.valor) > TOLERANCIA_VALOR) return;
+                    const diffDias = Math.abs((new Date(c._data + 'T12:00:00') - new Date(t.data + 'T12:00:00')) / 86400000);
+                    if (diffDias <= TOLERANCIA_DIAS && diffDias < melhorDiff) { melhorDiff = diffDias; melhorMatch = c; }
+                });
+                if (melhorMatch) melhorMatch._jaUsado = true;
+                return {
+                    data: t.data,
+                    descricao: t.descricao,
+                    valor: t.valor,
+                    status: melhorMatch ? 'sugerido' : 'pendente',
+                    lancamentoTipo: melhorMatch ? melhorMatch._origem : null,
+                    lancamentoId: melhorMatch ? melhorMatch.id : null,
+                    lancamentoDescricao: melhorMatch ? melhorMatch.descricao : null
+                };
+            });
+
+            renderizarConciliacao();
+        } catch (erro) {
+            console.error('Erro ao importar extrato:', erro);
+            resultadoDiv.innerHTML = '<p style="color:#dc3545;">Erro ao ler o arquivo: ' + (erro.message || erro) + '</p>';
+        }
+    }
+
+    function renderizarConciliacao() {
+        const resultadoDiv = document.getElementById('conciliacaoResultado');
+        const resumoDiv = document.getElementById('conciliacaoResumo');
+        const acoesDiv = document.getElementById('conciliacaoAcoes');
+        const fmt = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const total = _conciliacaoMovimentos.length;
+        const conciliados = _conciliacaoMovimentos.filter(m => m.status === 'conciliado').length;
+        const sugeridos = _conciliacaoMovimentos.filter(m => m.status === 'sugerido').length;
+        const pendentes = _conciliacaoMovimentos.filter(m => m.status === 'pendente').length;
+
+        resumoDiv.style.display = 'grid';
+        resumoDiv.innerHTML =
+            '<div class="stat-card"><div class="stat-label">📄 Itens no Extrato</div><div class="stat-value">' + total + '</div></div>' +
+            '<div class="stat-card" style="border-left-color:#28a745;"><div class="stat-label">✅ Conciliados</div><div class="stat-value" style="color:#28a745;">' + conciliados + '</div></div>' +
+            '<div class="stat-card" style="border-left-color:#ffc107;"><div class="stat-label">🔎 Sugestões p/ confirmar</div><div class="stat-value" style="color:#b8860b;">' + sugeridos + '</div></div>' +
+            '<div class="stat-card" style="border-left-color:#dc3545;"><div class="stat-label">⚠️ Sem correspondência</div><div class="stat-value" style="color:#dc3545;">' + pendentes + '</div></div>';
+
+        acoesDiv.style.display = sugeridos > 0 ? 'block' : 'none';
+
+        let html = '<div class="table-container"><table style="font-size:13px;"><thead><tr>' +
+            '<th>Data</th><th>Descrição (Extrato)</th><th style="text-align:right;">Valor</th>' +
+            '<th>Status</th><th>Lançamento no Sistema</th><th>Ação</th></tr></thead><tbody>';
+
+        _conciliacaoMovimentos.forEach((m, idx) => {
+            const corValor = m.valor >= 0 ? '#28a745' : '#dc3545';
+            let statusHtml, lancamentoHtml, acaoHtml;
+
+            if (m.status === 'conciliado') {
+                statusHtml = '<span class="status-badge status-recebido">✅ Conciliado</span>';
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
+                acaoHtml = '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer</button>';
+            } else if (m.status === 'sugerido') {
+                statusHtml = '<span class="status-badge status-pendente">🔎 Sugestão</span>';
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + '</span>';
+                acaoHtml = '<button class="btn btn-success btn-small" onclick="confirmarSugestao(' + idx + ')">✅ Confirmar</button> ' +
+                           '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button>';
+            } else {
+                statusHtml = '<span class="status-badge status-atrasado">⚠️ Não encontrado</span>';
+                const opcoes = _conciliacaoCandidatos.filter(c => !c._jaUsado)
+                    .map(c => '<option value="' + c._origem + ':' + c.id + '">' +
+                        (c._origem === 'pagar' ? '📤' : '📥') + ' ' + c.descricao + ' — R$ ' +
+                        parseFloat(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' (' +
+                        new Date(c._data + 'T12:00:00').toLocaleDateString('pt-BR') + ')</option>').join('');
+                lancamentoHtml = '<select id="conciliaVinculo' + idx + '" style="font-size:12px;padding:5px;max-width:240px;">' +
+                    '<option value="">Vincular manualmente...</option>' + opcoes + '</select>';
+                acaoHtml = '<button class="btn btn-success btn-small" onclick="conciliarManual(' + idx + ')">Vincular</button>';
+            }
+
+            html += '<tr>' +
+                '<td>' + new Date(m.data + 'T12:00:00').toLocaleDateString('pt-BR') + '</td>' +
+                '<td>' + (m.descricao || '-') + '</td>' +
+                '<td style="text-align:right;color:' + corValor + ';font-weight:600;">' + fmt(m.valor) + '</td>' +
+                '<td>' + statusHtml + '</td>' +
+                '<td>' + lancamentoHtml + '</td>' +
+                '<td style="white-space:nowrap;">' + acaoHtml + '</td>' +
+                '</tr>';
+        });
+
+        html += '</tbody></table></div>';
+        resultadoDiv.innerHTML = html;
+    }
+
+    async function confirmarSugestao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m || m.status !== 'sugerido') return;
+        const tabela = m.lancamentoTipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const r = await fetchSupabase(tabela, 'PATCH', { conciliado: true, data_conciliacao: m.data }, `id=eq.${m.lancamentoId}`);
+        if (r !== null) {
+            m.status = 'conciliado';
+            renderizarConciliacao();
+        } else {
+            alert('Não foi possível salvar a conciliação. Verifique se as colunas "conciliado" e "data_conciliacao" existem nas tabelas de contas.');
+        }
+    }
+
+    async function confirmarTodasSugestoes() {
+        const indices = _conciliacaoMovimentos
+            .map((m, idx) => ({ m, idx }))
+            .filter(x => x.m.status === 'sugerido')
+            .map(x => x.idx);
+        for (const idx of indices) {
+            await confirmarSugestao(idx);
+        }
+    }
+
+    function ignorarSugestao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m) return;
+        const candidato = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+        if (candidato) candidato._jaUsado = false;
+        m.status = 'pendente';
+        m.lancamentoTipo = null;
+        m.lancamentoId = null;
+        m.lancamentoDescricao = null;
+        renderizarConciliacao();
+    }
+
+    async function conciliarManual(idx) {
+        const select = document.getElementById('conciliaVinculo' + idx);
+        if (!select || !select.value) { alert('Selecione um lançamento para vincular.'); return; }
+        const [origem, idTexto] = select.value.split(':');
+        const id = parseInt(idTexto);
+        const candidato = _conciliacaoCandidatos.find(c => c._origem === origem && c.id === id);
+        if (!candidato) return;
+
+        const tabela = origem === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const m = _conciliacaoMovimentos[idx];
+        const r = await fetchSupabase(tabela, 'PATCH', { conciliado: true, data_conciliacao: m.data }, `id=eq.${id}`);
+        if (r !== null) {
+            candidato._jaUsado = true;
+            m.status = 'conciliado';
+            m.lancamentoTipo = origem;
+            m.lancamentoId = id;
+            m.lancamentoDescricao = candidato.descricao;
+            renderizarConciliacao();
+        } else {
+            alert('Não foi possível salvar a conciliação. Verifique se as colunas "conciliado" e "data_conciliacao" existem nas tabelas de contas.');
+        }
+    }
+
+    async function desfazerConciliacao(idx) {
+        const m = _conciliacaoMovimentos[idx];
+        if (!m || !m.lancamentoId) return;
+        const tabela = m.lancamentoTipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const r = await fetchSupabase(tabela, 'PATCH', { conciliado: false, data_conciliacao: null }, `id=eq.${m.lancamentoId}`);
+        if (r !== null) {
+            const candidato = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+            if (candidato) candidato._jaUsado = false;
+            m.status = 'pendente';
+            m.lancamentoTipo = null;
+            m.lancamentoId = null;
+            m.lancamentoDescricao = null;
+            renderizarConciliacao();
+        }
+    }
+
 
         function atualizarSelectBancosModal(selectId) {
         const select = document.getElementById(selectId);
