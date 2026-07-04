@@ -2369,16 +2369,16 @@
                     </div>
                     <div class="form-group">
                         <label>Categoria*</label>
-                        <select id="categoriaPagar" required>
+                        <select id="categoriaPagar" required onchange="preencherSubcategoriasPagar()">
                             <option value="">Selecione...</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Produto</label>
-                        <select id="produtoPagar">
-                            <option value="">Selecione...</option>
+                        <label>Subcategoria</label>
+                        <select id="subcategoriaPagar">
+                            <option value="">Selecione a categoria primeiro...</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -3255,7 +3255,7 @@
     }
 
     function atualizarSelectProdutos() {
-        const ids = ['produtoPagar'];
+        const ids = []; // produtoPagar foi substituído por subcategoriaPagar
         ids.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
@@ -3787,7 +3787,7 @@
         const notaFiscal = document.getElementById('notaFiscalPagar').value.trim() || null;
         const fornecedorId = parseInt(document.getElementById('fornecedorPagar').value);
         const categoriaId = document.getElementById('categoriaPagar').value ? parseInt(document.getElementById('categoriaPagar').value) : null;
-        const produtoId = document.getElementById('produtoPagar').value ? parseInt(document.getElementById('produtoPagar').value) : null;
+        const subcategoriaId = document.getElementById('subcategoriaPagar').value ? parseInt(document.getElementById('subcategoriaPagar').value) : null;
         const descricao = document.getElementById('descricaoPagar').value;
         const valorTotal = parseFloat(document.getElementById('valorPagar').value);
 
@@ -3819,7 +3819,7 @@
             const dados = {
                 fornecedor_id: fornecedorId,
                 categoria_id: categoriaId,
-                produto_id: produtoId,
+                subcategoria_id: subcategoriaId,
                 descricao: descParc,
                 valor: valorLancamento,
                 data_competencia: custoFixo ? addMonths(competencia, i) : competencia,
@@ -4567,18 +4567,24 @@
         });
     }
 
-    function preencherProdutosPagar() {
+    function preencherSubcategoriasPagar() {
         const categoriaSelecionada = document.getElementById('categoriaPagar').value;
-        const selectProdutos = document.getElementById('produtoPagar');
+        const selectSubcategorias = document.getElementById('subcategoriaPagar');
+        const valorAtual = selectSubcategorias.value;
 
-        selectProdutos.innerHTML = '<option value="">Selecione...</option>';
-
-        if (categoriaSelecionada) {
-            const produtos = dadosCache.produtos.filter(p => p.categoria_id == categoriaSelecionada);
-            produtos.forEach(prod => {
-                selectProdutos.innerHTML += `<option value="${prod.id}">${prod.nome}</option>`;
-            });
+        if (!categoriaSelecionada) {
+            selectSubcategorias.innerHTML = '<option value="">Selecione a categoria primeiro...</option>';
+            return;
         }
+
+        const subcategorias = dadosCache.subcategorias.filter(s => s.categoria_id == categoriaSelecionada && s.ativo !== false);
+        selectSubcategorias.innerHTML = subcategorias.length
+            ? '<option value="">Selecione...</option>'
+            : '<option value="">Nenhuma subcategoria cadastrada</option>';
+        subcategorias.forEach(sub => {
+            selectSubcategorias.innerHTML += `<option value="${sub.id}">${sub.nome}</option>`;
+        });
+        if (valorAtual) selectSubcategorias.value = valorAtual;
     }
 
     function showPage(pageId) {
@@ -6002,7 +6008,7 @@
     function openModalLancarPagar() {
         document.getElementById('fornecedorPagar').value = '';
         document.getElementById('categoriaPagar').value = '';
-        document.getElementById('produtoPagar').value = '';
+        document.getElementById('subcategoriaPagar').innerHTML = '<option value="">Selecione a categoria primeiro...</option>';
         document.getElementById('descricaoPagar').value = '';
         document.getElementById('valorPagar').value = '';
         document.getElementById('competenciaPagar').value = new Date().toISOString().slice(0,7) + '-01';
@@ -6018,7 +6024,6 @@
         document.getElementById('previewParcelasPagar').style.display = 'none';
         atualizarSelectCategorias();
         atualizarSelectFornecedores();
-        atualizarSelectProdutos();
         document.getElementById('modalLancarPagar').classList.add('active');
     }
 
