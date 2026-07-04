@@ -587,6 +587,111 @@
             color: #666;
         }
 
+        /* LANÇAMENTO - VISUAL MELHORADO */
+        .modal-content.modal-lancamento {
+            max-width: 640px;
+        }
+
+        .modal-lancamento .modal-header {
+            margin: -30px -30px 22px -30px;
+            padding: 20px 30px;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(135deg, var(--cor-primaria) 0%, #e86728 100%);
+            color: white;
+        }
+
+        .modal-lancamento .modal-header .modal-close {
+            color: white;
+            opacity: 0.85;
+        }
+
+        .modal-lancamento .modal-header .modal-close:hover {
+            opacity: 1;
+        }
+
+        .form-section {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px dashed #e5e5e5;
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 8px;
+        }
+
+        .form-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-fixo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: #fff8f4;
+            border: 1px solid #ffd9c2;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-fixo:hover {
+            border-color: var(--cor-primaria);
+            background: #fff2ea;
+        }
+
+        .toggle-fixo input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--cor-primaria);
+        }
+
+        .toggle-fixo .toggle-fixo-texto {
+            flex: 1;
+        }
+
+        .toggle-fixo .toggle-fixo-titulo {
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--cor-secundaria);
+            display: block;
+        }
+
+        .toggle-fixo .toggle-fixo-sub {
+            font-size: 11.5px;
+            color: #888;
+        }
+
+        .vigencia-wrap {
+            background: #fff8f4;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--cor-primaria);
+        }
+
+        .badge-fixo {
+            background: #f3e8fd;
+            color: #6f2da8;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         /* RESPONSIVO */
         @media (max-width: 768px) {
             .main-container {
@@ -722,6 +827,7 @@
         <div class="menu-section">
             <div class="menu-section-title">Cadastros</div>
             <div class="menu-item" onclick="showPage('categorias')">📁 Categorias</div>
+            <div class="menu-item" onclick="showPage('subcategorias')">🏷️ Subcategorias</div>
             <div class="menu-item" onclick="showPage('produtos')">📦 Produtos</div>
             <div class="menu-item" onclick="showPage('fornecedores')">🏭 Fornecedores</div>
             <div class="menu-item" onclick="showPage('clientes')">👥 Clientes</div>
@@ -900,6 +1006,31 @@
                             <th>Nome</th>
                             <th>Grupo DRE</th>
                             <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SUBCATEGORIAS -->
+        <div id="subcategorias" class="page">
+            <div class="page-header">
+                <h1>Subcategorias</h1>
+                <button class="btn btn-primary btn-small" onclick="openModalSubcategoria()">+ Nova Subcategoria</button>
+            </div>
+
+            <div class="alert alert-success" id="alertSubcategorias"></div>
+
+            <div class="table-container">
+                <table id="tabelaSubcategorias">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Categoria</th>
                             <th>Descrição</th>
                             <th>Status</th>
                             <th>Ações</th>
@@ -2120,69 +2251,99 @@
 
 <!-- MODAL LANÇAR RECEBER -->
 <div class="modal" id="modalLancarReceber">
-    <div class="modal-content" style="max-width:580px;">
+    <div class="modal-content modal-lancamento">
         <div class="modal-header">
             <span>📥 Novo Lançamento a Receber</span>
             <button class="modal-close" onclick="closeModal('modalLancarReceber')">&times;</button>
         </div>
         <form onsubmit="salvarContaReceber(event)">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Cliente*</label>
-                    <select id="clienteReceber" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição*</label>
-                    <input type="text" id="descricaoReceber" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Valor Total*</label>
-                    <input type="number" id="valorReceber" step="0.01" required oninput="calcularParcelasReceber()">
-                </div>
-                <div class="form-group">
-                    <label>Data de Competência*</label>
-                    <input type="date" id="competenciaReceber" required>
+            <div class="form-section">
+                <div class="form-section-title">👤 Cliente e Descrição</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cliente*</label>
+                        <select id="clienteReceber" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição*</label>
+                        <input type="text" id="descricaoReceber" required placeholder="Ex: Venda de produtos">
+                    </div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Data Prevista de Recebimento*</label>
-                    <input type="date" id="vencimentoReceber" required oninput="calcularParcelasReceber()">
+
+            <div class="form-section">
+                <div class="form-section-title">💰 Valor e Datas</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor Total*</label>
+                        <input type="number" id="valorReceber" step="0.01" required oninput="calcularParcelasReceber()" placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Competência*</label>
+                        <input type="date" id="competenciaReceber" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Parcelas</label>
-                    <select id="parcelasReceber" onchange="calcularParcelasReceber()">
-                        <option value="1">À vista (1x)</option>
-                        <option value="2">2x</option><option value="3">3x</option>
-                        <option value="4">4x</option><option value="5">5x</option>
-                        <option value="6">6x</option><option value="7">7x</option>
-                        <option value="8">8x</option><option value="9">9x</option>
-                        <option value="10">10x</option><option value="11">11x</option>
-                        <option value="12">12x</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Prevista de Recebimento*</label>
+                        <input type="date" id="vencimentoReceber" required oninput="calcularParcelasReceber()">
+                    </div>
+                    <div class="form-group" id="parcelasReceberWrap">
+                        <label>Parcelas</label>
+                        <select id="parcelasReceber" onchange="calcularParcelasReceber()">
+                            <option value="1">À vista (1x)</option>
+                            <option value="2">2x</option><option value="3">3x</option>
+                            <option value="4">4x</option><option value="5">5x</option>
+                            <option value="6">6x</option><option value="7">7x</option>
+                            <option value="8">8x</option><option value="9">9x</option>
+                            <option value="10">10x</option><option value="11">11x</option>
+                            <option value="12">12x</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <div class="form-section">
+                <div class="form-section-title">🔁 Recorrência</div>
+                <label class="toggle-fixo" for="custoFixoReceber">
+                    <input type="checkbox" id="custoFixoReceber" onchange="toggleCustoFixoReceber()">
+                    <span class="toggle-fixo-texto">
+                        <span class="toggle-fixo-titulo">Lançamento fixo (recorrente)</span>
+                        <span class="toggle-fixo-sub">Repete o mesmo valor todo mês até a data de vigência informada</span>
+                    </span>
+                </label>
+                <div id="vigenciaReceberWrap" class="vigencia-wrap" style="display:none;">
+                    <div class="form-group">
+                        <label>Vigente até (mês/ano)*</label>
+                        <input type="month" id="vigenciaReceber" oninput="calcularParcelasReceber()">
+                    </div>
+                </div>
+            </div>
+
             <!-- Preview parcelas -->
-            <div id="previewParcelasReceber" style="display:none; margin-bottom:12px;">
-                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;">Parcelas geradas:</div>
+            <div id="previewParcelasReceber" style="display:none; margin-bottom:16px;">
+                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;" id="previewParcelasReceberTitulo">Parcelas geradas:</div>
                 <div id="listaParcelasReceber" style="max-height:140px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nº Nota Fiscal</label>
-                    <input type="text" id="notaFiscalReceber" placeholder="Ex: 001234 (opcional)">
-                </div>
-                <div class="form-group">
-                    <label>Observações</label>
-                    <textarea id="observacoesReceber" rows="2"></textarea>
+
+            <div class="form-section">
+                <div class="form-section-title">📝 Informações Adicionais</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nº Nota Fiscal</label>
+                        <input type="text" id="notaFiscalReceber" placeholder="Ex: 001234 (opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea id="observacoesReceber" rows="2"></textarea>
+                    </div>
                 </div>
             </div>
+
             <div class="form-actions">
-                <button type="submit" class="btn btn-success">Salvar</button>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalLancarReceber')">Cancelar</button>
             </div>
         </form>
@@ -2191,83 +2352,113 @@
 
 <!-- MODAL LANÇAR PAGAR -->
 <div class="modal" id="modalLancarPagar">
-    <div class="modal-content" style="max-width:580px;">
+    <div class="modal-content modal-lancamento">
         <div class="modal-header">
             <span>📤 Novo Lançamento a Pagar</span>
             <button class="modal-close" onclick="closeModal('modalLancarPagar')">&times;</button>
         </div>
         <form onsubmit="salvarContaPagar(event)">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Fornecedor*</label>
-                    <select id="fornecedorPagar" required>
-                        <option value="">Selecione...</option>
-                    </select>
+            <div class="form-section">
+                <div class="form-section-title">🏭 Fornecedor e Categoria</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fornecedor*</label>
+                        <select id="fornecedorPagar" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria*</label>
+                        <select id="categoriaPagar" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Categoria*</label>
-                    <select id="categoriaPagar" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Produto</label>
-                    <select id="produtoPagar">
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição*</label>
-                    <input type="text" id="descricaoPagar" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Valor Total*</label>
-                    <input type="number" id="valorPagar" step="0.01" required oninput="calcularParcelasPagar()">
-                </div>
-                <div class="form-group">
-                    <label>Data de Competência*</label>
-                    <input type="date" id="competenciaPagar" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <select id="produtoPagar">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição*</label>
+                        <input type="text" id="descricaoPagar" required placeholder="Ex: Compra de mercadorias">
+                    </div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Data Prevista de Pagamento*</label>
-                    <input type="date" id="vencimentoPagar" required oninput="calcularParcelasPagar()">
+
+            <div class="form-section">
+                <div class="form-section-title">💰 Valor e Datas</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor Total*</label>
+                        <input type="number" id="valorPagar" step="0.01" required oninput="calcularParcelasPagar()" placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Competência*</label>
+                        <input type="date" id="competenciaPagar" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Parcelas</label>
-                    <select id="parcelasPagar" onchange="calcularParcelasPagar()">
-                        <option value="1">À vista (1x)</option>
-                        <option value="2">2x</option><option value="3">3x</option>
-                        <option value="4">4x</option><option value="5">5x</option>
-                        <option value="6">6x</option><option value="7">7x</option>
-                        <option value="8">8x</option><option value="9">9x</option>
-                        <option value="10">10x</option><option value="11">11x</option>
-                        <option value="12">12x</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Prevista de Pagamento*</label>
+                        <input type="date" id="vencimentoPagar" required oninput="calcularParcelasPagar()">
+                    </div>
+                    <div class="form-group" id="parcelasPagarWrap">
+                        <label>Parcelas</label>
+                        <select id="parcelasPagar" onchange="calcularParcelasPagar()">
+                            <option value="1">À vista (1x)</option>
+                            <option value="2">2x</option><option value="3">3x</option>
+                            <option value="4">4x</option><option value="5">5x</option>
+                            <option value="6">6x</option><option value="7">7x</option>
+                            <option value="8">8x</option><option value="9">9x</option>
+                            <option value="10">10x</option><option value="11">11x</option>
+                            <option value="12">12x</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <div class="form-section">
+                <div class="form-section-title">🔁 Recorrência</div>
+                <label class="toggle-fixo" for="custoFixoPagar">
+                    <input type="checkbox" id="custoFixoPagar" onchange="toggleCustoFixoPagar()">
+                    <span class="toggle-fixo-texto">
+                        <span class="toggle-fixo-titulo">Lançamento fixo (custo fixo recorrente)</span>
+                        <span class="toggle-fixo-sub">Repete o mesmo valor todo mês até a data de vigência informada</span>
+                    </span>
+                </label>
+                <div id="vigenciaPagarWrap" class="vigencia-wrap" style="display:none;">
+                    <div class="form-group">
+                        <label>Vigente até (mês/ano)*</label>
+                        <input type="month" id="vigenciaPagar" oninput="calcularParcelasPagar()">
+                    </div>
+                </div>
+            </div>
+
             <!-- Preview parcelas -->
-            <div id="previewParcelasPagar" style="display:none; margin-bottom:12px;">
-                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;">Parcelas geradas:</div>
+            <div id="previewParcelasPagar" style="display:none; margin-bottom:16px;">
+                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;" id="previewParcelasPagarTitulo">Parcelas geradas:</div>
                 <div id="listaParcelasPagar" style="max-height:140px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nº Nota Fiscal</label>
-                    <input type="text" id="notaFiscalPagar" placeholder="Ex: 001234 (opcional)">
-                </div>
-                <div class="form-group">
-                    <label>Observações</label>
-                    <textarea id="observacoesPagar" rows="2"></textarea>
+
+            <div class="form-section">
+                <div class="form-section-title">📝 Informações Adicionais</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nº Nota Fiscal</label>
+                        <input type="text" id="notaFiscalPagar" placeholder="Ex: 001234 (opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea id="observacoesPagar" rows="2"></textarea>
+                    </div>
                 </div>
             </div>
+
             <div class="form-actions">
-                <button type="submit" class="btn btn-success">Salvar</button>
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalLancarPagar')">Cancelar</button>
             </div>
         </form>
@@ -2423,6 +2614,38 @@
     </div>
 </div>
 
+<div class="modal" id="modalSubcategoria">
+    <div class="modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <span id="modalSubcategoriaTitulo">Nova Subcategoria</span>
+            <button class="modal-close" onclick="closeModal('modalSubcategoria')">&times;</button>
+        </div>
+        <form onsubmit="salvarSubcategoria(event)">
+            <div class="form-group">
+                <label>Categoria*</label>
+                <select id="subcategoriaCategoriaPai" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nome*</label>
+                <input type="text" id="nomeSubcategoria" required placeholder="Ex: Energia Elétrica">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="descricaoSubcategoria" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="ativoSubcategoria" checked> Ativo</label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Salvar</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalSubcategoria')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal" id="modalProduto">
     <div class="modal-content">
         <div class="modal-header">
@@ -2550,6 +2773,7 @@
     let usuarioAtual = null;
     let dadosCache = {
         categorias: [],
+        subcategorias: [],
         produtos: [],
         fornecedores: [],
         clientes: [],
@@ -2761,6 +2985,7 @@
         restaurarFiltros();
         _bindFiltrosSave();
         await carregarCategorias();
+        await carregarSubcategorias();
         await carregarProdutos();
         await carregarFornecedores();
         await carregarClientes();
@@ -2885,6 +3110,111 @@
             if (resultado !== null) {
                 showAlert('Categoria deletada com sucesso!', 'alertCategorias', 'success');
                 carregarCategorias();
+            }
+        }
+    }
+
+    // SUBCATEGORIAS
+    async function carregarSubcategorias() {
+        const dados = await fetchSupabase('subcategorias', 'GET');
+        if (dados) {
+            dadosCache.subcategorias = dados;
+            atualizarTabelaSubcategorias();
+            atualizarSelectSubcategoriaCategoriaPai();
+        }
+    }
+
+    function atualizarTabelaSubcategorias() {
+        const tbody = document.querySelector('#tabelaSubcategorias tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        dadosCache.subcategorias.forEach(sub => {
+            const categoria = dadosCache.categorias.find(c => c.id === sub.categoria_id);
+            tbody.innerHTML += `<tr>
+                <td><b>${sub.nome}</b></td>
+                <td><span style="background:#f3e8fd;color:#6f2da8;padding:2px 8px;border-radius:10px;font-size:11px;">${categoria ? categoria.nome : '-'}</span></td>
+                <td>${sub.descricao || '-'}</td>
+                <td><span class="status-badge ${sub.ativo ? 'status-recebido' : 'status-atrasado'}">${sub.ativo ? 'Ativo' : 'Inativo'}</span></td>
+                <td>
+                    <button class="btn btn-secondary btn-small" onclick="editarSubcategoria(${sub.id})">Editar</button>
+                    <button class="btn btn-danger btn-small" onclick="deletarSubcategoria(${sub.id})">Deletar</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function atualizarSelectSubcategoriaCategoriaPai() {
+        const select = document.getElementById('subcategoriaCategoriaPai');
+        if (!select) return;
+        const valorAtual = select.value;
+        select.innerHTML = '<option value="">Selecione...</option>';
+        dadosCache.categorias.filter(c => c.ativo !== false).forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.nome;
+            select.appendChild(opt);
+        });
+        if (valorAtual) select.value = valorAtual;
+    }
+
+    function openModalSubcategoria() {
+        editandoId = null;
+        editandoTipo = null;
+        atualizarSelectSubcategoriaCategoriaPai();
+        document.getElementById('subcategoriaCategoriaPai').value = '';
+        document.getElementById('nomeSubcategoria').value = '';
+        document.getElementById('descricaoSubcategoria').value = '';
+        document.getElementById('ativoSubcategoria').checked = true;
+        document.getElementById('modalSubcategoriaTitulo').textContent = 'Nova Subcategoria';
+        document.getElementById('modalSubcategoria').classList.add('active');
+    }
+
+    function editarSubcategoria(id) {
+        const sub = dadosCache.subcategorias.find(s => s.id === id);
+        if (sub) {
+            editandoId = id;
+            editandoTipo = 'subcategoria';
+            atualizarSelectSubcategoriaCategoriaPai();
+            document.getElementById('subcategoriaCategoriaPai').value = sub.categoria_id || '';
+            document.getElementById('nomeSubcategoria').value = sub.nome;
+            document.getElementById('descricaoSubcategoria').value = sub.descricao || '';
+            document.getElementById('ativoSubcategoria').checked = sub.ativo;
+            document.getElementById('modalSubcategoriaTitulo').textContent = 'Editar Subcategoria';
+            document.getElementById('modalSubcategoria').classList.add('active');
+        }
+    }
+
+    async function salvarSubcategoria(event) {
+        event.preventDefault();
+        const dados = {
+            categoria_id: parseInt(document.getElementById('subcategoriaCategoriaPai').value),
+            nome:         document.getElementById('nomeSubcategoria').value,
+            descricao:    document.getElementById('descricaoSubcategoria').value,
+            ativo:        document.getElementById('ativoSubcategoria').checked
+        };
+
+        let resultado;
+        if (editandoId && editandoTipo === 'subcategoria') {
+            resultado = await fetchSupabase('subcategorias', 'PATCH', dados, 'id=eq.' + editandoId);
+        } else {
+            resultado = await fetchSupabase('subcategorias', 'POST', dados);
+        }
+
+        if (resultado !== null) {
+            showAlert('Subcategoria salva com sucesso!', 'alertSubcategorias', 'success');
+            closeModal('modalSubcategoria');
+            await carregarSubcategorias();
+        } else {
+            showAlert('Erro ao salvar subcategoria. Verifique a conexão.', 'alertSubcategorias', 'error');
+        }
+    }
+
+    async function deletarSubcategoria(id) {
+        if (confirm('Tem certeza que deseja deletar esta subcategoria?')) {
+            const resultado = await fetchSupabase('subcategorias', 'DELETE', null, `id=eq.${id}`);
+            if (resultado !== null) {
+                showAlert('Subcategoria deletada com sucesso!', 'alertSubcategorias', 'success');
+                carregarSubcategorias();
             }
         }
     }
@@ -3282,9 +3612,11 @@
             const cliente = dadosCache.clientes.find(c => c.id === conta.cliente_id);
             const venc = new Date(conta.data_vencimento + 'T12:00:00');
             const status = venc < hoje ? 'atrasado' : 'pendente';
-            const parcLabel = conta.total_parcelas > 1
-                ? `<span style="background:#e3f2fd;color:#1565c0;padding:2px 7px;border-radius:10px;font-size:11px;">${conta.parcela_atual}/${conta.total_parcelas}</span>`
-                : `<span style="color:#aaa;font-size:11px;">-</span>`;
+            const parcLabel = conta.custo_fixo
+                ? `<span class="badge-fixo">🔁 Fixo</span>`
+                : (conta.total_parcelas > 1
+                    ? `<span style="background:#e3f2fd;color:#1565c0;padding:2px 7px;border-radius:10px;font-size:11px;">${conta.parcela_atual}/${conta.total_parcelas}</span>`
+                    : `<span style="color:#aaa;font-size:11px;">-</span>`);
             const compLabel = conta.data_competencia
                 ? new Date(conta.data_competencia + 'T12:00:00').toLocaleDateString('pt-BR', {month:'2-digit',year:'numeric'})
                 : '-';
@@ -3308,43 +3640,68 @@
 
     async function salvarContaReceber(event) {
         event.preventDefault();
-        const numParcelas = parseInt(document.getElementById('parcelasReceber').value) || 1;
-        const valorTotal = parseFloat(document.getElementById('valorReceber').value);
-        const valorParcela = Math.round((valorTotal / numParcelas) * 100) / 100;
+        const custoFixo = document.getElementById('custoFixoReceber').checked;
         const dataBase = document.getElementById('vencimentoReceber').value;
         const competencia = document.getElementById('competenciaReceber').value;
         const obs = document.getElementById('observacoesReceber').value;
         const notaFiscalRec = document.getElementById('notaFiscalReceber').value.trim() || null;
         const clienteId = parseInt(document.getElementById('clienteReceber').value);
         const descricao = document.getElementById('descricaoReceber').value;
+        const valorTotal = parseFloat(document.getElementById('valorReceber').value);
+
+        let numLancamentos, valorLancamento, vigenciaData = null;
+        if (custoFixo) {
+            const vigencia = document.getElementById('vigenciaReceber').value;
+            if (!vigencia) {
+                showAlert('Informe até quando o lançamento fixo é vigente.', 'alertLancarReceber', 'error');
+                return;
+            }
+            numLancamentos = contarMesesAteVigencia(dataBase, vigencia);
+            if (numLancamentos <= 0) {
+                showAlert('A vigência deve ser igual ou posterior à data de recebimento.', 'alertLancarReceber', 'error');
+                return;
+            }
+            valorLancamento = valorTotal;
+            vigenciaData = vigencia + '-01';
+        } else {
+            numLancamentos = parseInt(document.getElementById('parcelasReceber').value) || 1;
+            valorLancamento = Math.round((valorTotal / numLancamentos) * 100) / 100;
+        }
 
         let erros = 0;
-        for (let i = 0; i < numParcelas; i++) {
+        for (let i = 0; i < numLancamentos; i++) {
             const dataVenc = addMonths(dataBase, i);
-            const descParc = numParcelas > 1 ? descricao + ' (' + (i+1) + '/' + numParcelas + ')' : descricao;
+            let descParc = descricao;
+            if (custoFixo) descParc = descricao + ' (Fixo ' + (i+1) + '/' + numLancamentos + ')';
+            else if (numLancamentos > 1) descParc = descricao + ' (' + (i+1) + '/' + numLancamentos + ')';
             const dados = {
                 cliente_id: clienteId,
                 descricao: descParc,
-                valor: valorParcela,
-                data_competencia: competencia,
+                valor: valorLancamento,
+                data_competencia: custoFixo ? addMonths(competencia, i) : competencia,
                 data_vencimento: dataVenc,
                 parcela_atual: i + 1,
-                total_parcelas: numParcelas,
+                total_parcelas: numLancamentos,
                 status: 'pendente',
                 observacoes: obs,
-                nota_fiscal: notaFiscalRec
+                nota_fiscal: notaFiscalRec,
+                custo_fixo: custoFixo,
+                data_vigencia: custoFixo ? vigenciaData : null
             };
             const r = await fetchSupabase('contas_a_receber', 'POST', dados);
             if (r === null) erros++;
         }
 
         if (erros === 0) {
-            showAlert(numParcelas > 1 ? numParcelas + ' parcelas lançadas!' : 'Lançamento salvo!', 'alertLancarReceber', 'success');
+            const msgOk = custoFixo
+                ? '🔁 ' + numLancamentos + ' lançamento(s) fixo(s) gerado(s) até a vigência!'
+                : (numLancamentos > 1 ? numLancamentos + ' parcelas lançadas!' : 'Lançamento salvo!');
+            showAlert(msgOk, 'alertLancarReceber', 'success');
             closeModal('modalLancarReceber');
             await carregarContasReceber();
             await atualizarDashboard();
         } else {
-            showAlert('Erro ao salvar ' + erros + ' parcela(s).', 'alertLancarReceber', 'error');
+            showAlert('Erro ao salvar ' + erros + ' lançamento(s).', 'alertLancarReceber', 'error');
         }
     }
 
@@ -3393,9 +3750,11 @@
             const categoria = dadosCache.categorias.find(cat => cat.id === conta.categoria_id);
             const venc = new Date(conta.data_vencimento + 'T12:00:00');
             const status = venc < hoje ? 'atrasado' : 'pendente';
-            const parcLabel = conta.total_parcelas > 1
-                ? `<span style="background:#e3f2fd;color:#1565c0;padding:2px 7px;border-radius:10px;font-size:11px;">${conta.parcela_atual}/${conta.total_parcelas}</span>`
-                : `<span style="color:#aaa;font-size:11px;">-</span>`;
+            const parcLabel = conta.custo_fixo
+                ? `<span class="badge-fixo">🔁 Fixo</span>`
+                : (conta.total_parcelas > 1
+                    ? `<span style="background:#e3f2fd;color:#1565c0;padding:2px 7px;border-radius:10px;font-size:11px;">${conta.parcela_atual}/${conta.total_parcelas}</span>`
+                    : `<span style="color:#aaa;font-size:11px;">-</span>`);
             const compLabel = conta.data_competencia
                 ? new Date(conta.data_competencia + 'T12:00:00').toLocaleDateString('pt-BR', {month:'2-digit',year:'numeric'})
                 : '-';
@@ -3421,9 +3780,7 @@
 
     async function salvarContaPagar(event) {
         event.preventDefault();
-        const numParcelas = parseInt(document.getElementById('parcelasPagar').value) || 1;
-        const valorTotal = parseFloat(document.getElementById('valorPagar').value);
-        const valorParcela = Math.round((valorTotal / numParcelas) * 100) / 100;
+        const custoFixo = document.getElementById('custoFixoPagar').checked;
         const dataBase = document.getElementById('vencimentoPagar').value;
         const competencia = document.getElementById('competenciaPagar').value;
         const obs = document.getElementById('observacoesPagar').value;
@@ -3432,36 +3789,63 @@
         const categoriaId = document.getElementById('categoriaPagar').value ? parseInt(document.getElementById('categoriaPagar').value) : null;
         const produtoId = document.getElementById('produtoPagar').value ? parseInt(document.getElementById('produtoPagar').value) : null;
         const descricao = document.getElementById('descricaoPagar').value;
+        const valorTotal = parseFloat(document.getElementById('valorPagar').value);
+
+        let numLancamentos, valorLancamento, vigenciaData = null;
+        if (custoFixo) {
+            const vigencia = document.getElementById('vigenciaPagar').value;
+            if (!vigencia) {
+                showAlert('Informe até quando o lançamento fixo é vigente.', 'alertLancarPagar', 'error');
+                return;
+            }
+            numLancamentos = contarMesesAteVigencia(dataBase, vigencia);
+            if (numLancamentos <= 0) {
+                showAlert('A vigência deve ser igual ou posterior à data de pagamento.', 'alertLancarPagar', 'error');
+                return;
+            }
+            valorLancamento = valorTotal;
+            vigenciaData = vigencia + '-01';
+        } else {
+            numLancamentos = parseInt(document.getElementById('parcelasPagar').value) || 1;
+            valorLancamento = Math.round((valorTotal / numLancamentos) * 100) / 100;
+        }
 
         let erros = 0;
-        for (let i = 0; i < numParcelas; i++) {
+        for (let i = 0; i < numLancamentos; i++) {
             const dataVenc = addMonths(dataBase, i);
-            const descParc = numParcelas > 1 ? descricao + ' (' + (i+1) + '/' + numParcelas + ')' : descricao;
+            let descParc = descricao;
+            if (custoFixo) descParc = descricao + ' (Fixo ' + (i+1) + '/' + numLancamentos + ')';
+            else if (numLancamentos > 1) descParc = descricao + ' (' + (i+1) + '/' + numLancamentos + ')';
             const dados = {
                 fornecedor_id: fornecedorId,
                 categoria_id: categoriaId,
                 produto_id: produtoId,
                 descricao: descParc,
-                valor: valorParcela,
-                data_competencia: competencia,
+                valor: valorLancamento,
+                data_competencia: custoFixo ? addMonths(competencia, i) : competencia,
                 data_vencimento: dataVenc,
                 parcela_atual: i + 1,
-                total_parcelas: numParcelas,
+                total_parcelas: numLancamentos,
                 status: 'pendente',
                 observacoes: obs,
-                nota_fiscal: notaFiscal
+                nota_fiscal: notaFiscal,
+                custo_fixo: custoFixo,
+                data_vigencia: custoFixo ? vigenciaData : null
             };
             const r = await fetchSupabase('contas_a_pagar', 'POST', dados);
             if (r === null) erros++;
         }
 
         if (erros === 0) {
-            showAlert(numParcelas > 1 ? numParcelas + ' parcelas lançadas!' : 'Lançamento salvo!', 'alertLancarPagar', 'success');
+            const msgOk = custoFixo
+                ? '🔁 ' + numLancamentos + ' lançamento(s) fixo(s) gerado(s) até a vigência!'
+                : (numLancamentos > 1 ? numLancamentos + ' parcelas lançadas!' : 'Lançamento salvo!');
+            showAlert(msgOk, 'alertLancarPagar', 'success');
             closeModal('modalLancarPagar');
             await carregarContasPagar();
             await atualizarDashboard();
         } else {
-            showAlert('Erro ao salvar ' + erros + ' parcela(s).', 'alertLancarPagar', 'error');
+            showAlert('Erro ao salvar ' + erros + ' lançamento(s).', 'alertLancarPagar', 'error');
         }
     }
 
@@ -3499,7 +3883,7 @@
         filtrado.forEach(conta => {
             const cliente = dadosCache.clientes.find(c => c.id === conta.cliente_id);
             const banco = (dadosCache.bancos || []).find(b => b.id === conta.banco_id);
-            const parcLabel = conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-';
+            const parcLabel = conta.custo_fixo ? '🔁 Fixo' : (conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-');
             const vencFmt = conta.data_vencimento ? new Date(conta.data_vencimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             const recFmt  = conta.data_recebimento ? new Date(conta.data_recebimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             tbody.innerHTML += `<tr>
@@ -3552,7 +3936,7 @@
             const fornecedor = dadosCache.fornecedores.find(f => f.id === conta.fornecedor_id);
             const categoria  = dadosCache.categorias.find(cat => cat.id === conta.categoria_id);
             const banco      = (dadosCache.bancos || []).find(b => b.id === conta.banco_id);
-            const parcLabel  = conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-';
+            const parcLabel  = conta.custo_fixo ? '🔁 Fixo' : (conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-');
             const vencFmt    = conta.data_vencimento ? new Date(conta.data_vencimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             const pagFmt     = conta.data_pagamento  ? new Date(conta.data_pagamento  + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             tbody.innerHTML += `<tr>
@@ -4218,6 +4602,7 @@
 
             // Carrega dados quando a página for exibida
             if (pageId === 'categorias') carregarCategorias();
+            else if (pageId === 'subcategorias') carregarSubcategorias();
             else if (pageId === 'produtos') carregarProdutos();
             else if (pageId === 'fornecedores') carregarFornecedores();
             else if (pageId === 'clientes') carregarClientes();
@@ -5601,6 +5986,11 @@
         document.getElementById('competenciaReceber').value = new Date().toISOString().slice(0,7) + '-01';
         document.getElementById('vencimentoReceber').value = '';
         document.getElementById('parcelasReceber').value = '1';
+        document.getElementById('parcelasReceber').disabled = false;
+        document.getElementById('parcelasReceberWrap').style.display = '';
+        document.getElementById('custoFixoReceber').checked = false;
+        document.getElementById('vigenciaReceber').value = '';
+        document.getElementById('vigenciaReceberWrap').style.display = 'none';
         document.getElementById('notaFiscalReceber').value = '';
         document.getElementById('observacoesReceber').value = '';
         document.getElementById('previewParcelasReceber').style.display = 'none';
@@ -5618,6 +6008,11 @@
         document.getElementById('competenciaPagar').value = new Date().toISOString().slice(0,7) + '-01';
         document.getElementById('vencimentoPagar').value = '';
         document.getElementById('parcelasPagar').value = '1';
+        document.getElementById('parcelasPagar').disabled = false;
+        document.getElementById('parcelasPagarWrap').style.display = '';
+        document.getElementById('custoFixoPagar').checked = false;
+        document.getElementById('vigenciaPagar').value = '';
+        document.getElementById('vigenciaPagarWrap').style.display = 'none';
         document.getElementById('notaFiscalPagar').value = '';
         document.getElementById('observacoesPagar').value = '';
         document.getElementById('previewParcelasPagar').style.display = 'none';
@@ -5628,7 +6023,38 @@
     }
 
     // ================================================================
-    // PREVIEW DE PARCELAS
+    // CUSTO FIXO (LANÇAMENTO RECORRENTE)
+    // ================================================================
+    function toggleCustoFixoReceber() {
+        const marcado = document.getElementById('custoFixoReceber').checked;
+        document.getElementById('vigenciaReceberWrap').style.display = marcado ? 'block' : 'none';
+        document.getElementById('parcelasReceberWrap').style.display = marcado ? 'none' : '';
+        document.getElementById('parcelasReceber').disabled = marcado;
+        if (marcado) document.getElementById('parcelasReceber').value = '1';
+        calcularParcelasReceber();
+    }
+
+    function toggleCustoFixoPagar() {
+        const marcado = document.getElementById('custoFixoPagar').checked;
+        document.getElementById('vigenciaPagarWrap').style.display = marcado ? 'block' : 'none';
+        document.getElementById('parcelasPagarWrap').style.display = marcado ? 'none' : '';
+        document.getElementById('parcelasPagar').disabled = marcado;
+        if (marcado) document.getElementById('parcelasPagar').value = '1';
+        calcularParcelasPagar();
+    }
+
+    // Conta quantos meses existem entre a data base (vencimento) e o mês/ano de vigência (inclusive)
+    function contarMesesAteVigencia(dataBase, vigenciaAnoMes) {
+        if (!dataBase || !vigenciaAnoMes) return 0;
+        const d = new Date(dataBase + 'T12:00:00');
+        const partes = vigenciaAnoMes.split('-').map(Number);
+        const vAno = partes[0], vMes = partes[1];
+        const diff = (vAno - d.getFullYear()) * 12 + (vMes - (d.getMonth() + 1));
+        return diff >= 0 ? diff + 1 : 0;
+    }
+
+    // ================================================================
+    // PREVIEW DE PARCELAS / RECORRÊNCIA
     // ================================================================
     function addMonths(dateStr, months) {
         const d = new Date(dateStr + 'T12:00:00');
@@ -5638,11 +6064,34 @@
 
     function calcularParcelasReceber() {
         const valor = parseFloat(document.getElementById('valorReceber').value);
-        const n = parseInt(document.getElementById('parcelasReceber').value) || 1;
         const dataBase = document.getElementById('vencimentoReceber').value;
         const preview = document.getElementById('previewParcelasReceber');
         const lista = document.getElementById('listaParcelasReceber');
+        const titulo = document.getElementById('previewParcelasReceberTitulo');
+        const fixo = document.getElementById('custoFixoReceber').checked;
+
+        if (fixo) {
+            const vigencia = document.getElementById('vigenciaReceber').value;
+            const n = contarMesesAteVigencia(dataBase, vigencia);
+            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; return; }
+            titulo.textContent = '🔁 Lançamentos fixos gerados (' + n + ' meses):';
+            let html = '';
+            for (let i = 0; i < n; i++) {
+                const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f0f0f0;">' +
+                    '<span class="badge-fixo">🔁 Fixo</span>' +
+                    '<span>' + dt.toLocaleDateString('pt-BR') + '</span>' +
+                    '<span style="color:#28a745;font-weight:600;">R$ ' + valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
+                    '</div>';
+            }
+            lista.innerHTML = html;
+            preview.style.display = 'block';
+            return;
+        }
+
+        const n = parseInt(document.getElementById('parcelasReceber').value) || 1;
         if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; return; }
+        titulo.textContent = 'Parcelas geradas:';
         const parc = Math.round((valor / n) * 100) / 100;
         let html = '';
         for (let i = 0; i < n; i++) {
@@ -5659,11 +6108,34 @@
 
     function calcularParcelasPagar() {
         const valor = parseFloat(document.getElementById('valorPagar').value);
-        const n = parseInt(document.getElementById('parcelasPagar').value) || 1;
         const dataBase = document.getElementById('vencimentoPagar').value;
         const preview = document.getElementById('previewParcelasPagar');
         const lista = document.getElementById('listaParcelasPagar');
+        const titulo = document.getElementById('previewParcelasPagarTitulo');
+        const fixo = document.getElementById('custoFixoPagar').checked;
+
+        if (fixo) {
+            const vigencia = document.getElementById('vigenciaPagar').value;
+            const n = contarMesesAteVigencia(dataBase, vigencia);
+            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; return; }
+            titulo.textContent = '🔁 Lançamentos fixos gerados (' + n + ' meses):';
+            let html = '';
+            for (let i = 0; i < n; i++) {
+                const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f0f0f0;">' +
+                    '<span class="badge-fixo">🔁 Fixo</span>' +
+                    '<span>' + dt.toLocaleDateString('pt-BR') + '</span>' +
+                    '<span style="color:#dc3545;font-weight:600;">R$ ' + valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
+                    '</div>';
+            }
+            lista.innerHTML = html;
+            preview.style.display = 'block';
+            return;
+        }
+
+        const n = parseInt(document.getElementById('parcelasPagar').value) || 1;
         if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; return; }
+        titulo.textContent = 'Parcelas geradas:';
         const parc = Math.round((valor / n) * 100) / 100;
         let html = '';
         for (let i = 0; i < n; i++) {
@@ -7678,6 +8150,7 @@
         <div style="margin-top:16px; padding:12px; background:#fff8e1; border-radius:6px; border-left:3px solid #ffc107;">
             <strong style="font-size:12px; color:#856404;">💡 Se RLS está bloqueando INSERT, execute no Supabase SQL Editor:</strong>
             <pre style="font-size:11px; margin-top:6px; background:#f5f5f5; padding:8px; border-radius:4px; overflow-x:auto;">ALTER TABLE categorias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE subcategorias DISABLE ROW LEVEL SECURITY;
 ALTER TABLE produtos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE fornecedores DISABLE ROW LEVEL SECURITY;
 ALTER TABLE clientes DISABLE ROW LEVEL SECURITY;
