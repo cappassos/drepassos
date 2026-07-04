@@ -3090,6 +3090,12 @@
         inicializarFiltrosCalendario();
     }
 
+    // Restaura os filtros salvos do Calendário (função ausente no arquivo original,
+    // causava "ReferenceError: inicializarFiltrosCalendario is not defined")
+    function inicializarFiltrosCalendario() {
+        restaurarFiltros();
+    }
+
     // CATEGORIAS
     async function carregarCategorias() {
         const dados = await fetchSupabase('categorias', 'GET');
@@ -6563,6 +6569,11 @@
         document.getElementById('lancRapidoClienteWrap').style.display = tipo === 'receber' ? '' : 'none';
         document.getElementById('lancRapidoCategoriaWrap').style.display = tipo === 'pagar' ? '' : 'none';
         document.getElementById('lancRapidoSubcategoriaWrap').style.display = tipo === 'pagar' ? '' : 'none';
+        // Alterna também o atributo "required": um campo obrigatório escondido trava o
+        // envio do formulário sem mostrar erro nenhum (bug clássico do navegador)
+        document.getElementById('lancRapidoFornecedor').required = (tipo === 'pagar');
+        document.getElementById('lancRapidoCliente').required = (tipo === 'receber');
+        document.getElementById('lancRapidoCategoria').required = (tipo === 'pagar');
         document.getElementById('lancRapidoStatusLabel').textContent = tipo === 'pagar' ? 'Pago' : 'Recebido';
         document.getElementById('lancRapidoTitulo').textContent = tipo === 'pagar'
             ? '➕ Novo Lançamento a Pagar (do extrato)'
