@@ -483,6 +483,11 @@
             color: #721c24;
         }
 
+        .status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
         /* FILTROS */
         .filter-container {
             background: white;
@@ -6384,18 +6389,20 @@
                 return;
             }
 
-            // Candidatos: lançamentos pendentes OU já pagos/recebidos deste banco (ou ainda sem banco definido).
+            // Candidatos: lançamentos pendentes, pagos/recebidos (conciliados ou não) deste banco (ou ainda sem banco definido).
             // Pendentes entram na comparação pela Data de Vencimento; ao conciliar, viram Pago/Recebido automaticamente.
-            const pagosDoBanco = (pagos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
-            const recebidosDoBanco = (recebidos || []).filter(c => !c.conciliado && (!c.banco_id || String(c.banco_id) === String(bancoId)));
+            // Os já conciliados entram também, só que como "candidatos já usados em sessão anterior" — servem para
+            // identificar itens do extrato que já foram lançados antes, em vez de sugerir vínculo/lançamento de novo.
+            const pagosDoBanco = (pagos || []).filter(c => (!c.banco_id || String(c.banco_id) === String(bancoId)));
+            const recebidosDoBanco = (recebidos || []).filter(c => (!c.banco_id || String(c.banco_id) === String(bancoId)));
 
             _conciliacaoCandidatos = [
                 ...pagosDoBanco.map(c => ({ ...c, _origem: 'pagar', _statusOriginal: c.status,
                     _data: c.status === 'pago' ? c.data_pagamento : c.data_vencimento,
-                    _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false })),
+                    _valorComSinal: -Math.abs(parseFloat(c.valor || 0)), _jaUsado: false, _jaConciliado: !!c.conciliado })),
                 ...recebidosDoBanco.map(c => ({ ...c, _origem: 'receber', _statusOriginal: c.status,
                     _data: c.status === 'recebido' ? c.data_recebimento : c.data_vencimento,
-                    _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false }))
+                    _valorComSinal: Math.abs(parseFloat(c.valor || 0)), _jaUsado: false, _jaConciliado: !!c.conciliado }))
             ];
 
             if (_conciliacaoCandidatos.length === 0) {
@@ -6416,20 +6423,35 @@
             const TOLERANCIA_VALOR = 0.01;
             const TOLERANCIA_DIAS = 10;
 
-            _conciliacaoMovimentos = transacoes.map(t => {
+            // Procura o melhor candidato para a transação `t`, dentro do subconjunto
+            // conciliado (true) ou não-conciliado (false) dos candidatos.
+            function _buscarMelhorMatchConciliacao(t, buscarJaConciliados) {
                 let melhorMatch = null, melhorDiff = Infinity;
                 _conciliacaoCandidatos.forEach(c => {
                     if (c._jaUsado) return;
+                    if (!!c._jaConciliado !== buscarJaConciliados) return;
                     if (Math.abs(c._valorComSinal - t.valor) > TOLERANCIA_VALOR) return;
                     const diffDias = Math.abs((new Date(c._data + 'T12:00:00') - new Date(t.data + 'T12:00:00')) / 86400000);
                     if (diffDias <= TOLERANCIA_DIAS && diffDias < melhorDiff) { melhorDiff = diffDias; melhorMatch = c; }
                 });
+                return melhorMatch;
+            }
+
+            _conciliacaoMovimentos = transacoes.map(t => {
+                // 1ª tentativa: lançamentos pendentes/pagos/recebidos ainda NÃO conciliados (fluxo normal de sugestão)
+                let melhorMatch = _buscarMelhorMatchConciliacao(t, false);
+                let statusFinal = 'sugerido';
+                // 2ª tentativa: já foi conciliado antes (provavelmente lançado em uma sessão anterior de importação)
+                if (!melhorMatch) {
+                    melhorMatch = _buscarMelhorMatchConciliacao(t, true);
+                    statusFinal = melhorMatch ? 'ja_lancado' : 'pendente';
+                }
                 if (melhorMatch) melhorMatch._jaUsado = true;
                 return {
                     data: t.data,
                     descricao: t.descricao,
                     valor: t.valor,
-                    status: melhorMatch ? 'sugerido' : 'pendente',
+                    status: melhorMatch ? statusFinal : 'pendente',
                     lancamentoTipo: melhorMatch ? melhorMatch._origem : null,
                     lancamentoId: melhorMatch ? melhorMatch.id : null,
                     lancamentoDescricao: melhorMatch ? melhorMatch.descricao : null
@@ -6468,6 +6490,7 @@
         const total = _conciliacaoMovimentos.length;
         const conciliados = _conciliacaoMovimentos.filter(m => m.status === 'conciliado').length;
         const sugeridos = _conciliacaoMovimentos.filter(m => m.status === 'sugerido').length;
+        const jaLancados = _conciliacaoMovimentos.filter(m => m.status === 'ja_lancado').length;
         const pendentes = _conciliacaoMovimentos.filter(m => m.status === 'pendente').length;
 
         resumoDiv.style.display = 'grid';
@@ -6475,6 +6498,7 @@
             '<div class="stat-card"><div class="stat-label">📄 Itens no Extrato</div><div class="stat-value">' + total + '</div></div>' +
             '<div class="stat-card" style="border-left-color:#28a745;"><div class="stat-label">✅ Conciliados</div><div class="stat-value" style="color:#28a745;">' + conciliados + '</div></div>' +
             '<div class="stat-card" style="border-left-color:#ffc107;"><div class="stat-label">🔎 Sugestões p/ confirmar</div><div class="stat-value" style="color:#b8860b;">' + sugeridos + '</div></div>' +
+            '<div class="stat-card" style="border-left-color:#17a2b8;"><div class="stat-label">🗂️ Já lançados antes</div><div class="stat-value" style="color:#17a2b8;">' + jaLancados + '</div></div>' +
             '<div class="stat-card" style="border-left-color:#dc3545;"><div class="stat-label">⚠️ Sem correspondência</div><div class="stat-value" style="color:#dc3545;">' + pendentes + '</div></div>';
 
         acoesDiv.style.display = sugeridos > 0 ? 'block' : 'none';
@@ -6507,9 +6531,17 @@
                            '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
                            '<button class="btn btn-danger btn-small" onclick="excluirLancamentoConciliacao(' + idx + ')">🗑️ Excluir</button>';
+            } else if (m.status === 'ja_lancado') {
+                const candidatoJaLancado = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
+                const contextoJaLancado = candidatoJaLancado ? _conciliaContextoCandidato(candidatoJaLancado) : '';
+                statusHtml = '<span class="status-badge status-info">🗂️ Já lançado</span>';
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoJaLancado + '</span>' +
+                    '<br><span style="font-size:11px;color:#17a2b8;">⚠ Este item já estava conciliado no sistema antes desta importação.</span>';
+                acaoHtml = '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
+                           '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer conciliação</button>';
             } else {
                 statusHtml = '<span class="status-badge status-atrasado">⚠️ Não encontrado</span>';
-                const opcoes = _conciliacaoCandidatos.filter(c => !c._jaUsado)
+                const opcoes = _conciliacaoCandidatos.filter(c => !c._jaUsado && !c._jaConciliado)
                     .map(c => '<option value="' + c._origem + ':' + c.id + '">' +
                         (c._origem === 'pagar' ? '📤' : '📥') + ' ' + c.descricao + _conciliaContextoCandidato(c) + ' — R$ ' +
                         parseFloat(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' (' +
