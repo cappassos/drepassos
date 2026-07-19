@@ -6556,30 +6556,70 @@
 
             const TOLERANCIA_VALOR = 0.01;
             const TOLERANCIA_DIAS = 10;
+            // Reimportação do extrato: a mesma transação já lançada deve ter data quase idêntica —
+            // uma janela menor aqui reduz o risco de casar com outro lançamento de valor igual.
+            const TOLERANCIA_DIAS_JA_CONCILIADO = 3;
+
+            // Normaliza texto para comparação (maiúsculas, sem acento, só letras/números, sem palavras curtas)
+            function _normalizarTextoConciliacao(s) {
+                return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+            }
+
+            // Similaridade simples por sobreposição de palavras (0 = nada em comum, 1 = um texto contido no outro)
+            function _similaridadeDescricaoConciliacao(a, b) {
+                const wa = new Set(_normalizarTextoConciliacao(a));
+                const wb = new Set(_normalizarTextoConciliacao(b));
+                if (wa.size === 0 || wb.size === 0) return 0;
+                let inter = 0;
+                wa.forEach(w => { if (wb.has(w)) inter++; });
+                return inter / Math.min(wa.size, wb.size);
+            }
+
+            // Texto pesquisável de um candidato: descrição do lançamento + nome do fornecedor/cliente
+            function _textoBuscavelCandidato(c) {
+                const partes = [c.descricao || ''];
+                if (c._origem === 'pagar') {
+                    const forn = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+                    if (forn) partes.push(forn.nome);
+                } else {
+                    const cli = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+                    if (cli) partes.push(cli.nome);
+                }
+                return partes.join(' ');
+            }
 
             // Procura o melhor candidato para a transação `t`, dentro do subconjunto
-            // conciliado (true) ou não-conciliado (false) dos candidatos.
+            // conciliado (true) ou não-conciliado (false) dos candidatos. A pontuação combina
+            // proximidade de data com semelhança de descrição/fornecedor — isso evita casar
+            // duas transações só porque têm o mesmo valor (ex: dois PIX de R$ 100,00 em datas
+            // próximas, mas de pessoas/fornecedores diferentes).
             function _buscarMelhorMatchConciliacao(t, buscarJaConciliados) {
-                let melhorMatch = null, melhorDiff = Infinity;
+                const toleranciaDias = buscarJaConciliados ? TOLERANCIA_DIAS_JA_CONCILIADO : TOLERANCIA_DIAS;
+                let melhorMatch = null, melhorScore = Infinity, melhorSimilaridade = 0;
                 _conciliacaoCandidatos.forEach(c => {
                     if (c._jaUsado) return;
                     if (!!c._jaConciliado !== buscarJaConciliados) return;
                     if (Math.abs(c._valorComSinal - t.valor) > TOLERANCIA_VALOR) return;
                     const diffDias = Math.abs((new Date(c._data + 'T12:00:00') - new Date(t.data + 'T12:00:00')) / 86400000);
-                    if (diffDias <= TOLERANCIA_DIAS && diffDias < melhorDiff) { melhorDiff = diffDias; melhorMatch = c; }
+                    if (diffDias > toleranciaDias) return;
+                    const similaridade = _similaridadeDescricaoConciliacao(t.descricao, _textoBuscavelCandidato(c));
+                    const score = (diffDias / toleranciaDias) - (similaridade * 3);
+                    if (score < melhorScore) { melhorScore = score; melhorMatch = c; melhorSimilaridade = similaridade; }
                 });
-                return melhorMatch;
+                return melhorMatch ? { candidato: melhorMatch, similaridade: melhorSimilaridade } : null;
             }
 
             _conciliacaoMovimentos = transacoes.map(t => {
                 // 1ª tentativa: lançamentos pendentes/pagos/recebidos ainda NÃO conciliados (fluxo normal de sugestão)
-                let melhorMatch = _buscarMelhorMatchConciliacao(t, false);
+                let resultado = _buscarMelhorMatchConciliacao(t, false);
                 let statusFinal = 'sugerido';
                 // 2ª tentativa: já foi conciliado antes (provavelmente lançado em uma sessão anterior de importação)
-                if (!melhorMatch) {
-                    melhorMatch = _buscarMelhorMatchConciliacao(t, true);
-                    statusFinal = melhorMatch ? 'ja_lancado' : 'pendente';
+                if (!resultado) {
+                    resultado = _buscarMelhorMatchConciliacao(t, true);
+                    statusFinal = resultado ? 'ja_lancado' : 'pendente';
                 }
+                const melhorMatch = resultado ? resultado.candidato : null;
                 if (melhorMatch) melhorMatch._jaUsado = true;
                 return {
                     data: t.data,
@@ -6588,7 +6628,10 @@
                     status: melhorMatch ? statusFinal : 'pendente',
                     lancamentoTipo: melhorMatch ? melhorMatch._origem : null,
                     lancamentoId: melhorMatch ? melhorMatch.id : null,
-                    lancamentoDescricao: melhorMatch ? melhorMatch.descricao : null
+                    lancamentoDescricao: melhorMatch ? melhorMatch.descricao : null,
+                    // Sem nenhuma palavra em comum entre o extrato e o lançamento: o match só bateu
+                    // por valor/data e merece um alerta na tela para o usuário conferir manualmente.
+                    matchIncerto: melhorMatch ? resultado.similaridade === 0 : false
                 };
             });
 
@@ -6659,8 +6702,11 @@
                 const notaPendente = candidatoSugestao && candidatoSugestao._statusOriginal === 'pendente'
                     ? '<br><span style="font-size:11px;color:#b8860b;">⚠ Pendente — ao confirmar, será marcado como ' + (m.lancamentoTipo === 'pagar' ? 'Pago' : 'Recebido') + '.</span>'
                     : '';
+                const notaIncerta = m.matchIncerto
+                    ? '<br><span style="font-size:11px;color:#dc3545;">⚠ Confira: nenhuma palavra em comum com a descrição do extrato — casou só pelo valor/data.</span>'
+                    : '';
                 statusHtml = '<span class="status-badge status-pendente">🔎 Sugestão</span>';
-                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoSugestao + '</span>' + notaPendente;
+                lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoSugestao + '</span>' + notaPendente + notaIncerta;
                 acaoHtml = '<button class="btn btn-success btn-small" onclick="confirmarSugestao(' + idx + ')">✅ Confirmar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="ignorarSugestao(' + idx + ')">Ignorar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
@@ -6668,9 +6714,12 @@
             } else if (m.status === 'ja_lancado') {
                 const candidatoJaLancado = _conciliacaoCandidatos.find(c => c._origem === m.lancamentoTipo && c.id === m.lancamentoId);
                 const contextoJaLancado = candidatoJaLancado ? _conciliaContextoCandidato(candidatoJaLancado) : '';
+                const notaIncertaJa = m.matchIncerto
+                    ? '<br><span style="font-size:11px;color:#dc3545;">⚠ Confira: nenhuma palavra em comum com a descrição do extrato — casou só pelo valor/data. Pode ser outro lançamento diferente.</span>'
+                    : '';
                 statusHtml = '<span class="status-badge status-info">🗂️ Já lançado</span>';
                 lancamentoHtml = '<span style="font-size:12px;color:#555;">' + (m.lancamentoDescricao || '-') + contextoJaLancado + '</span>' +
-                    '<br><span style="font-size:11px;color:#17a2b8;">⚠ Este item já estava conciliado no sistema antes desta importação.</span>';
+                    '<br><span style="font-size:11px;color:#17a2b8;">⚠ Este item já estava conciliado no sistema antes desta importação.</span>' + notaIncertaJa;
                 acaoHtml = '<button class="btn btn-secondary btn-small" onclick="editarLancamentoConciliacao(' + idx + ')">✏️ Editar</button> ' +
                            '<button class="btn btn-secondary btn-small" onclick="desfazerConciliacao(' + idx + ')">Desfazer conciliação</button>';
             } else {
