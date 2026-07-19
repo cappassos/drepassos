@@ -1324,8 +1324,7 @@
                             <th style="width:80px;">Tipo</th>
                             <th style="text-align:right;width:120px;">Crédito</th>
                             <th style="text-align:right;width:120px;">Débito</th>
-                            <th style="text-align:right;width:120px;">Saldo Dia</th>
-                            <th style="text-align:right;width:130px;">Saldo Acumulado</th>
+                            <th style="text-align:right;width:140px;">Saldo Acumulado</th>
                         </tr></thead>
                         <tbody id="extratoCorpo"></tbody>
                         <tfoot id="extratoRodape"></tfoot>
@@ -6238,48 +6237,45 @@
                 complemento: fornecedor?fornecedor.nome:'', banco: banco?banco.nome:'-',
                 valor: parseFloat(c.valor||0) });
         });
+        // Ordena por data (mantendo a ordem estável de inserção dentro do mesmo dia)
         movimentos.sort((a,b) => a.data.localeCompare(b.data));
         let saldoInicial = 0;
         (dadosCache.bancos||[]).filter(b => bancoIdFiltro ? String(b.id)===String(bancoIdFiltro) : b.ativo)
             .forEach(b => { saldoInicial += parseFloat(b.saldo_inicial||0); });
-        const porDia = {};
-        movimentos.forEach(m => { if (!porDia[m.data]) porDia[m.data]=[]; porDia[m.data].push(m); });
         const fmtData = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
         const fmtVal  = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
         tbody.innerHTML = ''; let acumulado=saldoInicial, totalCred=0, totalDeb=0;
         if (saldoInicial !== 0) {
             const cor = saldoInicial>=0?'#28a745':'#dc3545';
-            tbody.innerHTML += '<tr style="background:#f8f9fa;"><td colspan="4" style="font-weight:600;color:#555;">Saldo Inicial</td>' +
-                '<td></td><td></td><td></td><td style="text-align:right;font-weight:700;color:'+cor+';">'+fmtVal(saldoInicial)+'</td></tr>';
+            tbody.innerHTML += '<tr style="background:#f8f9fa;"><td colspan="6" style="font-weight:600;color:#555;">Saldo Inicial</td>' +
+                '<td style="text-align:right;font-weight:700;color:'+cor+';">'+fmtVal(saldoInicial)+'</td></tr>';
         }
-        const dias = Object.keys(porDia).sort();
-        if (dias.length===0) tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;color:#999;padding:24px;">Nenhum lançamento encontrado para o período.</td></tr>';
-        dias.forEach(dia => {
-            const movs=porDia[dia]; let credDia=0,debDia=0;
-            movs.forEach(m => { if(m.tipo==='credito') credDia+=m.valor; else debDia+=m.valor; });
-            const saldoDia=credDia-debDia; acumulado+=saldoDia; totalCred+=credDia; totalDeb+=debDia;
-            const corAcum=acumulado>=0?'#28a745':'#dc3545', corDia=saldoDia>=0?'#28a745':'#dc3545';
-            const n=movs.length;
-            movs.forEach((m,idx) => {
-                const desc = m.descricao+(m.complemento?' — '+m.complemento:'');
-                const cred = m.tipo==='credito'?'<td style="text-align:right;color:#28a745;font-weight:600;">'+fmtVal(m.valor)+'</td>':'<td style="text-align:right;color:#bbb;">-</td>';
-                const deb  = m.tipo==='debito' ?'<td style="text-align:right;color:#dc3545;font-weight:600;">'+fmtVal(m.valor)+'</td>':'<td style="text-align:right;color:#bbb;">-</td>';
-                tbody.innerHTML += '<tr style="'+(idx===0?'border-top:2px solid #eee;':'')+'">' +
-                    '<td>'+(idx===0?'<b>'+fmtData(dia)+'</b>':'')+' </td>' +
-                    '<td>'+desc+'</td>' +
-                    '<td style="font-size:11px;color:#666;">'+m.banco+'</td>' +
-                    '<td><span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:'+(m.tipo==='credito'?'#d4edda;color:#155724':'#f8d7da;color:#721c24')+';"> '+(m.tipo==='credito'?'Crédito':'Débito')+'</span></td>' +
-                    cred + deb +
-                    (idx===0?'<td rowspan="'+n+'" style="text-align:right;font-weight:700;color:'+corDia+';vertical-align:middle;">'+fmtVal(Math.abs(saldoDia))+(saldoDia<0?' ▼':' ▲')+'</td>' +
-                    '<td rowspan="'+n+'" style="text-align:right;font-weight:700;color:'+corAcum+';vertical-align:middle;">'+fmtVal(acumulado)+'</td>':'') + '</tr>';
-            });
+        if (movimentos.length===0) tbody.innerHTML += '<tr><td colspan="7" style="text-align:center;color:#999;padding:24px;">Nenhum lançamento encontrado para o período.</td></tr>';
+        // Cada lançamento vira sua própria linha, com a data repetida e o saldo acumulado
+        // recalculado transação a transação — igual ao extrato original do banco.
+        let diaAnterior = null;
+        movimentos.forEach(m => {
+            if (m.tipo==='credito') { acumulado += m.valor; totalCred += m.valor; }
+            else { acumulado -= m.valor; totalDeb += m.valor; }
+            const corAcum = acumulado>=0?'#28a745':'#dc3545';
+            const desc = m.descricao+(m.complemento?' — '+m.complemento:'');
+            const cred = m.tipo==='credito'?'<td style="text-align:right;color:#28a745;font-weight:600;">'+fmtVal(m.valor)+'</td>':'<td style="text-align:right;color:#bbb;">-</td>';
+            const deb  = m.tipo==='debito' ?'<td style="text-align:right;color:#dc3545;font-weight:600;">'+fmtVal(m.valor)+'</td>':'<td style="text-align:right;color:#bbb;">-</td>';
+            const novoDia = m.data !== diaAnterior;
+            diaAnterior = m.data;
+            tbody.innerHTML += '<tr style="'+(novoDia?'border-top:2px solid #eee;':'')+'">' +
+                '<td>'+fmtData(m.data)+'</td>' +
+                '<td>'+desc+'</td>' +
+                '<td style="font-size:11px;color:#666;">'+m.banco+'</td>' +
+                '<td><span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:'+(m.tipo==='credito'?'#d4edda;color:#155724':'#f8d7da;color:#721c24')+';"> '+(m.tipo==='credito'?'Crédito':'Débito')+'</span></td>' +
+                cred + deb +
+                '<td style="text-align:right;font-weight:700;color:'+corAcum+';">'+fmtVal(acumulado)+'</td></tr>';
         });
         const fluxo=totalCred-totalDeb;
         tfoot.innerHTML = '<tr style="font-weight:700;background:#333;color:white;">' +
             '<td colspan="4">TOTAIS DO PERÍODO</td>' +
             '<td style="text-align:right;color:#90ee90;">'+fmtVal(totalCred)+'</td>' +
             '<td style="text-align:right;color:#ffb3b3;">'+fmtVal(totalDeb)+'</td>' +
-            '<td style="text-align:right;color:'+(fluxo>=0?'#90ee90':'#ffb3b3')+';">'+fmtVal(Math.abs(fluxo))+'</td>' +
             '<td style="text-align:right;color:'+(acumulado>=0?'#90ee90':'#ffb3b3')+';">'+fmtVal(acumulado)+'</td></tr>';
         if (resumo) resumo.innerHTML =
             '<div class="stat-card" style="border-left-color:#28a745;"><div class="stat-label">💚 Total Créditos</div><div class="stat-value" style="color:#28a745;font-size:20px;">'+fmtVal(totalCred)+'</div><div class="stat-change">'+movimentos.filter(m=>m.tipo==='credito').length+' entradas</div></div>' +
