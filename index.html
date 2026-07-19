@@ -1578,6 +1578,10 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Valor</label>
+                        <input type="text" id="filtroValorRecebida" placeholder="Ex: 1.762,50" oninput="atualizarTabelaRecebidas()">
+                    </div>
+                    <div class="form-group">
                         <label>Dia</label>
                         <select id="filtroDialRecebida" onchange="carregarContasRecebidas()">
                             <option value="">Todos</option>
@@ -1670,6 +1674,10 @@
                             <option value="11">Novembro</option>
                             <option value="12">Dezembro</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor</label>
+                        <input type="text" id="filtroValorPaga" placeholder="Ex: 1.762,50" oninput="atualizarTabelaPagas()">
                     </div>
                     <div class="form-group">
                         <label>Dia</label>
@@ -2097,8 +2105,20 @@
                             <option value="">Todos os anos</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Mês</label>
+                        <select id="filtroMesDFC" onchange="carregarDFC()">
+                            <option value="">Acumulado do ano</option>
+                            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+                            <option value="03">Março</option><option value="04">Abril</option>
+                            <option value="05">Maio</option><option value="06">Junho</option>
+                            <option value="07">Julho</option><option value="08">Agosto</option>
+                            <option value="09">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                    </div>
                     <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:2px;">
-                        <label style="font-size:12px;color:#666;font-style:italic;">Selecione um ano para ver o detalhamento mensal Jan–Dez</label>
+                        <label style="font-size:12px;color:#666;font-style:italic;">A tabela Jan–Dez abaixo continua mostrando o ano inteiro, mesmo com um mês selecionado.</label>
                     </div>
                 </div>
             </div>
@@ -3106,7 +3126,7 @@
     let editandoTipo = null;
 
     // ── PERSISTÊNCIA DE FILTROS ──────────────────────────────────────────────
-    const _FILTER_IDS = ["filtroClienteReceber", "filtroAnoReceber", "filtroMesReceber", "filtroFornecedorPagar", "filtroCategoriaPagar", "filtroAnoPagar", "filtroMesPagar", "filtroAnoRecebida", "filtroMesRecebida", "filtroClienteRecebida", "filtroAnoPaga", "filtroMesPaga", "filtroFornecedorPaga", "filtroAnoRelReceber", "filtroMesRelReceber", "filtroDialRelReceber", "filtroAnoRelPagar", "filtroMesRelPagar", "filtroDialRelPagar", "filtroAnoDFC", "filtroAnoDRE", "filtroMesDRE", "modoDRE", "filtroMesCalendario", "filtroAnoCalendario", "extratoFiltrobancoId", "extratoFiltroAno", "extratoFiltroMes", "filtroAnoFCP", "dashFiltroAno", "dashFiltroMes"];
+    const _FILTER_IDS = ["filtroClienteReceber", "filtroAnoReceber", "filtroMesReceber", "filtroFornecedorPagar", "filtroCategoriaPagar", "filtroAnoPagar", "filtroMesPagar", "filtroAnoRecebida", "filtroMesRecebida", "filtroClienteRecebida", "filtroValorRecebida", "filtroAnoPaga", "filtroMesPaga", "filtroFornecedorPaga", "filtroValorPaga", "filtroAnoRelReceber", "filtroMesRelReceber", "filtroDialRelReceber", "filtroAnoRelPagar", "filtroMesRelPagar", "filtroDialRelPagar", "filtroAnoDFC", "filtroMesDFC", "filtroAnoDRE", "filtroMesDRE", "modoDRE", "filtroMesCalendario", "filtroAnoCalendario", "extratoFiltrobancoId", "extratoFiltroAno", "extratoFiltroMes", "filtroAnoFCP", "dashFiltroAno", "dashFiltroMes"];
 
     function _filtroKey(id) {
         const user = usuarioAtual ? usuarioAtual.email : 'guest';
@@ -4203,6 +4223,11 @@
         if (filtroAno && filtroAno.value) filtrado = filtrado.filter(c => c.data_recebimento && c.data_recebimento.startsWith(filtroAno.value));
         if (filtroMes && filtroMes.value) filtrado = filtrado.filter(c => c.data_recebimento && c.data_recebimento.includes('-' + filtroMes.value + '-'));
         if (filtroDia && filtroDia.value) filtrado = filtrado.filter(c => c.data_recebimento && c.data_recebimento.endsWith('-' + filtroDia.value));
+        const filtroValor = document.getElementById('filtroValorRecebida');
+        if (filtroValor && filtroValor.value.trim()) {
+            const alvo = _conciliaParseValor(filtroValor.value);
+            if (alvo) filtrado = filtrado.filter(c => Math.abs(parseFloat(c.valor || 0) - alvo) < 0.01);
+        }
 
         const ordenar = document.getElementById('ordenarRecebida');
         const modoOrdenar = ordenar ? ordenar.value : 'recebimento_desc';
@@ -4269,6 +4294,11 @@
         if (filtroAno && filtroAno.value) filtrado = filtrado.filter(c => c.data_pagamento && c.data_pagamento.startsWith(filtroAno.value));
         if (filtroMes && filtroMes.value) filtrado = filtrado.filter(c => c.data_pagamento && c.data_pagamento.includes('-' + filtroMes.value + '-'));
         if (filtroDia && filtroDia.value) filtrado = filtrado.filter(c => c.data_pagamento && c.data_pagamento.endsWith('-' + filtroDia.value));
+        const filtroValor = document.getElementById('filtroValorPaga');
+        if (filtroValor && filtroValor.value.trim()) {
+            const alvo = _conciliaParseValor(filtroValor.value);
+            if (alvo) filtrado = filtrado.filter(c => Math.abs(parseFloat(c.valor || 0) - alvo) < 0.01);
+        }
 
         const ordenar = document.getElementById('ordenarPaga');
         const modoOrdenar = ordenar ? ordenar.value : 'pagamento_desc';
@@ -7368,14 +7398,24 @@
 
         const filtroAno = document.getElementById('filtroAnoDFC');
         const anoSel    = filtroAno ? filtroAno.value : '';
+        const filtroMes = document.getElementById('filtroMesDFC');
+        const mesSel    = filtroMes ? filtroMes.value : '';
 
         // DFC usa datas de recebimento/pagamento (fluxo de caixa real)
-        let recebidos = contasReceber.filter(c => c.status === 'recebido');
-        let pagos     = contasPagar.filter(c => c.status === 'pago');
-
+        // Versão filtrada só por ano — usada na tabela mensal Jan-Dez (ela precisa dos 12 meses).
+        let recebidosAno = contasReceber.filter(c => c.status === 'recebido');
+        let pagosAno     = contasPagar.filter(c => c.status === 'pago');
         if (anoSel) {
-            recebidos = recebidos.filter(c => c.data_recebimento && c.data_recebimento.startsWith(anoSel));
-            pagos     = pagos.filter(c => c.data_pagamento && c.data_pagamento.startsWith(anoSel));
+            recebidosAno = recebidosAno.filter(c => c.data_recebimento && c.data_recebimento.startsWith(anoSel));
+            pagosAno     = pagosAno.filter(c => c.data_pagamento && c.data_pagamento.startsWith(anoSel));
+        }
+        // Versão filtrada por ano+mês — usada nos cards e no DFC por categoria, pra permitir
+        // comparar exatamente o mesmo período (ex: Julho/2026) que está selecionado na DRE.
+        let recebidos = recebidosAno;
+        let pagos     = pagosAno;
+        if (anoSel && mesSel) {
+            recebidos = recebidos.filter(c => c.data_recebimento && c.data_recebimento.includes('-' + mesSel + '-'));
+            pagos     = pagos.filter(c => c.data_pagamento && c.data_pagamento.includes('-' + mesSel + '-'));
         }
 
         const pendentes_receber = contasReceber.filter(c => c.status === 'pendente');
@@ -7404,6 +7444,9 @@
             avisoEl.style.fontSize = '13px';
         }
 
+        const nomesMeses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        const rotuloPeriodo = mesSel ? (nomesMeses[parseInt(mesSel,10)-1] + '/' + anoSel) : (anoSel ? 'Acumulado ' + anoSel : 'Todo o período');
+
         // Cards
         document.getElementById('dfcEntradaReceber').textContent = fmtBRL(totalReceber);
         document.getElementById('dfcSaidaPagar').textContent     = fmtBRL(totalPagar);
@@ -7415,18 +7458,19 @@
         cardLiquido.textContent = fmtValSig(fluxoLiquido);
         cardLiquido.style.color = fluxoLiquido >= 0 ? '#28a745' : '#dc3545';
         cardBox.style.borderLeftColor = fluxoLiquido >= 0 ? '#28a745' : '#dc3545';
-        document.getElementById('dfcCardLiquidoLabel').textContent   = fluxoLiquido >= 0 ? 'Resultado positivo' : 'Resultado negativo';
+        document.getElementById('dfcCardLiquidoLabel').textContent   = (fluxoLiquido >= 0 ? 'Resultado positivo — ' : 'Resultado negativo — ') + rotuloPeriodo;
         document.getElementById('dfcCardPendentesReceber').textContent = fmtBRL(totalPendRec);
         document.getElementById('dfcCardPendentesReceberCount').textContent = pendentes_receber.length + ' contas';
         document.getElementById('dfcCardPendentesPagar').textContent     = fmtBRL(totalPendPag);
         document.getElementById('dfcCardPendentesPagarCount').textContent = pendentes_pagar.length + ' contas';
 
-        // Tabela mensal Jan-Dez (só se ano selecionado)
+        // Tabela mensal Jan-Dez (só se ano selecionado) — usa a versão SEM filtro de mês,
+        // ela sempre mostra o ano inteiro, independente do mês escolhido acima.
         const cardMensal = document.getElementById('cardDFCMensal');
         if (anoSel && cardMensal) {
             cardMensal.style.display = '';
             document.getElementById('tituloDFCMensal').textContent = '📅 DFC Mensal — ' + anoSel;
-            gerarTabelaMensalDFC(recebidos, pagos, anoSel);
+            gerarTabelaMensalDFC(recebidosAno, pagosAno, anoSel);
         } else if (cardMensal) {
             cardMensal.style.display = 'none';
         }
@@ -8257,7 +8301,7 @@
                 const selo = positivo ? 'LUCRO' : 'PREJUÍZO';
                 return `<tr class="dre-linha-final" style="font-weight:700;background:${bg};color:white;">
                     <td style="padding:10px 12px;">${label}</td>
-                    <td style="text-align:right;padding:10px;color:white;">${seta} R$ ${fmtV(Math.abs(valor))}<span class="dre-tag">${selo}</span></td>
+                    <td style="text-align:right;padding:10px;color:white;">${seta} R$ ${fmtV(Math.abs(valor))} <span class="dre-tag">${selo}</span></td>
                     <td style="text-align:right;color:rgba(255,255,255,0.85);">${pct(Math.abs(valor))}</td>
                     <td></td>
                 </tr><tr><td colspan="4" style="height:4px;background:#f9f9f9;"></td></tr>`;
@@ -8684,7 +8728,13 @@
             .replace(/[ß]/g,      'ss')
             .replace(/[–—]/g,     '-')
             .replace(/[""]/g,     '"')
-            .replace(/['']/g,     "'");
+            .replace(/['']/g,     "'")
+            // Remove emojis, setas (▲▼) e qualquer outro símbolo fora do Latin-1 —
+            // a fonte padrão do jsPDF (Helvetica/WinAnsi) não sabe desenhá-los e
+            // eles saem como caracteres corrompidos no PDF impresso.
+            .replace(/[^\x00-\xFF]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function gerarPDF(tipo) {
@@ -8966,51 +9016,98 @@
         const titElem = document.getElementById('dreTituloPeriodo');
         const titulo = titElem ? titElem.textContent.trim() : 'DRE por Competencia';
         doc.setTextColor(0, 0, 0);
-        doc.setFontSize(12);
+        doc.setFontSize(13);
         doc.setFont(undefined, 'bold');
-        doc.text(normalizarTexto(titulo), pageW / 2, 24, { align: 'center' });
+        doc.text(normalizarTexto(titulo), pageW / 2, 25, { align: 'center' });
 
-        // Colunas
+        // Colunas / margens
         const margem = 12;
         const colDesc = 95;
         const colValor = 45;
         const colAV = 30;
         const altLinha = 7;
-        let y = 32;
+        let y = 31;
 
-        // Cabeçalho da tabela
-        doc.setFillColor(80, 80, 80);
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont(undefined, 'bold');
-        doc.rect(margem, y, colDesc, altLinha, 'F');
-        doc.text('Descricao', margem + 2, y + 5);
-        doc.rect(margem + colDesc, y, colValor, altLinha, 'F');
-        doc.text('Valor (R$)', margem + colDesc + colValor / 2, y + 5, { align: 'center' });
-        doc.rect(margem + colDesc + colValor, y, colAV, altLinha, 'F');
-        doc.text('AV %', margem + colDesc + colValor + colAV / 2, y + 5, { align: 'center' });
-        y += altLinha;
+        // Faixa de indicadores-resumo, iguais aos cards da tela (dá o contexto geral do resultado)
+        const larguraUtil = pageW - margem * 2;
+        const kpis = [
+            { label: 'Receita Liquida', elId: 'dreCardRecLiq' },
+            { label: 'Lucro Bruto', elId: 'dreCardLucroBruto' },
+            { label: 'Resultado Liquido', elId: 'dreCardResultado' }
+        ];
+        const largKpi = larguraUtil / kpis.length;
+        kpis.forEach((k, i) => {
+            const el = document.getElementById(k.elId);
+            const valorTxt = el ? normalizarTexto(el.textContent.trim()) : '-';
+            const negativo = valorTxt.trim().startsWith('-');
+            const x = margem + i * largKpi;
+            doc.setDrawColor(220, 220, 220);
+            doc.setFillColor(250, 250, 250);
+            doc.rect(x, y, largKpi - 3, 16, 'FD');
+            doc.setFontSize(7.5);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(120, 120, 120);
+            doc.text(k.label, x + 3, y + 6);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            if (negativo) doc.setTextColor(192, 57, 43); else doc.setTextColor(30, 132, 73);
+            doc.text(valorTxt, x + 3, y + 13);
+        });
+        y += 22;
+
+        // Cabeçalho da tabela (função reutilizável, pra repetir quando a tabela quebra de página)
+        function desenharCabecalhoTabela() {
+            doc.setFillColor(80, 80, 80);
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.rect(margem, y, colDesc, altLinha, 'F');
+            doc.text('Descricao', margem + 2, y + 5);
+            doc.rect(margem + colDesc, y, colValor, altLinha, 'F');
+            doc.text('Valor (R$)', margem + colDesc + colValor / 2, y + 5, { align: 'center' });
+            doc.rect(margem + colDesc + colValor, y, colAV, altLinha, 'F');
+            doc.text('AV %', margem + colDesc + colValor + colAV / 2, y + 5, { align: 'center' });
+            y += altLinha;
+        }
+        desenharCabecalhoTabela();
 
         const linhas = document.querySelectorAll('#dreCorpo tr');
         doc.setFont(undefined, 'normal');
 
-        linhas.forEach((tr, idx) => {
-            if (y + altLinha > pageH - 15) {
-                doc.addPage();
-                y = 15;
+        linhas.forEach((tr) => {
+            // Linha de seção (RECEITAS / CUSTOS / ...): barra cinza com o título, como na tela
+            if (tr.classList.contains('dre-linha-secao')) {
+                if (y + 6 > pageH - 15) { doc.addPage(); y = 15; desenharCabecalhoTabela(); }
+                const tdSecao = tr.querySelector('td');
+                const textoSecao = tdSecao ? normalizarTexto(tdSecao.textContent.trim()) : '';
+                doc.setDrawColor(210, 210, 210);
+                doc.setFillColor(235, 235, 235);
+                doc.rect(margem, y, colDesc + colValor + colAV, 6, 'FD');
+                doc.setFontSize(7.5);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(70, 70, 70);
+                doc.text(textoSecao, margem + 2, y + 4.2);
+                y += 6;
+                return;
             }
-            const tds = tr.querySelectorAll('td');
-            if (tds.length < 2) return;
 
-            const isSection = tr.style.backgroundColor && tr.style.backgroundColor !== '' ||
-                              tr.querySelector('strong') !== null ||
-                              tr.classList.contains('dre-section');
+            const tds = tr.querySelectorAll('td');
+            if (tds.length < 2) return; // linhas espaçadoras (4px) continuam ignoradas
+
+            if (y + altLinha > pageH - 15) { doc.addPage(); y = 15; desenharCabecalhoTabela(); }
 
             const isBold = tr.style.fontWeight === '700' || tr.style.fontWeight === 'bold' ||
                            tds[0].style.fontWeight === '700' || tds[0].style.fontWeight === 'bold';
+            const isFinal = tr.classList.contains('dre-linha-final');
 
             // Cor de fundo
-            if (tr.style.backgroundColor && tr.style.backgroundColor !== '') {
+            if (isFinal) {
+                // Verde quando é lucro, vermelho quando é prejuízo — mesma lógica da tela
+                const bg = tr.style.backgroundColor || '';
+                if (bg.includes('192, 57, 43') || bg.includes('c0392b')) doc.setFillColor(192, 57, 43);
+                else doc.setFillColor(30, 132, 73);
+                doc.setTextColor(255, 255, 255);
+            } else if (tr.style.backgroundColor && tr.style.backgroundColor !== '') {
                 const bg = tr.style.backgroundColor;
                 if (bg === 'rgb(255, 122, 66)' || bg === '#FF7A42' || bg.includes('255, 122, 66')) {
                     doc.setFillColor(255, 122, 66);
@@ -9022,11 +9119,8 @@
                     doc.setFillColor(248, 248, 248);
                     doc.setTextColor(0, 0, 0);
                 }
-            } else if (idx % 2 === 0) {
-                doc.setFillColor(255, 255, 255);
-                doc.setTextColor(0, 0, 0);
             } else {
-                doc.setFillColor(248, 248, 248);
+                doc.setFillColor(255, 255, 255);
                 doc.setTextColor(0, 0, 0);
             }
 
@@ -9041,14 +9135,16 @@
             if (descTxt.length > 45) descTxt = descTxt.substring(0, 44) + '...';
             doc.text(descTxt, margem + 2, y + 4.8);
 
-            // Valor
+            // Valor (na linha final, o texto já inclui o selo LUCRO/PREJUIZO — mantemos em branco)
             if (tds[1]) {
                 let valTxt = normalizarTexto(tds[1].innerText.trim());
-                const corVal = tds[1].style.color;
-                if (corVal && corVal.includes('220') || corVal && corVal.includes('dc3545')) doc.setTextColor(180, 0, 0);
-                else if (corVal && corVal.includes('40') || corVal && corVal.includes('28a745')) doc.setTextColor(0, 128, 0);
+                if (!isFinal) {
+                    const corVal = tds[1].style.color;
+                    if (corVal && corVal.includes('220') || corVal && corVal.includes('dc3545')) doc.setTextColor(180, 0, 0);
+                    else if (corVal && corVal.includes('40') || corVal && corVal.includes('28a745')) doc.setTextColor(0, 128, 0);
+                }
                 doc.text(valTxt, margem + colDesc + colValor - 2, y + 4.8, { align: 'right' });
-                doc.setTextColor(0, 0, 0);
+                if (!isFinal) doc.setTextColor(0, 0, 0);
             }
 
             // AV%
