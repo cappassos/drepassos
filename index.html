@@ -1546,6 +1546,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <h1>📥 Contas a Receber</h1>
                 <div style="display:flex;gap:8px;">
                     <button class="btn btn-secondary" onclick="gerarPDF('receber')" style="background:#e67e22;color:white;">📄 PDF</button>
+                    <button class="btn btn-secondary" onclick="abrirModalContasFixas('receber')" title="Editar em lote as datas/valores dos lançamentos fixos pendentes">🔁 Contas Fixas</button>
                     <button class="btn btn-primary" onclick="openModalLancarReceber()">+ Novo Lançamento</button>
                 </div>
             </div>
@@ -1639,6 +1640,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <h1>📤 Contas a Pagar</h1>
                 <div style="display:flex;gap:8px;">
                     <button class="btn btn-secondary" onclick="gerarPDFPagarPorDia()" style="background:#e67e22;color:white;" title="Gera o PDF separado por dia de vencimento, respeitando os filtros ativos">📄 PDF por Dia</button>
+                    <button class="btn btn-secondary" onclick="abrirModalContasFixas('pagar')" title="Editar em lote as datas/valores dos lançamentos fixos pendentes">🔁 Contas Fixas</button>
                     <button class="btn btn-primary" onclick="openModalLancarPagar()">+ Novo Lançamento</button>
                 </div>
             </div>
@@ -2776,6 +2778,38 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         <div id="listaContasDia" style="max-height:60vh;overflow-y:auto;"></div>
         <div class="form-actions">
             <button type="button" class="btn btn-secondary" onclick="closeModal('modalContasDia')">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONTAS FIXAS (editar em lote datas/valores de lançamentos recorrentes) -->
+<div class="modal" id="modalContasFixas">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <span id="modalContasFixasTitulo">🔁 Contas Fixas</span>
+            <button class="modal-close" onclick="closeModal('modalContasFixas')">&times;</button>
+        </div>
+
+        <div id="painelGruposContasFixas">
+            <div style="font-size:12px;color:#888;margin-bottom:12px;">Lançamentos marcados como "fixo" que ainda estão pendentes, agrupados pela mesma recorrência. Escolha um grupo para ajustar as datas (ou valores) de todas as parcelas restantes de uma só vez, sem precisar editar uma por uma.</div>
+            <div id="listaGruposContasFixas" style="max-height:55vh;overflow-y:auto;"></div>
+        </div>
+
+        <div id="painelEditarGrupoFixo" style="display:none;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="voltarListaGruposFixos()" style="margin-bottom:10px;">← Voltar</button>
+            <div style="font-weight:600;font-size:14px;margin-bottom:8px;" id="tituloGrupoFixoEditando"></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff8e1;border-radius:6px;border-left:3px solid #ffc107;margin-bottom:12px;flex-wrap:wrap;">
+                <label style="font-size:12px;font-weight:600;color:#856404;">Mudar o dia de vencimento de todas as parcelas para:</label>
+                <input type="number" id="diaVencimentoBulk" min="1" max="31" placeholder="Ex: 10" style="width:70px;padding:6px;border:1px solid #ddd;border-radius:4px;">
+                <button type="button" class="btn btn-secondary btn-small" onclick="aplicarDiaVencimentoEmMassa()">Aplicar a todas</button>
+            </div>
+            <div style="font-size:11px;color:#888;margin-bottom:6px;">Ou edite individualmente a data e/ou o valor de cada parcela abaixo:</div>
+            <div id="listaParcelasGrupoFixo" style="max-height:38vh;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:8px;font-size:12px;"></div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-success" id="btnSalvarContasFixas" onclick="salvarEdicaoGrupoFixo()" style="display:none;">💾 Salvar alterações</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalContasFixas')">Fechar</button>
         </div>
     </div>
 </div>
@@ -6592,6 +6626,167 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         }
     }
 
+    // ================================================================
+    // CONTAS FIXAS — edição em lote das parcelas recorrentes pendentes
+    // (ex: aluguel, salário fixo etc.) sem precisar editar uma por uma.
+    // ================================================================
+    let _contasFixasTipoAtual = 'pagar';
+    let _contasFixasGrupoAtual = null;
+    let _gruposContasFixasCache = [];
+
+    // Remove o sufixo "(Fixo i/N)" que é adicionado automaticamente ao criar
+    // um lançamento fixo, recuperando a descrição original da recorrência.
+    function _descricaoBaseFixo(descricao) {
+        return (descricao || '').replace(/\s*\(Fixo\s+\d+\/\d+\)\s*$/i, '').trim();
+    }
+
+    // Agrupa os lançamentos fixos ainda pendentes que pertencem à mesma
+    // recorrência (mesma descrição-base + fornecedor/cliente + categoria + valor).
+    function _agruparContasFixas(tipo) {
+        const lista = tipo === 'pagar' ? (dadosCache.contasPagar || []) : (dadosCache.contasReceber || []);
+        const fixos = lista.filter(c => c.custo_fixo && c.status === 'pendente' && c.data_vencimento);
+        const grupos = {};
+        fixos.forEach(c => {
+            const base = _descricaoBaseFixo(c.descricao);
+            const chave = [
+                base,
+                tipo === 'pagar' ? c.fornecedor_id : c.cliente_id,
+                tipo === 'pagar' ? (c.categoria_id || '') : '',
+                parseFloat(c.valor || 0).toFixed(2)
+            ].join('|');
+            if (!grupos[chave]) grupos[chave] = { chave, base, tipo, itens: [] };
+            grupos[chave].itens.push(c);
+        });
+        Object.values(grupos).forEach(g => g.itens.sort((a, b) => (a.data_vencimento || '').localeCompare(b.data_vencimento || '')));
+        return Object.values(grupos).sort((a, b) => a.base.localeCompare(b.base));
+    }
+
+    function abrirModalContasFixas(tipo) {
+        _contasFixasTipoAtual = tipo;
+        _contasFixasGrupoAtual = null;
+        document.getElementById('modalContasFixasTitulo').textContent = tipo === 'pagar' ? '🔁 Contas Fixas a Pagar' : '🔁 Contas Fixas a Receber';
+        _renderizarListaGruposFixos();
+        document.getElementById('modalContasFixas').classList.add('active');
+    }
+
+    function _renderizarListaGruposFixos() {
+        document.getElementById('painelGruposContasFixas').style.display = 'block';
+        document.getElementById('painelEditarGrupoFixo').style.display = 'none';
+        document.getElementById('btnSalvarContasFixas').style.display = 'none';
+
+        const grupos = _agruparContasFixas(_contasFixasTipoAtual);
+        _gruposContasFixasCache = grupos;
+        const container = document.getElementById('listaGruposContasFixas');
+        if (grupos.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:#999;padding:30px;">Nenhum lançamento fixo pendente encontrado.</div>';
+            return;
+        }
+        const fmtV = v => 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let html = '';
+        grupos.forEach((g, idx) => {
+            const item0 = g.itens[0];
+            const parte = _contasFixasTipoAtual === 'pagar'
+                ? (dadosCache.fornecedores || []).find(f => f.id === item0.fornecedor_id)
+                : (dadosCache.clientes || []).find(c => c.id === item0.cliente_id);
+            const proximoFmt = item0.data_vencimento ? new Date(item0.data_vencimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px solid #eee;border-radius:8px;margin-bottom:8px;background:#fafafa;flex-wrap:wrap;">' +
+                '<div style="min-width:0;">' +
+                    '<div style="font-weight:600;font-size:13.5px;">' + (g.base || '(sem descrição)') + '</div>' +
+                    '<div style="font-size:11.5px;color:#777;margin-top:2px;">' + (parte ? parte.nome : '-') + ' &nbsp;•&nbsp; ' + fmtV(item0.valor) + '/mês &nbsp;•&nbsp; ' + g.itens.length + ' parcela(s) pendente(s) &nbsp;•&nbsp; próxima: ' + proximoFmt + '</div>' +
+                '</div>' +
+                '<button type="button" class="btn btn-primary btn-small" onclick="_abrirEdicaoGrupoFixo(' + idx + ')">✏️ Editar datas</button>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function _abrirEdicaoGrupoFixo(idx) {
+        const grupo = _gruposContasFixasCache[idx];
+        if (!grupo) return;
+        _contasFixasGrupoAtual = grupo;
+        document.getElementById('painelGruposContasFixas').style.display = 'none';
+        document.getElementById('painelEditarGrupoFixo').style.display = 'block';
+        document.getElementById('btnSalvarContasFixas').style.display = '';
+        document.getElementById('tituloGrupoFixoEditando').textContent = grupo.base || '(sem descrição)';
+        document.getElementById('diaVencimentoBulk').value = '';
+        _renderizarParcelasGrupoFixo();
+    }
+
+    function voltarListaGruposFixos() {
+        _contasFixasGrupoAtual = null;
+        _renderizarListaGruposFixos();
+    }
+
+    function _renderizarParcelasGrupoFixo() {
+        const grupo = _contasFixasGrupoAtual;
+        if (!grupo) return;
+        let html = '';
+        grupo.itens.forEach((c, i) => {
+            html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;">' +
+                '<span style="min-width:66px;color:#666;font-size:11px;">Parcela ' + (i + 1) + '</span>' +
+                '<input type="date" value="' + (c.data_vencimento || '') + '" onchange="_editarDataGrupoFixo(' + i + ',this.value)" style="flex:1;min-width:0;padding:5px 6px;font-size:12px;border:1px solid #ddd;border-radius:4px;">' +
+                '<input type="number" step="0.01" min="0" value="' + parseFloat(c.valor || 0).toFixed(2) + '" onchange="_editarValorGrupoFixo(' + i + ',this.value)" style="width:100px;padding:5px 6px;font-size:12px;border:1px solid #ddd;border-radius:4px;text-align:right;">' +
+            '</div>';
+        });
+        document.getElementById('listaParcelasGrupoFixo').innerHTML = html;
+    }
+
+    function _editarDataGrupoFixo(i, valor) {
+        if (!_contasFixasGrupoAtual || !_contasFixasGrupoAtual.itens[i] || !valor) return;
+        _contasFixasGrupoAtual.itens[i].data_vencimento = valor;
+    }
+
+    function _editarValorGrupoFixo(i, valor) {
+        if (!_contasFixasGrupoAtual || !_contasFixasGrupoAtual.itens[i]) return;
+        const v = parseFloat(valor);
+        _contasFixasGrupoAtual.itens[i].valor = (isNaN(v) || v < 0) ? 0 : v;
+    }
+
+    // Ajusta em massa o "dia" de vencimento de todas as parcelas pendentes do
+    // grupo, mantendo o mês/ano de cada uma. Se o dia não existir naquele mês
+    // (ex: dia 31 em fevereiro), usa automaticamente o último dia do mês.
+    function aplicarDiaVencimentoEmMassa() {
+        const grupo = _contasFixasGrupoAtual;
+        const novoDia = parseInt(document.getElementById('diaVencimentoBulk').value);
+        if (!grupo || !novoDia || novoDia < 1 || novoDia > 31) {
+            alert('Informe um dia válido (1 a 31).');
+            return;
+        }
+        grupo.itens.forEach(c => {
+            if (!c.data_vencimento) return;
+            const [ano, mes] = c.data_vencimento.split('-').map(Number);
+            const ultimoDiaMes = new Date(ano, mes, 0).getDate();
+            const dia = Math.min(novoDia, ultimoDiaMes);
+            c.data_vencimento = ano + '-' + String(mes).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
+        });
+        _renderizarParcelasGrupoFixo();
+    }
+
+    async function salvarEdicaoGrupoFixo() {
+        const grupo = _contasFixasGrupoAtual;
+        if (!grupo) return;
+        const tabela = grupo.tipo === 'pagar' ? 'contas_a_pagar' : 'contas_a_receber';
+        const alertId = grupo.tipo === 'pagar' ? 'alertLancarPagar' : 'alertLancarReceber';
+        let erros = 0;
+        for (const c of grupo.itens) {
+            const r = await fetchSupabase(tabela, 'PATCH', {
+                data_vencimento: c.data_vencimento,
+                valor: c.valor
+            }, 'id=eq.' + c.id);
+            if (r === null) erros++;
+        }
+        closeModal('modalContasFixas');
+        if (erros === 0) {
+            showAlert('Datas/valores das contas fixas atualizados com sucesso!', alertId, 'success');
+        } else {
+            showAlert('Erro ao atualizar ' + erros + ' parcela(s).', alertId, 'error');
+        }
+        await carregarContasReceber();
+        await carregarContasPagar();
+        await atualizarDashboard();
+        _atualizarCalendarioSeAtivo();
+    }
+
     function navegarMes(delta) {
         const mesEl = document.getElementById('filtroMesCalendario');
         const anoEl = document.getElementById('filtroAnoCalendario');
@@ -9543,6 +9738,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     // Converte caracteres especiais do português para equivalentes ASCII
     // compatíveis com a fonte Helvetica padrão do jsPDF
+    // Capitaliza a primeira letra (usado para nomes de dias da semana no PDF)
+    function _capitalizar(txt) {
+        if (!txt) return '';
+        return txt.charAt(0).toUpperCase() + txt.slice(1);
+    }
+
     function normalizarTexto(txt) {
         if (!txt) return '';
         return String(txt)
@@ -9571,10 +9772,18 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // Respeita os filtros ativos na tela (Fornecedor, Categoria, Ano, Mês,
     // Status) e gera um bloco por dia: "Dia 01/08" com todos os lançamentos
     // que vencem naquele dia, depois "Dia 02/08" com os do dia seguinte etc.
+    // Layout com painel de resumo (KPIs), filtros aplicados e cabeçalhos de
+    // dia mais limpos, alinhado à identidade visual do sistema.
     // ================================================================
     function gerarPDFPagarPorDia() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        // Cores da marca (mesmas do CSS: --cor-primaria / --cor-secundaria)
+        const COR_PRIMARIA = [255, 122, 66];
+        const COR_TEXTO    = [51, 51, 51];
+        const COR_CINZA    = [130, 130, 130];
+        const COR_LINHA    = [225, 225, 225];
 
         // Reaplica os mesmos filtros da tela de Contas a Pagar
         let dados = dadosCache.contasPagar || [];
@@ -9602,6 +9811,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             return;
         }
 
+        // Texto legível do valor selecionado em um <select> (para o resumo de filtros)
+        const _textoFiltro = (el) => {
+            if (!el || !el.value) return 'Todos';
+            const opt = el.options[el.selectedIndex];
+            return opt ? opt.textContent : 'Todos';
+        };
+        const fmtV = v => 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
         // Agrupar por data de vencimento (YYYY-MM-DD)
         const porDia = {};
         dados.forEach(c => {
@@ -9612,32 +9829,92 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
         const diasOrdenados = Object.keys(porDia).sort();
 
+        // KPIs do resumo
+        const totalGeralKPI = dados.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+        const atrasados = dados.filter(c => new Date(c.data_vencimento + 'T12:00:00') < hojeObj);
+        const totalAtrasadoKPI = atrasados.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+
         const pageW = doc.internal.pageSize.getWidth();
         const pageH = doc.internal.pageSize.getHeight();
         const hojeStr = new Date().toLocaleDateString('pt-BR');
+        const margemX = 10;
 
         const desenharTopo = () => {
-            doc.setFillColor(255, 122, 66);
-            doc.rect(0, 0, pageW, 16, 'F');
+            doc.setFillColor(COR_PRIMARIA[0], COR_PRIMARIA[1], COR_PRIMARIA[2]);
+            doc.rect(0, 0, pageW, 18, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(13);
+            doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.text('CAP Gestao Financeira', 10, 10);
-            doc.setFontSize(10);
+            doc.text('CAP Gestao Financeira', margemX, 11.5);
+            doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text('Gerado em: ' + hojeStr, pageW - 10, 10, { align: 'right' });
+            doc.text('Gerado em ' + hojeStr, pageW - margemX, 11.5, { align: 'right' });
         };
 
+        const desenharRodape = (data) => {
+            doc.setDrawColor(COR_LINHA[0], COR_LINHA[1], COR_LINHA[2]);
+            doc.setLineWidth(0.2);
+            doc.line(margemX, pageH - 10, pageW - margemX, pageH - 10);
+            doc.setFontSize(7.5);
+            doc.setTextColor(COR_CINZA[0], COR_CINZA[1], COR_CINZA[2]);
+            doc.setFont(undefined, 'normal');
+            doc.text('CAP Gestao Financeira', margemX, pageH - 6);
+            const pageNum = doc.internal.getNumberOfPages();
+            doc.text('Pagina ' + data.pageNumber + ' de ' + pageNum, pageW - margemX, pageH - 6, { align: 'right' });
+        };
+
+        // --- Cabeçalho + título ---
         desenharTopo();
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(12);
+        doc.setTextColor(COR_TEXTO[0], COR_TEXTO[1], COR_TEXTO[2]);
+        doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
-        doc.text(normalizarTexto('Contas a Pagar — Separado por Dia de Vencimento'), pageW / 2, 24, { align: 'center' });
+        doc.text(normalizarTexto('Contas a Pagar — Relatório por Dia de Vencimento'), margemX, 27);
+
+        // --- Linha de filtros aplicados ---
+        doc.setFontSize(8.5);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(COR_CINZA[0], COR_CINZA[1], COR_CINZA[2]);
+        const textoFiltros = normalizarTexto(
+            'Fornecedor: ' + _textoFiltro(filtroFornecedor) +
+            '   •   Categoria: ' + _textoFiltro(filtroCategoria) +
+            '   •   Ano: ' + _textoFiltro(filtroAno) +
+            '   •   Mes: ' + _textoFiltro(filtroMes) +
+            '   •   Status: ' + _textoFiltro(filtroStatus)
+        );
+        doc.text(textoFiltros, margemX, 32.5);
+
+        // --- Cards de resumo (KPIs) ---
+        const cardsY = 37;
+        const cardsH = 17;
+        const cardGap = 4;
+        const cardW = (pageW - margemX * 2 - cardGap * 3) / 4;
+        const cards = [
+            { label: 'TOTAL DO PERIODO', valor: fmtV(totalGeralKPI), cor: COR_PRIMARIA },
+            { label: 'LANCAMENTOS', valor: String(dados.length), cor: COR_TEXTO },
+            { label: 'DIAS COM VENCIMENTO', valor: String(diasOrdenados.length), cor: COR_TEXTO },
+            { label: 'EM ATRASO', valor: fmtV(totalAtrasadoKPI) + ' (' + atrasados.length + ')', cor: [180, 0, 0] }
+        ];
+        cards.forEach((card, i) => {
+            const x = margemX + i * (cardW + cardGap);
+            doc.setDrawColor(COR_LINHA[0], COR_LINHA[1], COR_LINHA[2]);
+            doc.setLineWidth(0.2);
+            doc.setFillColor(250, 250, 250);
+            doc.roundedRect(x, cardsY, cardW, cardsH, 1.2, 1.2, 'FD');
+            doc.setFillColor(card.cor[0], card.cor[1], card.cor[2]);
+            doc.roundedRect(x, cardsY, 1.6, cardsH, 0.8, 0.8, 'F');
+            doc.setFontSize(7);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(COR_CINZA[0], COR_CINZA[1], COR_CINZA[2]);
+            doc.text(normalizarTexto(card.label), x + 5, cardsY + 6);
+            doc.setFontSize(11.5);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(card.cor[0], card.cor[1], card.cor[2]);
+            doc.text(normalizarTexto(card.valor), x + 5, cardsY + 13);
+        });
 
         const colunas = ['Fornecedor', 'Categoria', 'Descrição', 'NF', 'Valor', 'Parcela', 'Status'];
-        const larguras = [45, 35, 60, 20, 25, 18, 22];
-        let totalGeral = 0;
-        let cursorY = 28;
+        const larguras = [45, 35, 62, 18, 26, 16, 22];
+        let cursorY = cardsY + cardsH + 9;
 
         diasOrdenados.forEach((diaISO) => {
             const itens = porDia[diaISO];
@@ -9658,47 +9935,61 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     normalizarTexto(categoria ? categoria.nome : '-'),
                     normalizarTexto(c.descricao || '-'),
                     normalizarTexto(c.nota_fiscal || '-'),
-                    'R$ ' + parseFloat(c.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    fmtV(c.valor),
                     parc,
                     status
                 ];
             });
-            totalGeral += totalDia;
 
-            // Evita começar o título do dia colado ao rodapé da página
-            if (cursorY > pageH - 40) {
+            // Evita começar o cabeçalho do dia colado ao rodapé da página
+            if (cursorY > pageH - 48) {
                 doc.addPage();
                 desenharTopo();
-                cursorY = 22;
+                cursorY = 26;
             }
 
-            doc.setFillColor(255, 235, 220);
-            doc.rect(8, cursorY, pageW - 16, 8, 'F');
-            doc.setTextColor(120, 50, 10);
-            doc.setFontSize(10);
+            // Cabeçalho do dia — estilo limpo (sem bloco colorido sólido)
+            doc.setFillColor(COR_PRIMARIA[0], COR_PRIMARIA[1], COR_PRIMARIA[2]);
+            doc.rect(margemX, cursorY, 1.8, 9.5, 'F');
             doc.setFont(undefined, 'bold');
-            doc.text(normalizarTexto('Dia ' + dataFmt + ' (' + nomeDia + ') — ' + itens.length + ' lançamento(s)'), 10, cursorY + 5.5);
+            doc.setFontSize(11);
+            doc.setTextColor(COR_TEXTO[0], COR_TEXTO[1], COR_TEXTO[2]);
+            doc.text(normalizarTexto('Dia ' + dataFmt), margemX + 5, cursorY + 4.3);
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(9);
-            doc.text('Total do dia: R$ ' + totalDia.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                pageW - 10, cursorY + 5.5, { align: 'right' });
-            cursorY += 10;
+            doc.setFontSize(8);
+            doc.setTextColor(COR_CINZA[0], COR_CINZA[1], COR_CINZA[2]);
+            doc.text(normalizarTexto(_capitalizar(nomeDia) + '  •  ' + itens.length + (itens.length === 1 ? ' lancamento' : ' lancamentos')), margemX + 5, cursorY + 8.8);
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(10.5);
+            doc.setTextColor(COR_TEXTO[0], COR_TEXTO[1], COR_TEXTO[2]);
+            doc.text('Total do dia: ' + fmtV(totalDia), pageW - margemX, cursorY + 6.5, { align: 'right' });
+            cursorY += 12.5;
+            doc.setDrawColor(COR_LINHA[0], COR_LINHA[1], COR_LINHA[2]);
+            doc.setLineWidth(0.2);
+            doc.line(margemX, cursorY - 3, pageW - margemX, cursorY - 3);
 
-            const columnStyles = {};
-            larguras.forEach((w, i) => { columnStyles[i] = { cellWidth: w }; });
+            const columnStyles = {
+                4: { halign: 'right' },
+                5: { halign: 'center' },
+                6: { halign: 'center' }
+            };
+            larguras.forEach((w, i) => { columnStyles[i] = Object.assign({ cellWidth: w }, columnStyles[i] || {}); });
 
             doc.autoTable({
                 head: [colunas.map(c => normalizarTexto(c))],
                 body: body,
                 startY: cursorY,
-                margin: { left: 8, right: 8, bottom: 12 },
+                margin: { left: margemX, right: margemX, bottom: 14 },
                 tableWidth: 'wrap',
                 styles: {
-                    fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak', valign: 'middle',
-                    lineColor: [200, 200, 200], lineWidth: 0.1, textColor: [50, 50, 50], fillColor: [255, 255, 255]
+                    fontSize: 8, cellPadding: 2, overflow: 'linebreak', valign: 'middle',
+                    lineColor: [235, 235, 235], lineWidth: 0.1, textColor: [60, 60, 60], fillColor: [255, 255, 255]
                 },
-                headStyles: { fillColor: [80, 80, 80], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left', cellPadding: 2 },
-                alternateRowStyles: { fillColor: [248, 248, 248] },
+                headStyles: {
+                    fillColor: COR_TEXTO, textColor: [255, 255, 255], fontStyle: 'bold',
+                    halign: 'left', fontSize: 7.5, cellPadding: 2.2
+                },
+                alternateRowStyles: { fillColor: [250, 250, 250] },
                 columnStyles: columnStyles,
                 didParseCell: function (data) {
                     if (data.section === 'body') {
@@ -9707,23 +9998,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         else if (t === 'pendente') { data.cell.styles.textColor = [150, 100, 0]; data.cell.styles.fontStyle = 'bold'; }
                     }
                 },
-                didDrawPage: function (data) {
-                    doc.setFontSize(7);
-                    doc.setTextColor(120, 120, 120);
-                    doc.setFont(undefined, 'normal');
-                    const pageNum = doc.internal.getNumberOfPages();
-                    doc.text('Pagina ' + data.pageNumber + ' de ' + pageNum, pageW / 2, pageH - 5, { align: 'center' });
-                }
+                didDrawPage: function (data) { desenharRodape(data); }
             });
             cursorY = doc.lastAutoTable.finalY + 8;
         });
 
-        if (cursorY > pageH - 20) { doc.addPage(); desenharTopo(); cursorY = 24; }
+        // --- Total geral no rodapé do relatório ---
+        if (cursorY > pageH - 24) { doc.addPage(); desenharTopo(); cursorY = 28; }
+        doc.setDrawColor(COR_TEXTO[0], COR_TEXTO[1], COR_TEXTO[2]);
+        doc.setLineWidth(0.3);
+        doc.line(pageW - margemX - 80, cursorY - 4, pageW - margemX, cursorY - 4);
         doc.setFont(undefined, 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        doc.text('TOTAL GERAL: R$ ' + totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-            pageW - 10, cursorY, { align: 'right' });
+        doc.setTextColor(COR_TEXTO[0], COR_TEXTO[1], COR_TEXTO[2]);
+        doc.setFontSize(11);
+        doc.text('TOTAL GERAL: ' + fmtV(totalGeralKPI), pageW - margemX, cursorY, { align: 'right' });
 
         doc.save('relatorio_pagar_por_dia_' + hojeStr.replace(/\//g, '-') + '.pdf');
     }
