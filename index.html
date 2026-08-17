@@ -1519,6 +1519,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             <option value="11">Novembro</option><option value="12">Dezembro</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="filtroStatusReceber" onchange="atualizarTabelaPendentesReceber()">
+                            <option value="">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="atrasado">Atrasado</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -1608,6 +1616,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             <option value="07">Julho</option><option value="08">Agosto</option>
                             <option value="09">Setembro</option><option value="10">Outubro</option>
                             <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="filtroStatusPagar" onchange="atualizarTabelaPendentesPagar()">
+                            <option value="">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="atrasado">Atrasado</option>
                         </select>
                     </div>
                 </div>
@@ -2829,14 +2845,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         </div>
         <form onsubmit="salvarContaPagar(event)">
             <div class="form-section">
-                <div class="form-section-title">🏭 Fornecedor e Categoria</div>
+                <div class="form-section-title">📁 Categoria</div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Fornecedor*</label>
-                        <select id="fornecedorPagar" required>
-                            <option value="">Selecione...</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label>Categoria*</label>
                         <div class="combo-pesquisavel" id="comboCategoriaPagar">
@@ -2852,18 +2862,23 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Subcategoria</label>
-                        <select id="subcategoriaPagar">
-                            <option value="">Selecione a categoria primeiro...</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label>Descrição*</label>
                         <input type="text" id="descricaoPagar" required placeholder="Ex: Compra de mercadorias">
                     </div>
+                </div>
+                <!-- Fornecedor e Subcategoria foram retirados desta tela de lançamento
+                     para simplificar o cadastro. Os campos continuam existindo (ocultos)
+                     para não quebrar lançamentos antigos que já têm esses dados
+                     vinculados — eles seguem visíveis normalmente na listagem, nos
+                     filtros e na edição de lançamentos existentes. -->
+                <div style="display:none;">
+                    <select id="fornecedorPagar">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <select id="subcategoriaPagar">
+                        <option value="">Selecione a categoria primeiro...</option>
+                    </select>
                 </div>
             </div>
 
@@ -3345,7 +3360,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     let editandoTipo = null;
 
     // ── PERSISTÊNCIA DE FILTROS ──────────────────────────────────────────────
-    const _FILTER_IDS = ["filtroClienteReceber", "filtroAnoReceber", "filtroMesReceber", "filtroFornecedorPagar", "filtroCategoriaPagar", "filtroAnoPagar", "filtroMesPagar", "filtroAnoRecebida", "filtroMesRecebida", "filtroClienteRecebida", "filtroValorRecebida", "filtroAnoPaga", "filtroMesPaga", "filtroFornecedorPaga", "filtroValorPaga", "filtroAnoRelReceber", "filtroMesRelReceber", "filtroDialRelReceber", "filtroAnoRelPagar", "filtroMesRelPagar", "filtroDialRelPagar", "filtroAnoDFC", "filtroMesDFC", "filtroAnoDRE", "filtroMesDRE", "modoDRE", "filtroMesCalendario", "filtroAnoCalendario", "extratoFiltrobancoId", "extratoFiltroAno", "extratoFiltroMes", "filtroAnoFCP", "dashFiltroAno", "dashFiltroMes"];
+    const _FILTER_IDS = ["filtroClienteReceber", "filtroAnoReceber", "filtroMesReceber", "filtroStatusReceber", "filtroFornecedorPagar", "filtroCategoriaPagar", "filtroAnoPagar", "filtroMesPagar", "filtroStatusPagar", "filtroAnoRecebida", "filtroMesRecebida", "filtroClienteRecebida", "filtroValorRecebida", "filtroAnoPaga", "filtroMesPaga", "filtroFornecedorPaga", "filtroValorPaga", "filtroAnoRelReceber", "filtroMesRelReceber", "filtroDialRelReceber", "filtroAnoRelPagar", "filtroMesRelPagar", "filtroDialRelPagar", "filtroAnoDFC", "filtroMesDFC", "filtroAnoDRE", "filtroMesDRE", "modoDRE", "filtroMesCalendario", "filtroAnoCalendario", "extratoFiltrobancoId", "extratoFiltroAno", "extratoFiltroMes", "filtroAnoFCP", "dashFiltroAno", "dashFiltroMes"];
 
     function _filtroKey(id) {
         const user = usuarioAtual ? usuarioAtual.email : 'guest';
@@ -4270,12 +4285,21 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const filtroCliente = document.getElementById('filtroClienteReceber');
         const filtroAno = document.getElementById('filtroAnoReceber');
         const filtroMes = document.getElementById('filtroMesReceber');
+        const filtroStatus = document.getElementById('filtroStatusReceber');
         if (filtroCliente && filtroCliente.value) filtrado = filtrado.filter(c => c.cliente_id == filtroCliente.value);
         if (filtroAno && filtroAno.value) filtrado = filtrado.filter(c => c.data_vencimento && c.data_vencimento.startsWith(filtroAno.value));
         if (filtroMes && filtroMes.value) filtrado = filtrado.filter(c => c.data_vencimento && c.data_vencimento.includes('-' + filtroMes.value + '-'));
 
-        // Calcular totais
         const hoje = new Date(); hoje.setHours(0,0,0,0);
+        if (filtroStatus && filtroStatus.value) {
+            filtrado = filtrado.filter(c => {
+                const venc = new Date(c.data_vencimento + 'T12:00:00');
+                const status = venc < hoje ? 'atrasado' : 'pendente';
+                return status === filtroStatus.value;
+            });
+        }
+
+        // Calcular totais
         let totalFiltro = 0, totalAtrasado = 0;
         filtrado.forEach(c => {
             const v = parseFloat(c.valor || 0);
@@ -4411,13 +4435,22 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const filtroCategoria = document.getElementById('filtroCategoriaPagar');
         const filtroAno = document.getElementById('filtroAnoPagar');
         const filtroMes = document.getElementById('filtroMesPagar');
+        const filtroStatus = document.getElementById('filtroStatusPagar');
         if (filtroFornecedor && filtroFornecedor.value) filtrado = filtrado.filter(c => c.fornecedor_id == filtroFornecedor.value);
         if (filtroCategoria && filtroCategoria.value) filtrado = filtrado.filter(c => c.categoria_id == filtroCategoria.value);
         if (filtroAno && filtroAno.value) filtrado = filtrado.filter(c => c.data_vencimento && c.data_vencimento.startsWith(filtroAno.value));
         if (filtroMes && filtroMes.value) filtrado = filtrado.filter(c => c.data_vencimento && c.data_vencimento.includes('-' + filtroMes.value + '-'));
 
-        // Calcular totais
         const hoje = new Date(); hoje.setHours(0,0,0,0);
+        if (filtroStatus && filtroStatus.value) {
+            filtrado = filtrado.filter(c => {
+                const venc = new Date(c.data_vencimento + 'T12:00:00');
+                const status = venc < hoje ? 'atrasado' : 'pendente';
+                return status === filtroStatus.value;
+            });
+        }
+
+        // Calcular totais
         let totalFiltro = 0, totalAtrasado = 0;
         filtrado.forEach(c => {
             const v = parseFloat(c.valor || 0);
@@ -4472,7 +4505,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const competencia = document.getElementById('competenciaPagar').value;
         const obs = document.getElementById('observacoesPagar').value;
         const notaFiscal = document.getElementById('notaFiscalPagar').value.trim() || null;
-        const fornecedorId = parseInt(document.getElementById('fornecedorPagar').value);
+        const fornecedorId = document.getElementById('fornecedorPagar').value ? parseInt(document.getElementById('fornecedorPagar').value) : null;
         const categoriaId = document.getElementById('categoriaPagar').value ? parseInt(document.getElementById('categoriaPagar').value) : null;
         const subcategoriaId = document.getElementById('subcategoriaPagar').value ? parseInt(document.getElementById('subcategoriaPagar').value) : null;
         const descricao = document.getElementById('descricaoPagar').value;
