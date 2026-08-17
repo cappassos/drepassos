@@ -429,6 +429,16 @@
             color: #999;
         }
 
+        /* CALENDÁRIO — dias com lançamentos ficam clicáveis */
+        .cal-dia-clicavel {
+            cursor: pointer;
+            transition: filter 0.15s;
+        }
+
+        .cal-dia-clicavel:hover {
+            filter: brightness(0.93);
+        }
+
         .btn-secondary {
             background-color: #666;
             color: white;
@@ -1454,8 +1464,8 @@
             </div>
 
             <div id="transferenciasSemTabela" style="display:none;margin-top:16px;padding:14px 16px;background:#fff8e1;border-radius:8px;border-left:3px solid #ffc107;font-size:12.5px;color:#856404;">
-                <strong>⚠️ A tabela <code>transferencias</code> ainda não existe no banco de dados.</strong> Para habilitar esta tela, execute o script abaixo uma única vez no <b>SQL Editor</b> do Supabase:
-                <pre style="font-size:11px;margin-top:8px;background:#f5f5f5;color:#333;padding:10px;border-radius:4px;overflow-x:auto;">CREATE TABLE transferencias (
+                <strong>⚠️ A tabela <code>transferencias</code> não existe ou o acesso a ela está bloqueado (RLS).</strong> Execute o script abaixo uma única vez no <b>SQL Editor</b> do Supabase (ele pode ser executado com segurança mesmo que a tabela já exista):
+                <pre style="font-size:11px;margin-top:8px;background:#f5f5f5;color:#333;padding:10px;border-radius:4px;overflow-x:auto;">CREATE TABLE IF NOT EXISTS transferencias (
     id BIGSERIAL PRIMARY KEY,
     banco_origem_id BIGINT NOT NULL REFERENCES bancos(id),
     banco_destino_id BIGINT NOT NULL REFERENCES bancos(id),
@@ -1468,7 +1478,7 @@
 ALTER TABLE transferencias DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON transferencias TO anon;
 GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
-                <div style="margin-top:8px;"><button class="btn btn-secondary btn-small" onclick="carregarTransferencias()">🔄 Já criei a tabela, recarregar</button></div>
+                <div style="margin-top:8px;"><button class="btn btn-secondary btn-small" onclick="carregarTransferencias()">🔄 Já executei o script, recarregar</button></div>
             </div>
         </div>
 
@@ -2679,6 +2689,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalTransferencia')">Cancelar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- MODAL CONTAS DO DIA (aberto ao clicar em um dia no Calendário) -->
+<div class="modal" id="modalContasDia">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <span id="modalContasDiaTitulo">📅 Contas do dia</span>
+            <button class="modal-close" onclick="closeModal('modalContasDia')">&times;</button>
+        </div>
+        <div id="listaContasDia" style="max-height:60vh;overflow-y:auto;"></div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalContasDia')">Fechar</button>
+        </div>
     </div>
 </div>
 
@@ -4709,6 +4733,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await carregarContasRecebidas();
             await carregarBancos();
             await atualizarDashboard();
+            _atualizarCalendarioSeAtivo();
         }
     }
 
@@ -4752,6 +4777,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await carregarContasPagas();
             await carregarBancos();
             await atualizarDashboard();
+            _atualizarCalendarioSeAtivo();
         }
     }
 
@@ -4865,6 +4891,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await carregarContasRecebidas();
             await carregarContasPagas();
             await atualizarDashboard();
+            _atualizarCalendarioSeAtivo();
         }
     }
 
@@ -6343,7 +6370,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         </div>`;
                     }
 
-                    html += `<td style="height:80px;border:${borderStyle};background:${bgColor};padding:5px;vertical-align:top;cursor:default;" title="${dataStr}">${cellContent}</td>`;
+                    html += `<td class="${(rec.length > 0 || pag.length > 0) ? 'cal-dia-clicavel' : ''}" style="height:80px;border:${borderStyle};background:${bgColor};padding:5px;vertical-align:top;" title="${(rec.length > 0 || pag.length > 0) ? 'Clique para ver as contas do dia' : dataStr}" ${(rec.length > 0 || pag.length > 0) ? `onclick="abrirContasDoDia('${dataStr}')"` : ''}>${cellContent}</td>`;
                     diaAtual++;
                 }
             }
@@ -6354,6 +6381,102 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         // ── Tabela melhor dia de compras (somente dias úteis) ──
         gerarTabelaMelhorDia(ano, mes, rList, pList);
+    }
+
+    // Reabre/atualiza o calendário se ele for a página visível no momento
+    // (usado após pagar, receber, editar ou deletar uma conta pelo modal do dia)
+    function _atualizarCalendarioSeAtivo() {
+        const pagina = document.getElementById('calendario');
+        if (pagina && pagina.classList.contains('active')) gerarCalendario();
+    }
+
+    // Abre o modal com as contas (a pagar e a receber) de um dia específico,
+    // ao clicar em uma célula do calendário ou em uma linha da tabela de
+    // "Melhor Dia para Compras".
+    function abrirContasDoDia(dataStr) {
+        const rec = (dadosCache.contasReceber || []).filter(c => c.data_vencimento === dataStr);
+        const pag = (dadosCache.contasPagar   || []).filter(c => c.data_vencimento === dataStr);
+        if (rec.length === 0 && pag.length === 0) return;
+
+        const dObj = new Date(dataStr + 'T12:00:00');
+        const tituloEl = document.getElementById('modalContasDiaTitulo');
+        if (tituloEl) {
+            const dataFmt = dObj.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            tituloEl.textContent = '📅 Contas de ' + dataFmt.charAt(0).toUpperCase() + dataFmt.slice(1);
+        }
+
+        const fmtV = v => 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        let totalRec = 0, totalPag = 0;
+        let html = '';
+
+        if (rec.length > 0) {
+            html += '<div style="font-size:12px;font-weight:700;color:#28a745;margin:4px 0 8px;">💚 A RECEBER</div>';
+            rec.forEach(c => {
+                totalRec += parseFloat(c.valor || 0);
+                const cliente = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+                const parc = c.total_parcelas > 1 ? ' &nbsp;<span style="background:#e3f2fd;color:#1565c0;padding:1px 6px;border-radius:10px;font-size:10px;">' + c.parcela_atual + '/' + c.total_parcelas + '</span>' : '';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border:1px solid #eee;border-radius:6px;margin-bottom:6px;background:#f8fff9;flex-wrap:wrap;">' +
+                    '<div style="min-width:0;flex:1;">' +
+                        '<div style="font-weight:600;font-size:13px;">' + (c.descricao || '-') + parc + '</div>' +
+                        '<div style="font-size:11px;color:#777;">' + (cliente ? cliente.nome : '-') + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                        '<span style="font-weight:700;color:#28a745;white-space:nowrap;">' + fmtV(c.valor) + '</span>' +
+                        '<button class="btn btn-success btn-small" onclick="closeModal(\'modalContasDia\');receberConta(' + c.id + ')">✅ Receber</button>' +
+                        '<button class="btn btn-secondary btn-small" onclick="closeModal(\'modalContasDia\');editarLancamento(' + c.id + ',\'receber\')">✏️</button>' +
+                        '<button class="btn btn-danger btn-small" onclick="deletarContaDoDia(' + c.id + ',\'contas_a_receber\')">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+            });
+        }
+
+        if (pag.length > 0) {
+            html += '<div style="font-size:12px;font-weight:700;color:#dc3545;margin:14px 0 8px;">❤️ A PAGAR</div>';
+            pag.forEach(c => {
+                totalPag += parseFloat(c.valor || 0);
+                const fornecedor = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+                const parc = c.total_parcelas > 1 ? ' &nbsp;<span style="background:#e3f2fd;color:#1565c0;padding:1px 6px;border-radius:10px;font-size:10px;">' + c.parcela_atual + '/' + c.total_parcelas + '</span>' : '';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border:1px solid #eee;border-radius:6px;margin-bottom:6px;background:#fffaf9;flex-wrap:wrap;">' +
+                    '<div style="min-width:0;flex:1;">' +
+                        '<div style="font-weight:600;font-size:13px;">' + (c.descricao || '-') + parc + '</div>' +
+                        '<div style="font-size:11px;color:#777;">' + (fornecedor ? fornecedor.nome : '-') + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                        '<span style="font-weight:700;color:#dc3545;white-space:nowrap;">' + fmtV(c.valor) + '</span>' +
+                        '<button class="btn btn-success btn-small" onclick="closeModal(\'modalContasDia\');pagarConta(' + c.id + ')">💳 Pagar</button>' +
+                        '<button class="btn btn-secondary btn-small" onclick="closeModal(\'modalContasDia\');editarLancamento(' + c.id + ',\'pagar\')">✏️</button>' +
+                        '<button class="btn btn-danger btn-small" onclick="deletarContaDoDia(' + c.id + ',\'contas_a_pagar\')">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+            });
+        }
+
+        const saldoDia = totalRec - totalPag;
+        html += '<div style="display:flex;justify-content:space-between;padding:10px 4px 0;margin-top:8px;border-top:2px solid #eee;font-weight:700;font-size:13px;">' +
+            '<span>Saldo do dia:</span>' +
+            '<span style="color:' + (saldoDia >= 0 ? '#28a745' : '#dc3545') + ';">' + (saldoDia < 0 ? '-' : '') + fmtV(Math.abs(saldoDia)) + '</span>' +
+            '</div>';
+
+        const lista = document.getElementById('listaContasDia');
+        if (lista) lista.innerHTML = html;
+        document.getElementById('modalContasDia').classList.add('active');
+    }
+
+    // Deletar uma conta diretamente pelo modal "Contas do dia", mantendo o
+    // modal aberto e atualizado (sem precisar reabrir o dia manualmente).
+    async function deletarContaDoDia(id, tabela) {
+        if (!confirm('Tem certeza que deseja deletar esta conta?')) return;
+        const resultado = await fetchSupabase(tabela, 'DELETE', null, `id=eq.${id}`);
+        if (resultado !== null) {
+            showAlert('Conta deletada com sucesso!', tabela === 'contas_a_receber' ? 'alertLancarReceber' : 'alertLancarPagar', 'success');
+            await carregarContasReceber();
+            await carregarContasPagar();
+            await carregarContasRecebidas();
+            await carregarContasPagas();
+            await atualizarDashboard();
+            _atualizarCalendarioSeAtivo();
+            closeModal('modalContasDia');
+        }
     }
 
     function navegarMes(delta) {
@@ -6417,8 +6540,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const saldoFmt = (dia.saldo < 0 ? '-' : '+') + 'R$ ' + Math.abs(dia.saldo).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
             const indicacao = i === 0 ? '⭐ Melhor dia' : i === 1 ? '✅ Ótima opção' : i === 2 ? '👍 Boa opção' : '';
             const bgRow = i < 3 ? (i === 0 ? 'background:#fffde7;' : 'background:#f0fdf4;') : '';
+            const temConta = dia.totalR > 0 || dia.totalP > 0;
 
-            tbody.innerHTML += `<tr style="${bgRow}">
+            tbody.innerHTML += `<tr class="${temConta ? 'cal-dia-clicavel' : ''}" style="${bgRow}" ${temConta ? `onclick="abrirContasDoDia('${dia.dataStr}')" title="Clique para ver as contas do dia"` : ''}>
                 <td style="text-align:center;font-size:16px;">${medalhas[i] || (i+1)}</td>
                 <td style="font-weight:600;">${dia.d}</td>
                 <td>${dtFmt}</td>
@@ -10081,8 +10205,10 @@ ALTER TABLE subcategorias DISABLE ROW LEVEL SECURITY;
 ALTER TABLE produtos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE fornecedores DISABLE ROW LEVEL SECURITY;
 ALTER TABLE clientes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bancos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE contas_a_receber DISABLE ROW LEVEL SECURITY;
 ALTER TABLE contas_a_pagar DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transferencias DISABLE ROW LEVEL SECURITY;
 
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon;</pre>
