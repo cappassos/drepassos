@@ -387,6 +387,48 @@
             justify-content: flex-end;
         }
 
+        /* COMBOBOX PESQUISÁVEL (campo de busca que substitui um <select> nativo) */
+        .combo-pesquisavel {
+            position: relative;
+        }
+
+        .combo-pesquisavel-lista {
+            display: none;
+            position: absolute;
+            z-index: 60;
+            top: calc(100% + 3px);
+            left: 0;
+            right: 0;
+            max-height: 230px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid var(--cor-borda);
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+
+        .combo-pesquisavel-lista.aberta {
+            display: block;
+        }
+
+        .combo-pesquisavel-item {
+            padding: 9px 12px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .combo-pesquisavel-item:hover,
+        .combo-pesquisavel-item.ativo {
+            background: var(--cor-primaria);
+            color: white;
+        }
+
+        .combo-pesquisavel-vazio {
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #999;
+        }
+
         .btn-secondary {
             background-color: #666;
             color: white;
@@ -962,6 +1004,7 @@
             <div class="menu-item" onclick="showPage('fornecedores')">🏭 Fornecedores</div>
             <div class="menu-item" onclick="showPage('clientes')">👥 Clientes</div>
             <div class="menu-item" onclick="showPage('bancos')">🏦 Bancos</div>
+            <div class="menu-item" onclick="showPage('transferencias')">🔄 Transferências</div>
         </div>
 
         <div class="menu-section">
@@ -1355,6 +1398,77 @@
                     <button type="button" class="btn btn-success btn-small" onclick="confirmarTodasSugestoes()">✅ Confirmar todas as sugestões</button>
                 </div>
                 <div id="conciliacaoResultado"></div>
+            </div>
+        </div>
+
+        <!-- TRANSFERÊNCIAS ENTRE CONTAS -->
+        <div id="transferencias" class="page">
+            <div class="page-header">
+                <h1>🔄 Transferências entre Contas</h1>
+                <button class="btn btn-primary" onclick="openModalTransferencia()">+ Nova Transferência</button>
+            </div>
+            <div class="alert alert-success" id="alertTransferencias"></div>
+            <div style="font-size:12px;color:#888;margin-bottom:16px;">Registre aqui movimentações de dinheiro entre suas contas/bancos (ex: saque de um banco e depósito em outro). O valor é debitado automaticamente do banco de origem e creditado no banco de destino, refletindo nos saldos e no extrato de cada conta.</div>
+
+            <div class="filter-container" style="margin-bottom:16px;">
+                <div class="filter-row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                    <div class="form-group">
+                        <label>Banco</label>
+                        <select id="filtroBancoTransferencia" onchange="atualizarTabelaTransferencias()">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ano</label>
+                        <select id="filtroAnoTransferencia" onchange="atualizarTabelaTransferencias()">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mês</label>
+                        <select id="filtroMesTransferencia" onchange="atualizarTabelaTransferencias()">
+                            <option value="">Todos</option>
+                            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+                            <option value="03">Março</option><option value="04">Abril</option>
+                            <option value="05">Maio</option><option value="06">Junho</option>
+                            <option value="07">Julho</option><option value="08">Agosto</option>
+                            <option value="09">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaTransferencias">
+                    <thead><tr>
+                        <th style="width:100px;">Data</th>
+                        <th>Banco de Origem</th>
+                        <th>Banco de Destino</th>
+                        <th style="text-align:right;width:140px;">Valor</th>
+                        <th>Descrição</th>
+                        <th style="width:100px;">Ações</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="transferenciasSemTabela" style="display:none;margin-top:16px;padding:14px 16px;background:#fff8e1;border-radius:8px;border-left:3px solid #ffc107;font-size:12.5px;color:#856404;">
+                <strong>⚠️ A tabela <code>transferencias</code> ainda não existe no banco de dados.</strong> Para habilitar esta tela, execute o script abaixo uma única vez no <b>SQL Editor</b> do Supabase:
+                <pre style="font-size:11px;margin-top:8px;background:#f5f5f5;color:#333;padding:10px;border-radius:4px;overflow-x:auto;">CREATE TABLE transferencias (
+    id BIGSERIAL PRIMARY KEY,
+    banco_origem_id BIGINT NOT NULL REFERENCES bancos(id),
+    banco_destino_id BIGINT NOT NULL REFERENCES bancos(id),
+    valor NUMERIC NOT NULL,
+    data DATE NOT NULL,
+    descricao TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE transferencias DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON transferencias TO anon;
+GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
+                <div style="margin-top:8px;"><button class="btn btn-secondary btn-small" onclick="carregarTransferencias()">🔄 Já criei a tabela, recarregar</button></div>
             </div>
         </div>
 
@@ -2523,6 +2637,51 @@
     </div>
 </div>
 
+<!-- MODAL TRANSFERÊNCIA ENTRE CONTAS -->
+<div class="modal" id="modalTransferencia">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <span>🔄 Nova Transferência entre Contas</span>
+            <button class="modal-close" onclick="closeModal('modalTransferencia')">&times;</button>
+        </div>
+        <form onsubmit="salvarTransferencia(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Banco de Origem*</label>
+                    <select id="transferenciaBancoOrigem" required onchange="_validarBancosTransferencia()">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Banco de Destino*</label>
+                    <select id="transferenciaBancoDestino" required onchange="_validarBancosTransferencia()">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div id="alertTransferenciaModal" class="alert alert-error" style="display:none;"></div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor (R$)*</label>
+                    <input type="number" id="transferenciaValor" step="0.01" min="0.01" required placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>Data*</label>
+                    <input type="date" id="transferenciaData" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" id="transferenciaDescricao" placeholder="Ex: Reforço de caixa, transferência para pagamentos...">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">💾 Salvar</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalTransferencia')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL LANÇAR RECEBER -->
 <div class="modal" id="modalLancarReceber">
     <div class="modal-content modal-lancamento">
@@ -2567,13 +2726,21 @@
                     <div class="form-group" id="parcelasReceberWrap">
                         <label>Parcelas</label>
                         <select id="parcelasReceber" onchange="calcularParcelasReceber()">
-                            <option value="1">À vista (1x)</option>
-                            <option value="2">2x</option><option value="3">3x</option>
-                            <option value="4">4x</option><option value="5">5x</option>
-                            <option value="6">6x</option><option value="7">7x</option>
-                            <option value="8">8x</option><option value="9">9x</option>
-                            <option value="10">10x</option><option value="11">11x</option>
-                            <option value="12">12x</option>
+                            <option value="1">À vista (1x)</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option>
+                            <option value="5">5x</option><option value="6">6x</option><option value="7">7x</option><option value="8">8x</option>
+                            <option value="9">9x</option><option value="10">10x</option><option value="11">11x</option><option value="12">12x</option>
+                            <option value="13">13x</option><option value="14">14x</option><option value="15">15x</option><option value="16">16x</option>
+                            <option value="17">17x</option><option value="18">18x</option><option value="19">19x</option><option value="20">20x</option>
+                            <option value="21">21x</option><option value="22">22x</option><option value="23">23x</option><option value="24">24x</option>
+                            <option value="25">25x</option><option value="26">26x</option><option value="27">27x</option><option value="28">28x</option>
+                            <option value="29">29x</option><option value="30">30x</option><option value="31">31x</option><option value="32">32x</option>
+                            <option value="33">33x</option><option value="34">34x</option><option value="35">35x</option><option value="36">36x</option>
+                            <option value="37">37x</option><option value="38">38x</option><option value="39">39x</option><option value="40">40x</option>
+                            <option value="41">41x</option><option value="42">42x</option><option value="43">43x</option><option value="44">44x</option>
+                            <option value="45">45x</option><option value="46">46x</option><option value="47">47x</option><option value="48">48x</option>
+                            <option value="49">49x</option><option value="50">50x</option><option value="51">51x</option><option value="52">52x</option>
+                            <option value="53">53x</option><option value="54">54x</option><option value="55">55x</option><option value="56">56x</option>
+                            <option value="57">57x</option><option value="58">58x</option><option value="59">59x</option><option value="60">60x</option>
                         </select>
                     </div>
                 </div>
@@ -2598,8 +2765,13 @@
 
             <!-- Preview parcelas -->
             <div id="previewParcelasReceber" style="display:none; margin-bottom:16px;">
-                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;" id="previewParcelasReceberTitulo">Parcelas geradas:</div>
-                <div id="listaParcelasReceber" style="max-height:140px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
+                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:2px;" id="previewParcelasReceberTitulo">Parcelas geradas:</div>
+                <div id="dicaParcelasReceber" style="font-size:11px;color:#888;margin-bottom:6px;">Clique em uma data ou valor para editar aquela parcela individualmente.</div>
+                <div id="listaParcelasReceber" style="max-height:180px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
+                <div id="totalParcelasReceberLinha" style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px 0;font-size:13px;font-weight:700;border-top:2px solid #eee;margin-top:6px;">
+                    <span>Total das parcelas:</span>
+                    <span id="totalParcelasReceber" style="color:#28a745;">R$ 0,00</span>
+                </div>
             </div>
 
             <div class="form-section">
@@ -2643,9 +2815,18 @@
                     </div>
                     <div class="form-group">
                         <label>Categoria*</label>
-                        <select id="categoriaPagar" required onchange="preencherSubcategoriasPagar()">
-                            <option value="">Selecione...</option>
-                        </select>
+                        <div class="combo-pesquisavel" id="comboCategoriaPagar">
+                            <input type="text" id="categoriaPagarBusca" class="combo-pesquisavel-input" autocomplete="off"
+                                   placeholder="Selecione ou digite para buscar..."
+                                   onfocus="_comboAbrir('categoriaPagar')"
+                                   oninput="_comboFiltrar('categoriaPagar')"
+                                   onkeydown="_comboTeclado(event,'categoriaPagar')"
+                                   onblur="_comboFechar('categoriaPagar')">
+                            <div class="combo-pesquisavel-lista" id="categoriaPagarLista"></div>
+                            <select id="categoriaPagar" onchange="preencherSubcategoriasPagar()" style="display:none;">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-row">
@@ -2682,13 +2863,21 @@
                     <div class="form-group" id="parcelasPagarWrap">
                         <label>Parcelas</label>
                         <select id="parcelasPagar" onchange="calcularParcelasPagar()">
-                            <option value="1">À vista (1x)</option>
-                            <option value="2">2x</option><option value="3">3x</option>
-                            <option value="4">4x</option><option value="5">5x</option>
-                            <option value="6">6x</option><option value="7">7x</option>
-                            <option value="8">8x</option><option value="9">9x</option>
-                            <option value="10">10x</option><option value="11">11x</option>
-                            <option value="12">12x</option>
+                            <option value="1">À vista (1x)</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option>
+                            <option value="5">5x</option><option value="6">6x</option><option value="7">7x</option><option value="8">8x</option>
+                            <option value="9">9x</option><option value="10">10x</option><option value="11">11x</option><option value="12">12x</option>
+                            <option value="13">13x</option><option value="14">14x</option><option value="15">15x</option><option value="16">16x</option>
+                            <option value="17">17x</option><option value="18">18x</option><option value="19">19x</option><option value="20">20x</option>
+                            <option value="21">21x</option><option value="22">22x</option><option value="23">23x</option><option value="24">24x</option>
+                            <option value="25">25x</option><option value="26">26x</option><option value="27">27x</option><option value="28">28x</option>
+                            <option value="29">29x</option><option value="30">30x</option><option value="31">31x</option><option value="32">32x</option>
+                            <option value="33">33x</option><option value="34">34x</option><option value="35">35x</option><option value="36">36x</option>
+                            <option value="37">37x</option><option value="38">38x</option><option value="39">39x</option><option value="40">40x</option>
+                            <option value="41">41x</option><option value="42">42x</option><option value="43">43x</option><option value="44">44x</option>
+                            <option value="45">45x</option><option value="46">46x</option><option value="47">47x</option><option value="48">48x</option>
+                            <option value="49">49x</option><option value="50">50x</option><option value="51">51x</option><option value="52">52x</option>
+                            <option value="53">53x</option><option value="54">54x</option><option value="55">55x</option><option value="56">56x</option>
+                            <option value="57">57x</option><option value="58">58x</option><option value="59">59x</option><option value="60">60x</option>
                         </select>
                     </div>
                 </div>
@@ -2713,8 +2902,13 @@
 
             <!-- Preview parcelas -->
             <div id="previewParcelasPagar" style="display:none; margin-bottom:16px;">
-                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:6px;" id="previewParcelasPagarTitulo">Parcelas geradas:</div>
-                <div id="listaParcelasPagar" style="max-height:140px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
+                <div style="font-size:12px; font-weight:600; color:var(--cor-primaria); margin-bottom:2px;" id="previewParcelasPagarTitulo">Parcelas geradas:</div>
+                <div id="dicaParcelasPagar" style="font-size:11px;color:#888;margin-bottom:6px;">Clique em uma data ou valor para editar aquela parcela individualmente.</div>
+                <div id="listaParcelasPagar" style="max-height:180px; overflow-y:auto; border:1px solid #eee; border-radius:6px; padding:8px; font-size:12px;"></div>
+                <div id="totalParcelasPagarLinha" style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px 0;font-size:13px;font-weight:700;border-top:2px solid #eee;margin-top:6px;">
+                    <span>Total das parcelas:</span>
+                    <span id="totalParcelasPagar" style="color:#dc3545;">R$ 0,00</span>
+                </div>
             </div>
 
             <div class="form-section">
@@ -3115,6 +3309,7 @@
         fornecedores: [],
         clientes: [],
         bancos: [],
+        transferencias: [],
         contasReceber: [],
         contasPagar: [],
         contasRecebidas: [],
@@ -3379,12 +3574,16 @@
     function atualizarSelectCategorias() {
         // IDs de todos os selects que recebem lista de categorias
         const ids = ['categoriaProduto', 'categoriaPagar', 'filtroCategoriaPagar', 'editLancCategoria'];
+        const categoriasOrdenadas = (dadosCache.categorias || [])
+            .filter(c => c.ativo !== false)
+            .slice()
+            .sort((a, b) => (a.nome || '').localeCompare((b.nome || ''), 'pt-BR', {sensitivity:'base'}));
         ids.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
             const valorAtual = select.value;
             select.innerHTML = '<option value="">Selecione...</option>';
-            dadosCache.categorias.filter(c => c.ativo !== false).forEach(cat => {
+            categoriasOrdenadas.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat.id;
                 opt.textContent = cat.nome;
@@ -3392,6 +3591,122 @@
             });
             if (valorAtual) select.value = valorAtual;
         });
+        _comboSincronizarTexto('categoriaPagar');
+    }
+
+    // ================================================================
+    // COMBOBOX PESQUISÁVEL (campo de texto que filtra e mostra TODAS as
+    // opções que contêm o termo digitado, ao invés do "pular pro primeiro
+    // que começa com a letra" do <select> nativo do navegador)
+    // ================================================================
+    function _comboNormalizar(txt) {
+        return (txt || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+
+    function _comboOpcoes(baseId) {
+        const select = document.getElementById(baseId);
+        if (!select) return [];
+        return Array.from(select.options)
+            .filter(o => o.value !== '')
+            .map(o => ({ value: o.value, label: o.textContent }));
+    }
+
+    function _comboRenderizar(baseId, termo) {
+        const lista = document.getElementById(baseId + 'Lista');
+        if (!lista) return;
+        const termoNorm = _comboNormalizar(termo);
+        const opcoes = _comboOpcoes(baseId).filter(o => !termoNorm || _comboNormalizar(o.label).includes(termoNorm));
+        lista.innerHTML = '';
+        if (opcoes.length === 0) {
+            lista.innerHTML = '<div class="combo-pesquisavel-vazio">Nenhum resultado encontrado</div>';
+            return;
+        }
+        opcoes.forEach((o, idx) => {
+            const item = document.createElement('div');
+            item.className = 'combo-pesquisavel-item' + (idx === 0 ? ' ativo' : '');
+            item.textContent = o.label;
+            item.dataset.value = o.value;
+            item.dataset.label = o.label;
+            item.onmousedown = (e) => { e.preventDefault(); _comboSelecionar(baseId, o.value, o.label); };
+            lista.appendChild(item);
+        });
+    }
+
+    function _comboAbrir(baseId) {
+        const input = document.getElementById(baseId + 'Busca');
+        const lista = document.getElementById(baseId + 'Lista');
+        if (!input || !lista) return;
+        input.select();
+        _comboRenderizar(baseId, '');
+        lista.classList.add('aberta');
+    }
+
+    function _comboFiltrar(baseId) {
+        const input = document.getElementById(baseId + 'Busca');
+        const lista = document.getElementById(baseId + 'Lista');
+        if (!input || !lista) return;
+        lista.classList.add('aberta');
+        _comboRenderizar(baseId, input.value);
+    }
+
+    function _comboFechar(baseId) {
+        // Pequeno atraso para permitir que o mousedown no item seja processado
+        // antes do blur fechar a lista.
+        setTimeout(() => {
+            const lista = document.getElementById(baseId + 'Lista');
+            if (lista) lista.classList.remove('aberta');
+            _comboSincronizarTexto(baseId);
+        }, 150);
+    }
+
+    function _comboSelecionar(baseId, valor, label) {
+        const select = document.getElementById(baseId);
+        const input = document.getElementById(baseId + 'Busca');
+        const lista = document.getElementById(baseId + 'Lista');
+        if (select) {
+            select.value = valor;
+            select.dispatchEvent(new Event('change'));
+        }
+        if (input) input.value = label;
+        if (lista) lista.classList.remove('aberta');
+    }
+
+    // Reflete no campo de texto o valor atual do select escondido (usado quando
+    // o valor é definido programaticamente, ex: ao resetar o formulário)
+    function _comboSincronizarTexto(baseId) {
+        const select = document.getElementById(baseId);
+        const input = document.getElementById(baseId + 'Busca');
+        if (!select || !input) return;
+        const opt = select.options[select.selectedIndex];
+        input.value = (opt && opt.value) ? opt.textContent : '';
+    }
+
+    function _comboTeclado(event, baseId) {
+        const lista = document.getElementById(baseId + 'Lista');
+        if (!lista) return;
+        if (event.key === 'ArrowDown' && !lista.classList.contains('aberta')) { _comboAbrir(baseId); return; }
+        const itens = Array.from(lista.querySelectorAll('.combo-pesquisavel-item'));
+        if (itens.length === 0) return;
+        let ativoIdx = itens.findIndex(i => i.classList.contains('ativo'));
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            ativoIdx = Math.min(ativoIdx + 1, itens.length - 1);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            ativoIdx = Math.max(ativoIdx - 1, 0);
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            if (ativoIdx >= 0) _comboSelecionar(baseId, itens[ativoIdx].dataset.value, itens[ativoIdx].dataset.label);
+            return;
+        } else if (event.key === 'Escape') {
+            lista.classList.remove('aberta');
+            _comboSincronizarTexto(baseId);
+            return;
+        } else {
+            return;
+        }
+        itens.forEach(i => i.classList.remove('ativo'));
+        if (itens[ativoIdx]) { itens[ativoIdx].classList.add('ativo'); itens[ativoIdx].scrollIntoView({block:'nearest'}); }
     }
 
     function openModalCategoria() {
@@ -3992,7 +4307,8 @@
         const descricao = document.getElementById('descricaoReceber').value;
         const valorTotal = parseFloat(document.getElementById('valorReceber').value);
 
-        let numLancamentos, valorLancamento, vigenciaData = null;
+        let numLancamentos, vigenciaData = null;
+        let parcelasCustom = null;
         if (custoFixo) {
             const vigencia = document.getElementById('vigenciaReceber').value;
             if (!vigencia) {
@@ -4004,16 +4320,19 @@
                 showAlert('A vigência deve ser igual ou posterior à data de recebimento.', 'alertLancarReceber', 'error');
                 return;
             }
-            valorLancamento = valorTotal;
             vigenciaData = vigencia + '-01';
         } else {
             numLancamentos = parseInt(document.getElementById('parcelasReceber').value) || 1;
-            valorLancamento = Math.round((valorTotal / numLancamentos) * 100) / 100;
+            if (numLancamentos > 1 && window._parcelasReceberAtual && window._parcelasReceberAtual.length === numLancamentos) {
+                parcelasCustom = window._parcelasReceberAtual;
+            }
         }
 
         let erros = 0;
         for (let i = 0; i < numLancamentos; i++) {
-            const dataVenc = addMonths(dataBase, i);
+            const dataVenc = parcelasCustom ? parcelasCustom[i].data : addMonths(dataBase, i);
+            const valorLancamento = custoFixo ? valorTotal
+                : (parcelasCustom ? parcelasCustom[i].valor : Math.round((valorTotal / numLancamentos) * 100) / 100);
             let descParc = descricao;
             if (custoFixo) descParc = descricao + ' (Fixo ' + (i+1) + '/' + numLancamentos + ')';
             else if (numLancamentos > 1) descParc = descricao + ' (' + (i+1) + '/' + numLancamentos + ')';
@@ -4040,6 +4359,7 @@
                 ? '🔁 ' + numLancamentos + ' lançamento(s) fixo(s) gerado(s) até a vigência!'
                 : (numLancamentos > 1 ? numLancamentos + ' parcelas lançadas!' : 'Lançamento salvo!');
             showAlert(msgOk, 'alertLancarReceber', 'success');
+            window._parcelasReceberAtual = null;
             closeModal('modalLancarReceber');
             await carregarContasReceber();
             await atualizarDashboard();
@@ -4134,7 +4454,14 @@
         const descricao = document.getElementById('descricaoPagar').value;
         const valorTotal = parseFloat(document.getElementById('valorPagar').value);
 
-        let numLancamentos, valorLancamento, vigenciaData = null;
+        if (!categoriaId) {
+            showAlert('Selecione uma categoria.', 'alertLancarPagar', 'error');
+            document.getElementById('categoriaPagarBusca').focus();
+            return;
+        }
+
+        let numLancamentos, vigenciaData = null;
+        let parcelasCustom = null;
         if (custoFixo) {
             const vigencia = document.getElementById('vigenciaPagar').value;
             if (!vigencia) {
@@ -4146,16 +4473,19 @@
                 showAlert('A vigência deve ser igual ou posterior à data de pagamento.', 'alertLancarPagar', 'error');
                 return;
             }
-            valorLancamento = valorTotal;
             vigenciaData = vigencia + '-01';
         } else {
             numLancamentos = parseInt(document.getElementById('parcelasPagar').value) || 1;
-            valorLancamento = Math.round((valorTotal / numLancamentos) * 100) / 100;
+            if (numLancamentos > 1 && window._parcelasPagarAtual && window._parcelasPagarAtual.length === numLancamentos) {
+                parcelasCustom = window._parcelasPagarAtual;
+            }
         }
 
         let erros = 0;
         for (let i = 0; i < numLancamentos; i++) {
-            const dataVenc = addMonths(dataBase, i);
+            const dataVenc = parcelasCustom ? parcelasCustom[i].data : addMonths(dataBase, i);
+            const valorLancamento = custoFixo ? valorTotal
+                : (parcelasCustom ? parcelasCustom[i].valor : Math.round((valorTotal / numLancamentos) * 100) / 100);
             let descParc = descricao;
             if (custoFixo) descParc = descricao + ' (Fixo ' + (i+1) + '/' + numLancamentos + ')';
             else if (numLancamentos > 1) descParc = descricao + ' (' + (i+1) + '/' + numLancamentos + ')';
@@ -4184,6 +4514,7 @@
                 ? '🔁 ' + numLancamentos + ' lançamento(s) fixo(s) gerado(s) até a vigência!'
                 : (numLancamentos > 1 ? numLancamentos + ' parcelas lançadas!' : 'Lançamento salvo!');
             showAlert(msgOk, 'alertLancarPagar', 'success');
+            window._parcelasPagarAtual = null;
             closeModal('modalLancarPagar');
             await carregarContasPagar();
             await atualizarDashboard();
@@ -5002,6 +5333,7 @@
             else if (pageId === 'analise-categorias') carregarAnaliseCategorias();
             else if (pageId === 'fcp') carregarFCP();
             else if (pageId === 'bancos') carregarBancos();
+            else if (pageId === 'transferencias') carregarTransferencias();
             else if (pageId === 'dashboard') atualizarDashboard();
         }
     }
@@ -6107,7 +6439,7 @@
     // ================================================================
     // BANCOS
     // ================================================================
-    function _calcularSaldosBancos(bancos, recebidas, pagas) {
+    function _calcularSaldosBancos(bancos, recebidas, pagas, transferencias) {
         const saldos = {};
         bancos.forEach(b => { saldos[b.id] = parseFloat(b.saldo_inicial || 0); });
         (recebidas || []).filter(c => c.status === 'recebido' && c.banco_id).forEach(c => {
@@ -6116,24 +6448,32 @@
         (pagas || []).filter(c => c.status === 'pago' && c.banco_id).forEach(c => {
             if (saldos[c.banco_id] !== undefined) saldos[c.banco_id] -= parseFloat(c.valor || 0);
         });
+        (transferencias || []).forEach(t => {
+            const valor = parseFloat(t.valor || 0);
+            if (saldos[t.banco_origem_id] !== undefined)  saldos[t.banco_origem_id]  -= valor;
+            if (saldos[t.banco_destino_id] !== undefined) saldos[t.banco_destino_id] += valor;
+        });
         return saldos;
     }
 
     async function carregarBancos() {
-        const [bancos, recebidas, pagas] = await Promise.all([
+        const [bancos, recebidas, pagas, transferencias] = await Promise.all([
             fetchSupabase('bancos', 'GET'),
             fetchSupabase('contas_a_receber', 'GET', null, 'status=eq.recebido'),
-            fetchSupabase('contas_a_pagar',   'GET', null, 'status=eq.pago')
+            fetchSupabase('contas_a_pagar',   'GET', null, 'status=eq.pago'),
+            _fetchTransferenciasSilencioso()
         ]);
         if (!bancos) return;
         dadosCache.bancos = bancos;
         if (recebidas) dadosCache.contasRecebidas = recebidas;
         if (pagas)     dadosCache.contasPagas     = pagas;
-        const saldos = _calcularSaldosBancos(bancos, recebidas || [], pagas || []);
+        dadosCache.transferencias = transferencias || [];
+        const saldos = _calcularSaldosBancos(bancos, recebidas || [], pagas || [], dadosCache.transferencias);
         atualizarTabelaBancos(saldos);
         atualizarCardsSaldoBancos(saldos);
         _popularSelectExtrato();
         await gerarExtrato();
+        atualizarTabelaTransferencias();
     }
 
     function atualizarTabelaBancos(saldos) {
@@ -6216,6 +6556,8 @@
             if (valConc) selConciliacao.value = valConc;
         }
 
+        _popularSelectsTransferencia();
+
         // Filtros de banco em Contas Pagas / Contas Recebidas
         ['filtroBancoPaga', 'filtroBancoRecebida'].forEach(id => {
             const selBanco = document.getElementById(id);
@@ -6266,6 +6608,27 @@
             movimentos.push({ data, tipo:'debito', descricao:c.descricao||'-',
                 complemento: fornecedor?fornecedor.nome:'', banco: banco?banco.nome:'-',
                 valor: parseFloat(c.valor||0) });
+        });
+        (dadosCache.transferencias || []).forEach(t => {
+            const data = t.data || ''; if (!data) return;
+            if (anoFiltro  && !data.startsWith(anoFiltro)) return;
+            if (mesFiltro  && !data.includes('-' + mesFiltro + '-')) return;
+            const bancoOrigem  = (dadosCache.bancos||[]).find(b => b.id === t.banco_origem_id);
+            const bancoDestino = (dadosCache.bancos||[]).find(b => b.id === t.banco_destino_id);
+            const desc = 'Transferência entre contas' + (t.descricao ? ' — ' + t.descricao : '');
+            if (busca && !desc.toLowerCase().includes(busca)) return;
+            const mostraOrigem  = !bancoIdFiltro || String(t.banco_origem_id)  === String(bancoIdFiltro);
+            const mostraDestino = !bancoIdFiltro || String(t.banco_destino_id) === String(bancoIdFiltro);
+            if (mostraOrigem) {
+                movimentos.push({ data, tipo:'debito', descricao:desc,
+                    complemento: 'para ' + (bancoDestino?bancoDestino.nome:'-'), banco: bancoOrigem?bancoOrigem.nome:'-',
+                    valor: parseFloat(t.valor||0) });
+            }
+            if (mostraDestino) {
+                movimentos.push({ data, tipo:'credito', descricao:desc,
+                    complemento: 'de ' + (bancoOrigem?bancoOrigem.nome:'-'), banco: bancoDestino?bancoDestino.nome:'-',
+                    valor: parseFloat(t.valor||0) });
+            }
         });
         // Ordena por data (mantendo a ordem estável de inserção dentro do mesmo dia)
         movimentos.sort((a,b) => a.data.localeCompare(b.data));
@@ -7143,6 +7506,187 @@
     }
 
     // ================================================================
+    // TRANSFERÊNCIAS ENTRE CONTAS
+    // ================================================================
+
+    // Busca "silenciosa": não exibe o alerta genérico de erro de BD caso a
+    // tabela 'transferencias' ainda não exista (ex: antes de o usuário rodar
+    // o script de criação). Usada em carregamentos de fundo (ex: página Bancos).
+    async function _fetchTransferenciasSilencioso() {
+        try {
+            const resposta = await fetch(API_URL + '/transferencias?order=data.desc,id.desc', {
+                method: 'GET',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
+            });
+            if (!resposta.ok) { window._transferenciasIndisponivel = true; return []; }
+            window._transferenciasIndisponivel = false;
+            const texto = await resposta.text();
+            return texto ? JSON.parse(texto) : [];
+        } catch (e) {
+            window._transferenciasIndisponivel = true;
+            return [];
+        }
+    }
+
+    async function carregarTransferencias() {
+        const transferencias = await _fetchTransferenciasSilencioso();
+        dadosCache.transferencias = transferencias;
+        _popularSelectsTransferencia();
+        atualizarTabelaTransferencias();
+    }
+
+    function _popularSelectsTransferencia() {
+        const bancosAtivos = (dadosCache.bancos || []).filter(b => b.ativo);
+        ['transferenciaBancoOrigem', 'transferenciaBancoDestino'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            const valorAtual = sel.value;
+            sel.innerHTML = '<option value="">Selecione...</option>';
+            bancosAtivos.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id; opt.textContent = b.nome + (b.tipo ? ' (' + b.tipo + ')' : '');
+                sel.appendChild(opt);
+            });
+            if (valorAtual) sel.value = valorAtual;
+        });
+        const filtro = document.getElementById('filtroBancoTransferencia');
+        if (filtro) {
+            const valorAtual = filtro.value;
+            filtro.innerHTML = '<option value="">Todos</option>';
+            bancosAtivos.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id; opt.textContent = b.nome;
+                filtro.appendChild(opt);
+            });
+            if (valorAtual) filtro.value = valorAtual;
+        }
+        const selAno = document.getElementById('filtroAnoTransferencia');
+        if (selAno && selAno.options.length <= 1) {
+            const anoAtual = new Date().getFullYear();
+            for (let a = anoAtual; a >= anoAtual - 4; a--) {
+                const opt = document.createElement('option');
+                opt.value = a; opt.textContent = a;
+                selAno.appendChild(opt);
+            }
+        }
+    }
+
+    function openModalTransferencia() {
+        if ((dadosCache.bancos || []).filter(b => b.ativo).length < 2) {
+            alert('Cadastre pelo menos 2 bancos/contas ativos para poder transferir entre eles.');
+            return;
+        }
+        document.getElementById('transferenciaBancoOrigem').value = '';
+        document.getElementById('transferenciaBancoDestino').value = '';
+        document.getElementById('transferenciaValor').value = '';
+        document.getElementById('transferenciaData').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('transferenciaDescricao').value = '';
+        const alerta = document.getElementById('alertTransferenciaModal');
+        alerta.style.display = 'none';
+        _popularSelectsTransferencia();
+        document.getElementById('modalTransferencia').classList.add('active');
+    }
+
+    function _validarBancosTransferencia() {
+        const origemId  = document.getElementById('transferenciaBancoOrigem').value;
+        const destinoId = document.getElementById('transferenciaBancoDestino').value;
+        const alerta = document.getElementById('alertTransferenciaModal');
+        if (origemId && destinoId && origemId === destinoId) {
+            alerta.textContent = 'O banco de origem e o de destino devem ser diferentes.';
+            alerta.style.display = 'block';
+            return false;
+        }
+        alerta.style.display = 'none';
+        return true;
+    }
+
+    async function salvarTransferencia(event) {
+        event.preventDefault();
+        const origemId  = document.getElementById('transferenciaBancoOrigem').value;
+        const destinoId = document.getElementById('transferenciaBancoDestino').value;
+        const valor     = parseFloat(document.getElementById('transferenciaValor').value) || 0;
+        const data      = document.getElementById('transferenciaData').value;
+        const descricao = document.getElementById('transferenciaDescricao').value || null;
+
+        if (!origemId || !destinoId) { alert('Selecione o banco de origem e o de destino.'); return; }
+        if (!_validarBancosTransferencia()) return;
+        if (valor <= 0) { alert('Informe um valor de transferência maior que zero.'); return; }
+        if (!data) { alert('Informe a data da transferência.'); return; }
+
+        const dados = {
+            banco_origem_id: parseInt(origemId),
+            banco_destino_id: parseInt(destinoId),
+            valor: valor,
+            data: data,
+            descricao: descricao
+        };
+        const r = await fetchSupabase('transferencias', 'POST', dados);
+        if (r !== null) {
+            showAlert('Transferência realizada com sucesso!', 'alertTransferencias', 'success');
+            closeModal('modalTransferencia');
+            await carregarBancos();
+            await carregarTransferencias();
+        }
+    }
+
+    async function deletarTransferencia(id) {
+        if (!confirm('Estornar/excluir esta transferência? Os saldos dos bancos envolvidos serão recalculados.')) return;
+        const r = await fetchSupabase('transferencias', 'DELETE', null, 'id=eq.' + id);
+        if (r !== null) {
+            showAlert('Transferência excluída!', 'alertTransferencias', 'success');
+            await carregarBancos();
+            await carregarTransferencias();
+        }
+    }
+
+    function atualizarTabelaTransferencias() {
+        const tbody = document.querySelector('#tabelaTransferencias tbody');
+        const avisoSemTabela = document.getElementById('transferenciasSemTabela');
+        const containerTabela = document.getElementById('tabelaTransferencias') ? document.getElementById('tabelaTransferencias').closest('.table-container') : null;
+        if (!tbody) return;
+
+        if (window._transferenciasIndisponivel) {
+            if (avisoSemTabela) avisoSemTabela.style.display = 'block';
+            if (containerTabela) containerTabela.style.display = 'none';
+            return;
+        }
+        if (avisoSemTabela) avisoSemTabela.style.display = 'none';
+        if (containerTabela) containerTabela.style.display = '';
+
+        const bancoFiltro = (document.getElementById('filtroBancoTransferencia') || {}).value || '';
+        const anoFiltro    = (document.getElementById('filtroAnoTransferencia') || {}).value || '';
+        const mesFiltro    = (document.getElementById('filtroMesTransferencia') || {}).value || '';
+
+        const fmtVal  = v => 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const fmtData = d => { if (!d) return '-'; const p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
+
+        const lista = (dadosCache.transferencias || []).filter(t => {
+            if (bancoFiltro && String(t.banco_origem_id) !== String(bancoFiltro) && String(t.banco_destino_id) !== String(bancoFiltro)) return false;
+            if (anoFiltro && !(t.data || '').startsWith(anoFiltro)) return false;
+            if (mesFiltro && !(t.data || '').includes('-' + mesFiltro + '-')) return false;
+            return true;
+        });
+
+        tbody.innerHTML = '';
+        if (lista.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:24px;">Nenhuma transferência encontrada.</td></tr>';
+            return;
+        }
+        lista.forEach(t => {
+            const origem  = (dadosCache.bancos || []).find(b => b.id === t.banco_origem_id);
+            const destino = (dadosCache.bancos || []).find(b => b.id === t.banco_destino_id);
+            tbody.innerHTML += '<tr>' +
+                '<td>' + fmtData(t.data) + '</td>' +
+                '<td>🔻 ' + (origem ? origem.nome : '-') + '</td>' +
+                '<td>🔺 ' + (destino ? destino.nome : '-') + '</td>' +
+                '<td style="text-align:right;font-weight:600;">' + fmtVal(t.valor) + '</td>' +
+                '<td>' + (t.descricao || '-') + '</td>' +
+                '<td><button class="btn btn-danger btn-small" onclick="deletarTransferencia(' + t.id + ')">Excluir</button></td>' +
+                '</tr>';
+        });
+    }
+
+    // ================================================================
     // ABRIR MODAIS DE LANÇAMENTO
     // ================================================================
     function openModalLancarReceber() {
@@ -7160,6 +7704,8 @@
         document.getElementById('notaFiscalReceber').value = '';
         document.getElementById('observacoesReceber').value = '';
         document.getElementById('previewParcelasReceber').style.display = 'none';
+        document.getElementById('totalParcelasReceber').textContent = 'R$ 0,00';
+        window._parcelasReceberAtual = null;
         atualizarSelectCategorias();
         atualizarSelectClientes();
         document.getElementById('modalLancarReceber').classList.add('active');
@@ -7168,6 +7714,8 @@
     function openModalLancarPagar() {
         document.getElementById('fornecedorPagar').value = '';
         document.getElementById('categoriaPagar').value = '';
+        document.getElementById('categoriaPagarBusca').value = '';
+        document.getElementById('categoriaPagarLista').classList.remove('aberta');
         document.getElementById('subcategoriaPagar').innerHTML = '<option value="">Selecione a categoria primeiro...</option>';
         document.getElementById('descricaoPagar').value = '';
         document.getElementById('valorPagar').value = '';
@@ -7182,6 +7730,8 @@
         document.getElementById('notaFiscalPagar').value = '';
         document.getElementById('observacoesPagar').value = '';
         document.getElementById('previewParcelasPagar').style.display = 'none';
+        document.getElementById('totalParcelasPagar').textContent = 'R$ 0,00';
+        window._parcelasPagarAtual = null;
         atualizarSelectCategorias();
         atualizarSelectFornecedores();
         document.getElementById('modalLancarPagar').classList.add('active');
@@ -7227,19 +7777,70 @@
         return d.toISOString().split('T')[0];
     }
 
+    // Gera as parcelas em "centavos" para garantir que a soma bata exatamente
+    // com o Valor Total (a diferença de arredondamento fica na última parcela)
+    function _gerarParcelasBase(valor, dataBase, n) {
+        const totalCent = Math.round(valor * 100);
+        const parcCent = Math.floor(totalCent / n);
+        const resto = totalCent - (parcCent * n);
+        const arr = [];
+        for (let i = 0; i < n; i++) {
+            const cent = (i === n - 1) ? (parcCent + resto) : parcCent;
+            arr.push({ data: addMonths(dataBase, i), valor: cent / 100 });
+        }
+        return arr;
+    }
+
+    // Renderiza a lista de parcelas com campos de data e valor editáveis,
+    // e atualiza o total somado logo abaixo da lista.
+    function _renderizarParcelasEditaveis(prefixo, arr, cor) {
+        const lista = document.getElementById('listaParcelas' + prefixo);
+        const totalEl = document.getElementById('totalParcelas' + prefixo);
+        if (!lista) return;
+        let html = '';
+        let total = 0;
+        arr.forEach((p, i) => {
+            total += parseFloat(p.valor) || 0;
+            html += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f0f0f0;">' +
+                '<span style="min-width:42px;color:#666;font-size:11px;">' + (i+1) + '/' + arr.length + '</span>' +
+                '<input type="date" value="' + p.data + '" onchange="_editarParcela(\'' + prefixo + '\',' + i + ',\'data\',this.value)" style="flex:1;min-width:0;padding:4px 6px;font-size:12px;border:1px solid #ddd;border-radius:4px;">' +
+                '<input type="number" step="0.01" min="0" value="' + p.valor.toFixed(2) + '" onchange="_editarParcela(\'' + prefixo + '\',' + i + ',\'valor\',this.value)" style="width:105px;padding:4px 6px;font-size:12px;border:1px solid #ddd;border-radius:4px;text-align:right;color:' + cor + ';font-weight:600;">' +
+                '</div>';
+        });
+        lista.innerHTML = html;
+        if (totalEl) totalEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    // Chamado quando o usuário edita manualmente a data ou o valor de uma
+    // parcela específica na lista de preview.
+    function _editarParcela(prefixo, index, campo, valor) {
+        const arr = (prefixo === 'Pagar') ? window._parcelasPagarAtual : window._parcelasReceberAtual;
+        if (!arr || !arr[index]) return;
+        if (campo === 'valor') {
+            const v = parseFloat(valor);
+            arr[index].valor = (isNaN(v) || v < 0) ? 0 : v;
+        } else if (valor) {
+            arr[index].data = valor;
+        }
+        _renderizarParcelasEditaveis(prefixo, arr, prefixo === 'Pagar' ? '#dc3545' : '#28a745');
+    }
+
     function calcularParcelasReceber() {
         const valor = parseFloat(document.getElementById('valorReceber').value);
         const dataBase = document.getElementById('vencimentoReceber').value;
         const preview = document.getElementById('previewParcelasReceber');
         const lista = document.getElementById('listaParcelasReceber');
         const titulo = document.getElementById('previewParcelasReceberTitulo');
+        const dica = document.getElementById('dicaParcelasReceber');
+        const totalEl = document.getElementById('totalParcelasReceber');
         const fixo = document.getElementById('custoFixoReceber').checked;
 
         if (fixo) {
             const vigencia = document.getElementById('vigenciaReceber').value;
             const n = contarMesesAteVigencia(dataBase, vigencia);
-            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; return; }
+            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; window._parcelasReceberAtual = null; return; }
             titulo.textContent = '🔁 Lançamentos fixos gerados (' + n + ' meses):';
+            if (dica) dica.style.display = 'none';
             let html = '';
             for (let i = 0; i < n; i++) {
                 const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
@@ -7250,24 +7851,18 @@
                     '</div>';
             }
             lista.innerHTML = html;
+            if (totalEl) totalEl.textContent = 'R$ ' + (valor * n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+            window._parcelasReceberAtual = null;
             preview.style.display = 'block';
             return;
         }
 
+        if (dica) dica.style.display = '';
         const n = parseInt(document.getElementById('parcelasReceber').value) || 1;
-        if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; return; }
+        if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; window._parcelasReceberAtual = null; return; }
         titulo.textContent = 'Parcelas geradas:';
-        const parc = Math.round((valor / n) * 100) / 100;
-        let html = '';
-        for (let i = 0; i < n; i++) {
-            const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
-            html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f0f0f0;">' +
-                '<span>' + (i+1) + '/' + n + '</span>' +
-                '<span>' + dt.toLocaleDateString('pt-BR') + '</span>' +
-                '<span style="color:#28a745;font-weight:600;">R$ ' + parc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
-                '</div>';
-        }
-        lista.innerHTML = html;
+        window._parcelasReceberAtual = _gerarParcelasBase(valor, dataBase, n);
+        _renderizarParcelasEditaveis('Receber', window._parcelasReceberAtual, '#28a745');
         preview.style.display = 'block';
     }
 
@@ -7277,13 +7872,16 @@
         const preview = document.getElementById('previewParcelasPagar');
         const lista = document.getElementById('listaParcelasPagar');
         const titulo = document.getElementById('previewParcelasPagarTitulo');
+        const dica = document.getElementById('dicaParcelasPagar');
+        const totalEl = document.getElementById('totalParcelasPagar');
         const fixo = document.getElementById('custoFixoPagar').checked;
 
         if (fixo) {
             const vigencia = document.getElementById('vigenciaPagar').value;
             const n = contarMesesAteVigencia(dataBase, vigencia);
-            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; return; }
+            if (!valor || !dataBase || !vigencia || n <= 0) { preview.style.display = 'none'; window._parcelasPagarAtual = null; return; }
             titulo.textContent = '🔁 Lançamentos fixos gerados (' + n + ' meses):';
+            if (dica) dica.style.display = 'none';
             let html = '';
             for (let i = 0; i < n; i++) {
                 const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
@@ -7294,24 +7892,18 @@
                     '</div>';
             }
             lista.innerHTML = html;
+            if (totalEl) totalEl.textContent = 'R$ ' + (valor * n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+            window._parcelasPagarAtual = null;
             preview.style.display = 'block';
             return;
         }
 
+        if (dica) dica.style.display = '';
         const n = parseInt(document.getElementById('parcelasPagar').value) || 1;
-        if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; return; }
+        if (!valor || !dataBase || n <= 1) { preview.style.display = 'none'; window._parcelasPagarAtual = null; return; }
         titulo.textContent = 'Parcelas geradas:';
-        const parc = Math.round((valor / n) * 100) / 100;
-        let html = '';
-        for (let i = 0; i < n; i++) {
-            const dt = new Date(addMonths(dataBase, i) + 'T12:00:00');
-            html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f0f0f0;">' +
-                '<span>' + (i+1) + '/' + n + '</span>' +
-                '<span>' + dt.toLocaleDateString('pt-BR') + '</span>' +
-                '<span style="color:#dc3545;font-weight:600;">R$ ' + parc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
-                '</div>';
-        }
-        lista.innerHTML = html;
+        window._parcelasPagarAtual = _gerarParcelasBase(valor, dataBase, n);
+        _renderizarParcelasEditaveis('Pagar', window._parcelasPagarAtual, '#dc3545');
         preview.style.display = 'block';
     }
 
