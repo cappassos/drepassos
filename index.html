@@ -211,6 +211,44 @@
             left: 0;
             height: 100vh;
             z-index: 100;
+            transition: transform 0.25s ease;
+        }
+
+        .main-container.sidebar-collapsed .sidebar {
+            transform: translateX(-260px);
+        }
+
+        .main-container.sidebar-collapsed .content {
+            margin-left: 0;
+        }
+
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 16px;
+            left: 262px;
+            z-index: 150;
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--cor-primaria);
+            color: white;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            transition: left 0.25s ease, background-color 0.2s;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background-color: #e86728;
+        }
+
+        .main-container.sidebar-collapsed .sidebar-toggle-btn {
+            left: 14px;
         }
         .sidebar-menu {
             flex: 1;
@@ -289,6 +327,7 @@
             overflow-y: auto;
             padding: 30px;
             margin-left: 250px;
+            transition: margin-left 0.25s ease;
         }
 
         .page {
@@ -768,6 +807,22 @@
                 display: flex;
             }
 
+            .main-container.sidebar-collapsed .sidebar {
+                display: none;
+                transform: none;
+            }
+
+            .sidebar-toggle-btn {
+                left: auto;
+                right: 14px;
+                top: 8px;
+            }
+
+            .main-container.sidebar-collapsed .sidebar-toggle-btn {
+                left: auto;
+                right: 14px;
+            }
+
             .menu-item {
                 white-space: nowrap;
                 flex: 1;
@@ -994,6 +1049,8 @@
 
 <!-- MAIN APPLICATION -->
 <div class="main-container" id="mainContainer">
+    <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Mostrar/ocultar menu">☰</button>
+
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo-sidebar">
@@ -1005,40 +1062,41 @@
         <div class="menu-section-title">Menu</div>
         
         <div class="menu-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+        <div class="menu-item" onclick="showPage('calendario')">📅 Calendário</div>
+        <div class="menu-item" onclick="showPage('bancos')">🏦 Bancos</div>
+        <div class="menu-item" onclick="showPage('transferencias')">🔄 Transferências</div>
+        <div class="menu-item" onclick="showPage('lancar-receber')">📥 Lançar Contas a Receber</div>
+        <div class="menu-item" onclick="showPage('lancar-pagar')">📤 Lançar Contas a Pagar</div>
 
         <div class="menu-section">
-            <div class="menu-section-title">Cadastros</div>
-            <div class="menu-item" onclick="showPage('categorias')">📁 Categorias</div>
-            <div class="menu-item" onclick="showPage('subcategorias')">🏷️ Subcategorias</div>
-            <div class="menu-item" onclick="showPage('produtos')">📦 Produtos</div>
-            <div class="menu-item" onclick="showPage('fornecedores')">🏭 Fornecedores</div>
-            <div class="menu-item" onclick="showPage('clientes')">👥 Clientes</div>
-            <div class="menu-item" onclick="showPage('bancos')">🏦 Bancos</div>
-            <div class="menu-item" onclick="showPage('transferencias')">🔄 Transferências</div>
-        </div>
-
-        <div class="menu-section">
-            <div class="menu-section-title">Lançamentos</div>
-            <div class="menu-item" onclick="showPage('lancar-receber')">📥 Lançar Contas a Receber</div>
-            <div class="menu-item" onclick="showPage('lancar-pagar')">📤 Lançar Contas a Pagar</div>
+            <div class="menu-section-title">Resultados da Empresa</div>
+            <div class="menu-item" onclick="showPage('dre')">📊 DRE</div>
+            <div class="menu-item" onclick="showPage('dfc')">💹 DFC</div>
+            <div class="menu-item" onclick="showPage('fcp')">🔮 Fluxo Projetado</div>
         </div>
 
         <div class="menu-section">
             <div class="menu-section-title">Consultas</div>
             <div class="menu-item" onclick="showPage('contas-recebidas')">✅ Contas Recebidas</div>
             <div class="menu-item" onclick="showPage('contas-pagas')">✅ Contas Pagas</div>
-            <div class="menu-item" onclick="showPage('calendario')">📅 Calendário</div>
         </div>
 
         <div class="menu-section">
-            <div class="menu-section-title">Análises</div>
+            <div class="menu-section-title">Análise</div>
             <div class="menu-item" onclick="showPage('relatorio-receber')">📈 Resumo Recebimentos</div>
             <div class="menu-item" onclick="showPage('relatorio-pagar')">📉 Resumo Pagamentos</div>
-            <div class="menu-item" onclick="showPage('dfc')">💹 DFC</div>
-            <div class="menu-item" onclick="showPage('dre')">📊 DRE</div>
             <div class="menu-item" onclick="showPage('analise-categorias')">🔎 Análise de Categorias</div>
-            <div class="menu-item" onclick="showPage('fcp')">🔮 Fluxo Projetado</div>
         </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Cadastro</div>
+            <div class="menu-item" onclick="showPage('categorias')">📁 Categorias</div>
+            <div class="menu-item" onclick="showPage('subcategorias')">🏷️ Subcategorias</div>
+            <div class="menu-item" onclick="showPage('produtos')">📦 Produtos</div>
+            <div class="menu-item" onclick="showPage('fornecedores')">🏭 Fornecedores</div>
+            <div class="menu-item" onclick="showPage('clientes')">👥 Clientes</div>
+        </div>
+
 
               </div><!-- fim sidebar-menu -->
         <button class="logout-btn" onclick="handleLogout()">🚪 Sair</button>
@@ -1580,7 +1638,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             <div class="page-header">
                 <h1>📤 Contas a Pagar</h1>
                 <div style="display:flex;gap:8px;">
-                    <button class="btn btn-secondary" onclick="gerarPDF('pagar')" style="background:#e67e22;color:white;">📄 PDF</button>
+                    <button class="btn btn-secondary" onclick="gerarPDFPagarPorDia()" style="background:#e67e22;color:white;" title="Gera o PDF separado por dia de vencimento, respeitando os filtros ativos">📄 PDF por Dia</button>
                     <button class="btn btn-primary" onclick="openModalLancarPagar()">+ Novo Lançamento</button>
                 </div>
             </div>
@@ -3435,12 +3493,34 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').classList.add('active');
             document.getElementById('userGreeting').textContent = `Bem-vindo, ${usuarioAtual.nome}!`;
-            
+            _restaurarEstadoSidebar();
+
             carregarDadosIniciais();
         } else {
             document.getElementById('errorMessage').textContent = 'Usuário ou senha incorretos!';
             document.getElementById('errorMessage').style.display = 'block';
         }
+    }
+
+    // ── MENU LATERAL SUSPENSO (mostrar/ocultar) ─────────────────────────────
+    // O usuário pode ocultar o menu lateral clicando no botão ☰, ganhando
+    // mais espaço de tela. A preferência fica salva no navegador.
+    function toggleSidebar() {
+        const mainContainer = document.getElementById('mainContainer');
+        if (!mainContainer) return;
+        mainContainer.classList.toggle('sidebar-collapsed');
+        const colapsado = mainContainer.classList.contains('sidebar-collapsed');
+        try { localStorage.setItem('cap_sidebar_colapsado', colapsado ? '1' : '0'); } catch (e) {}
+    }
+
+    function _restaurarEstadoSidebar() {
+        try {
+            const colapsado = localStorage.getItem('cap_sidebar_colapsado') === '1';
+            const mainContainer = document.getElementById('mainContainer');
+            if (mainContainer) {
+                mainContainer.classList.toggle('sidebar-collapsed', colapsado);
+            }
+        } catch (e) {}
     }
 
     function verificarLogin() {
@@ -9484,6 +9564,168 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             .replace(/[^\x00-\xFF]/g, '')
             .replace(/\s+/g, ' ')
             .trim();
+    }
+
+    // ================================================================
+    // PDF DE CONTAS A PAGAR — SEPARADO POR DIA DE VENCIMENTO
+    // Respeita os filtros ativos na tela (Fornecedor, Categoria, Ano, Mês,
+    // Status) e gera um bloco por dia: "Dia 01/08" com todos os lançamentos
+    // que vencem naquele dia, depois "Dia 02/08" com os do dia seguinte etc.
+    // ================================================================
+    function gerarPDFPagarPorDia() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        // Reaplica os mesmos filtros da tela de Contas a Pagar
+        let dados = dadosCache.contasPagar || [];
+        const filtroFornecedor = document.getElementById('filtroFornecedorPagar');
+        const filtroCategoria = document.getElementById('filtroCategoriaPagar');
+        const filtroAno = document.getElementById('filtroAnoPagar');
+        const filtroMes = document.getElementById('filtroMesPagar');
+        const filtroStatus = document.getElementById('filtroStatusPagar');
+        if (filtroFornecedor && filtroFornecedor.value) dados = dados.filter(c => c.fornecedor_id == filtroFornecedor.value);
+        if (filtroCategoria && filtroCategoria.value) dados = dados.filter(c => c.categoria_id == filtroCategoria.value);
+        if (filtroAno && filtroAno.value) dados = dados.filter(c => c.data_vencimento && c.data_vencimento.startsWith(filtroAno.value));
+        if (filtroMes && filtroMes.value) dados = dados.filter(c => c.data_vencimento && c.data_vencimento.includes('-' + filtroMes.value + '-'));
+
+        const hojeObj = new Date(); hojeObj.setHours(0, 0, 0, 0);
+        if (filtroStatus && filtroStatus.value) {
+            dados = dados.filter(c => {
+                const venc = new Date(c.data_vencimento + 'T12:00:00');
+                const status = venc < hojeObj ? 'atrasado' : 'pendente';
+                return status === filtroStatus.value;
+            });
+        }
+
+        if (dados.length === 0) {
+            alert('Não há dados para exportar com os filtros atuais.');
+            return;
+        }
+
+        // Agrupar por data de vencimento (YYYY-MM-DD)
+        const porDia = {};
+        dados.forEach(c => {
+            const dia = c.data_vencimento;
+            if (!dia) return;
+            if (!porDia[dia]) porDia[dia] = [];
+            porDia[dia].push(c);
+        });
+        const diasOrdenados = Object.keys(porDia).sort();
+
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const hojeStr = new Date().toLocaleDateString('pt-BR');
+
+        const desenharTopo = () => {
+            doc.setFillColor(255, 122, 66);
+            doc.rect(0, 0, pageW, 16, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+            doc.text('CAP Gestao Financeira', 10, 10);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text('Gerado em: ' + hojeStr, pageW - 10, 10, { align: 'right' });
+        };
+
+        desenharTopo();
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(normalizarTexto('Contas a Pagar — Separado por Dia de Vencimento'), pageW / 2, 24, { align: 'center' });
+
+        const colunas = ['Fornecedor', 'Categoria', 'Descrição', 'NF', 'Valor', 'Parcela', 'Status'];
+        const larguras = [45, 35, 60, 20, 25, 18, 22];
+        let totalGeral = 0;
+        let cursorY = 28;
+
+        diasOrdenados.forEach((diaISO) => {
+            const itens = porDia[diaISO];
+            const dtObj = new Date(diaISO + 'T12:00:00');
+            const dataFmt = dtObj.toLocaleDateString('pt-BR');
+            const nomeDia = dtObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+
+            let totalDia = 0;
+            const body = itens.map(c => {
+                totalDia += parseFloat(c.valor || 0);
+                const fornecedor = (dadosCache.fornecedores || []).find(f => f.id === c.fornecedor_id);
+                const categoria = (dadosCache.categorias || []).find(cat => cat.id === c.categoria_id);
+                const venc = new Date(c.data_vencimento + 'T12:00:00');
+                const status = venc < hojeObj ? 'Atrasado' : 'Pendente';
+                const parc = c.total_parcelas > 1 ? (c.parcela_atual + '/' + c.total_parcelas) : '-';
+                return [
+                    normalizarTexto(fornecedor ? fornecedor.nome : '-'),
+                    normalizarTexto(categoria ? categoria.nome : '-'),
+                    normalizarTexto(c.descricao || '-'),
+                    normalizarTexto(c.nota_fiscal || '-'),
+                    'R$ ' + parseFloat(c.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    parc,
+                    status
+                ];
+            });
+            totalGeral += totalDia;
+
+            // Evita começar o título do dia colado ao rodapé da página
+            if (cursorY > pageH - 40) {
+                doc.addPage();
+                desenharTopo();
+                cursorY = 22;
+            }
+
+            doc.setFillColor(255, 235, 220);
+            doc.rect(8, cursorY, pageW - 16, 8, 'F');
+            doc.setTextColor(120, 50, 10);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text(normalizarTexto('Dia ' + dataFmt + ' (' + nomeDia + ') — ' + itens.length + ' lançamento(s)'), 10, cursorY + 5.5);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
+            doc.text('Total do dia: R$ ' + totalDia.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                pageW - 10, cursorY + 5.5, { align: 'right' });
+            cursorY += 10;
+
+            const columnStyles = {};
+            larguras.forEach((w, i) => { columnStyles[i] = { cellWidth: w }; });
+
+            doc.autoTable({
+                head: [colunas.map(c => normalizarTexto(c))],
+                body: body,
+                startY: cursorY,
+                margin: { left: 8, right: 8, bottom: 12 },
+                tableWidth: 'wrap',
+                styles: {
+                    fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak', valign: 'middle',
+                    lineColor: [200, 200, 200], lineWidth: 0.1, textColor: [50, 50, 50], fillColor: [255, 255, 255]
+                },
+                headStyles: { fillColor: [80, 80, 80], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left', cellPadding: 2 },
+                alternateRowStyles: { fillColor: [248, 248, 248] },
+                columnStyles: columnStyles,
+                didParseCell: function (data) {
+                    if (data.section === 'body') {
+                        const t = (data.cell.text[0] || '').toLowerCase();
+                        if (t === 'atrasado') { data.cell.styles.textColor = [180, 0, 0]; data.cell.styles.fontStyle = 'bold'; }
+                        else if (t === 'pendente') { data.cell.styles.textColor = [150, 100, 0]; data.cell.styles.fontStyle = 'bold'; }
+                    }
+                },
+                didDrawPage: function (data) {
+                    doc.setFontSize(7);
+                    doc.setTextColor(120, 120, 120);
+                    doc.setFont(undefined, 'normal');
+                    const pageNum = doc.internal.getNumberOfPages();
+                    doc.text('Pagina ' + data.pageNumber + ' de ' + pageNum, pageW / 2, pageH - 5, { align: 'center' });
+                }
+            });
+            cursorY = doc.lastAutoTable.finalY + 8;
+        });
+
+        if (cursorY > pageH - 20) { doc.addPage(); desenharTopo(); cursorY = 24; }
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.text('TOTAL GERAL: R$ ' + totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            pageW - 10, cursorY, { align: 'right' });
+
+        doc.save('relatorio_pagar_por_dia_' + hojeStr.replace(/\//g, '-') + '.pdf');
     }
 
     function gerarPDF(tipo) {
