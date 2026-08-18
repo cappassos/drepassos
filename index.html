@@ -250,6 +250,72 @@
         .main-container.sidebar-collapsed .sidebar-toggle-btn {
             left: 14px;
         }
+
+        /* BOTÃO FLUTUANTE DE LANÇAMENTO RÁPIDO (só aparece no celular, via media query) */
+        .fab-lancamento {
+            display: none;
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 500;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .fab-principal {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--cor-primaria) 0%, #e86728 100%);
+            color: white;
+            font-size: 28px;
+            line-height: 1;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .fab-lancamento.aberto .fab-principal {
+            transform: rotate(45deg);
+        }
+
+        .fab-lancamento-opcoes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .fab-lancamento.aberto .fab-lancamento-opcoes {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .fab-opcao {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 11px 18px;
+            border-radius: 24px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .fab-opcao-receber { background: #28a745; }
+        .fab-opcao-pagar { background: #dc3545; }
+
         .sidebar-menu {
             flex: 1;
         }
@@ -845,6 +911,36 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .fab-lancamento {
+                display: flex;
+            }
+
+            /* Evita zoom automático do iOS ao focar campos (exige fonte >= 16px) */
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px;
+            }
+
+            .modal-content {
+                width: 94%;
+                padding: 18px;
+                max-height: 92vh;
+            }
+
+            .modal-lancamento .modal-header {
+                margin: -18px -18px 16px -18px;
+                padding: 16px 18px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
         }
 
         /* MENSAGENS */
@@ -1051,6 +1147,16 @@
 <div class="main-container" id="mainContainer">
     <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Mostrar/ocultar menu">☰</button>
 
+    <!-- BOTÃO FLUTUANTE DE LANÇAMENTO RÁPIDO (visível só no celular) -->
+    <div class="fab-lancamento" id="fabLancamento">
+        <div class="fab-lancamento-opcoes" id="fabLancamentoOpcoes">
+            <button type="button" class="fab-opcao fab-opcao-receber" onclick="fabAbrirLancamento('receber')">📥 A Receber</button>
+            <button type="button" class="fab-opcao fab-opcao-pagar" onclick="fabAbrirLancamento('pagar')">📤 A Pagar</button>
+        </div>
+        <button type="button" class="fab-principal" id="fabPrincipal" onclick="toggleFabLancamento()" title="Lançamento rápido">+</button>
+    </div>
+
+
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo-sidebar">
@@ -1095,6 +1201,11 @@
             <div class="menu-item" onclick="showPage('produtos')">📦 Produtos</div>
             <div class="menu-item" onclick="showPage('fornecedores')">🏭 Fornecedores</div>
             <div class="menu-item" onclick="showPage('clientes')">👥 Clientes</div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Sistema</div>
+            <div class="menu-item" onclick="showPage('backup')">💾 Backup</div>
         </div>
 
 
@@ -1387,6 +1498,37 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BACKUP -->
+        <div id="backup" class="page">
+            <div class="page-header">
+                <h1>💾 Backup dos Dados</h1>
+                <button class="btn btn-primary" onclick="gerarBackupCompleto(false)">📦 Gerar Backup Agora</button>
+            </div>
+            <div class="alert alert-success" id="alertBackup"></div>
+
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-title">ℹ️ Como funciona</div>
+                <div style="font-size:13px;color:#555;line-height:1.6;">
+                    Todo dia, ao abrir o sistema pela primeira vez, um backup completo (categorias, subcategorias,
+                    produtos, fornecedores, clientes, bancos, transferências, contas a receber/pagar e lançamentos de DRE)
+                    é gerado automaticamente e baixado como um arquivo <b>.json</b> pelo navegador — sem precisar fazer nada.
+                    Você também pode gerar um backup manual a qualquer momento pelo botão acima.<br><br>
+                    Os arquivos ficam na pasta de <b>Downloads</b> do navegador que você está usando. Vale a pena, de vez
+                    em quando, mover esses arquivos para o Google Drive ou outro local seguro — o sistema mantém aqui
+                    apenas o <b>registro</b> dos últimos 30 dias de backups (data e quantidade de registros), não os arquivos em si.
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaBackupLog">
+                    <thead><tr>
+                        <th>Data/Hora</th><th>Tipo</th><th>Arquivo</th><th>Registros</th>
+                    </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -2737,6 +2879,65 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     </div>
 </div>
 
+<!-- MODAL ACERTO DE SALDO BANCÁRIO -->
+<div class="modal" id="modalAcertoSaldo">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <span>🔧 Acerto de Saldo</span>
+            <button class="modal-close" onclick="closeModal('modalAcertoSaldo')">&times;</button>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;">
+            Corrige o saldo calculado pelo sistema para bater com o saldo real do banco.
+            O acerto é feito criando um lançamento (a receber ou a pagar, já baixado) na diferença encontrada — o histórico não é alterado.
+        </div>
+        <input type="hidden" id="acertoSaldoBancoId">
+        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+            <div style="font-size:12px;color:#666;">Banco</div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:8px;" id="acertoSaldoBancoNome">-</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;">
+                <span>Saldo calculado pelo sistema:</span>
+                <b id="acertoSaldoAtual">R$ 0,00</b>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Saldo real (extrato do banco)*</label>
+            <input type="number" id="acertoSaldoReal" step="0.01" placeholder="0,00" oninput="_atualizarPreviewAcertoSaldo()">
+        </div>
+        <div class="form-group">
+            <label>Data do acerto*</label>
+            <input type="date" id="acertoSaldoData">
+        </div>
+        <div id="acertoSaldoPreview" style="display:none;padding:10px 12px;border-radius:6px;margin-bottom:14px;font-size:13px;"></div>
+
+        <div id="acertoSaldoCamposCliente" style="display:none;">
+            <div class="form-group">
+                <label>Cliente (lançamento de crédito)*</label>
+                <select id="acertoSaldoCliente"><option value="">Selecione...</option></select>
+            </div>
+        </div>
+        <div id="acertoSaldoCamposPagar" style="display:none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Categoria (lançamento de débito)*</label>
+                    <select id="acertoSaldoCategoria"><option value="">Selecione...</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Fornecedor</label>
+                    <select id="acertoSaldoFornecedor"><option value="">(opcional)</option></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Observações</label>
+            <textarea id="acertoSaldoObs" rows="2" placeholder="Ex: acerto conforme extrato de 17/08/2026"></textarea>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-success" id="btnSalvarAcertoSaldo" onclick="salvarAcertoSaldo()" disabled>💾 Confirmar Acerto</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalAcertoSaldo')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL TRANSFERÊNCIA ENTRE CONTAS -->
 <div class="modal" id="modalTransferencia">
     <div class="modal-content" style="max-width:480px;">
@@ -3572,6 +3773,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         } catch (e) {}
     }
 
+    // Fecha o menu do botão flutuante ao tocar/clicar fora dele
+    document.addEventListener('click', function(evento) {
+        const fab = document.getElementById('fabLancamento');
+        if (!fab || !fab.classList.contains('aberto')) return;
+        if (!fab.contains(evento.target)) fab.classList.remove('aberto');
+    });
+
     function verificarLogin() {
         // Nunca pular a tela de login — sempre exibir ao abrir o sistema
         localStorage.removeItem('cap_usuario');
@@ -3694,6 +3902,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         await carregarContasPagar();
         await atualizarDashboard();
         inicializarFiltrosCalendario();
+        verificarBackupAutomatico();
     }
 
     // Restaura os filtros salvos do Calendário (função ausente no arquivo original,
@@ -3741,7 +3950,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     function atualizarSelectCategorias() {
         // IDs de todos os selects que recebem lista de categorias
-        const ids = ['categoriaProduto', 'categoriaPagar', 'filtroCategoriaPagar', 'editLancCategoria'];
+        const ids = ['categoriaProduto', 'categoriaPagar', 'filtroCategoriaPagar', 'editLancCategoria', 'acertoSaldoCategoria'];
         const categoriasOrdenadas = (dadosCache.categorias || [])
             .filter(c => c.ativo !== false)
             .slice()
@@ -4195,7 +4404,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     }
 
     function atualizarSelectFornecedores() {
-        const ids = ['fornecedorPagar', 'filtroFornecedorPagar', 'editLancFornecedor'];
+        const ids = ['fornecedorPagar', 'filtroFornecedorPagar', 'editLancFornecedor', 'acertoSaldoFornecedor'];
         ids.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
@@ -4315,7 +4524,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     }
 
     function atualizarSelectClientes() {
-        const ids = ['clienteReceber', 'filtroClienteReceber', 'filtroClienteRecebida', 'editLancCliente'];
+        const ids = ['clienteReceber', 'filtroClienteReceber', 'filtroClienteRecebida', 'editLancCliente', 'acertoSaldoCliente'];
         ids.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
@@ -5637,6 +5846,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             else if (pageId === 'bancos') carregarBancos();
             else if (pageId === 'transferencias') carregarTransferencias();
             else if (pageId === 'dashboard') atualizarDashboard();
+            else if (pageId === 'backup') atualizarPainelBackup();
         }
     }
 
@@ -7052,6 +7262,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<td style="' + saldoClass + '">R$ ' + saldoAtual.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
                 '<td><span class="status-badge ' + (banco.ativo ? 'status-recebido' : 'status-atrasado') + '">' + (banco.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
                 '<td><button class="btn btn-secondary btn-small" onclick="editarBanco(' + banco.id + ')">Editar</button> ' +
+                '<button class="btn btn-secondary btn-small" style="background:#fff3cd;color:#856404;" onclick="openModalAcertoSaldo(' + banco.id + ')" title="Corrigir saldo para bater com o extrato real">🔧 Acerto</button> ' +
                 '<button class="btn btn-danger btn-small" onclick="deletarBanco(' + banco.id + ')">Deletar</button></td></tr>';
         });
     }
@@ -8007,6 +8218,144 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
     }
 
+    // ================================================================
+    // ACERTO DE SALDO BANCÁRIO
+    // Cria um lançamento de crédito (contas_a_receber) ou débito
+    // (contas_a_pagar), já baixado no banco escolhido, na diferença entre
+    // o saldo calculado pelo sistema e o saldo real informado. O histórico
+    // de lançamentos não é alterado — o acerto entra como um novo registro.
+    // ================================================================
+    function openModalAcertoSaldo(bancoId) {
+        const banco = (dadosCache.bancos || []).find(b => b.id === bancoId);
+        if (!banco) return;
+        const saldos = _calcularSaldosBancos(dadosCache.bancos || [], dadosCache.contasRecebidas || [], dadosCache.contasPagas || [], dadosCache.transferencias || []);
+        const saldoAtual = saldos[bancoId] !== undefined ? saldos[bancoId] : parseFloat(banco.saldo_inicial || 0);
+
+        document.getElementById('acertoSaldoBancoId').value = bancoId;
+        document.getElementById('acertoSaldoBancoNome').textContent = banco.nome + (banco.tipo ? ' (' + banco.tipo + ')' : '');
+        document.getElementById('acertoSaldoAtual').textContent = 'R$ ' + saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('acertoSaldoAtual').dataset.valor = saldoAtual;
+        document.getElementById('acertoSaldoReal').value = '';
+        document.getElementById('acertoSaldoData').value = new Date().toISOString().split('T')[0];
+        document.getElementById('acertoSaldoObs').value = '';
+        document.getElementById('acertoSaldoPreview').style.display = 'none';
+        document.getElementById('acertoSaldoCamposCliente').style.display = 'none';
+        document.getElementById('acertoSaldoCamposPagar').style.display = 'none';
+        document.getElementById('btnSalvarAcertoSaldo').disabled = true;
+        atualizarSelectClientes();
+        atualizarSelectCategorias();
+        atualizarSelectFornecedores();
+        document.getElementById('modalAcertoSaldo').classList.add('active');
+    }
+
+    function _atualizarPreviewAcertoSaldo() {
+        const saldoAtual = parseFloat(document.getElementById('acertoSaldoAtual').dataset.valor || 0);
+        const saldoRealStr = document.getElementById('acertoSaldoReal').value;
+        const preview = document.getElementById('acertoSaldoPreview');
+        const campoCliente = document.getElementById('acertoSaldoCamposCliente');
+        const campoPagar = document.getElementById('acertoSaldoCamposPagar');
+        const btn = document.getElementById('btnSalvarAcertoSaldo');
+
+        if (saldoRealStr === '') {
+            preview.style.display = 'none';
+            campoCliente.style.display = 'none';
+            campoPagar.style.display = 'none';
+            btn.disabled = true;
+            return;
+        }
+
+        const saldoReal = parseFloat(saldoRealStr) || 0;
+        const diferenca = Math.round((saldoReal - saldoAtual) * 100) / 100;
+        const fmt = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+        preview.style.display = 'block';
+        if (diferenca === 0) {
+            preview.style.background = '#e2e3e5';
+            preview.style.color = '#383d41';
+            preview.innerHTML = 'O saldo informado já bate com o saldo calculado. Nenhum lançamento será criado.';
+            campoCliente.style.display = 'none';
+            campoPagar.style.display = 'none';
+            btn.disabled = true;
+        } else if (diferenca > 0) {
+            preview.style.background = '#d4edda';
+            preview.style.color = '#155724';
+            preview.innerHTML = 'Faltam <b>' + fmt(diferenca) + '</b> no sistema. Será criado um lançamento de <b>crédito</b> (conta recebida) nesse valor.';
+            campoCliente.style.display = 'block';
+            campoPagar.style.display = 'none';
+            btn.disabled = false;
+        } else {
+            preview.style.background = '#f8d7da';
+            preview.style.color = '#721c24';
+            preview.innerHTML = 'Há <b>' + fmt(diferenca) + '</b> a mais no sistema. Será criado um lançamento de <b>débito</b> (conta paga) nesse valor.';
+            campoCliente.style.display = 'none';
+            campoPagar.style.display = 'block';
+            btn.disabled = false;
+        }
+    }
+
+    async function salvarAcertoSaldo() {
+        const bancoId = parseInt(document.getElementById('acertoSaldoBancoId').value);
+        const saldoAtual = parseFloat(document.getElementById('acertoSaldoAtual').dataset.valor || 0);
+        const saldoReal = parseFloat(document.getElementById('acertoSaldoReal').value);
+        const data = document.getElementById('acertoSaldoData').value;
+        const obsDigitada = document.getElementById('acertoSaldoObs').value;
+        const obs = 'Acerto de saldo' + (obsDigitada ? ' — ' + obsDigitada : '');
+
+        if (isNaN(saldoReal)) { alert('Informe o saldo real.'); return; }
+        if (!data) { alert('Informe a data do acerto.'); return; }
+        const diferenca = Math.round((saldoReal - saldoAtual) * 100) / 100;
+        if (diferenca === 0) { closeModal('modalAcertoSaldo'); return; }
+
+        if (diferenca > 0) {
+            const clienteId = document.getElementById('acertoSaldoCliente').value;
+            if (!clienteId) { alert('Selecione o cliente para o lançamento de crédito.'); return; }
+            const dados = {
+                cliente_id: parseInt(clienteId),
+                descricao: 'Acerto de Saldo',
+                valor: diferenca,
+                data_competencia: data,
+                data_vencimento: data,
+                parcela_atual: 1,
+                total_parcelas: 1,
+                status: 'recebido',
+                data_recebimento: data,
+                tipo_recebimento: 'Ajuste de Saldo',
+                banco_id: bancoId,
+                observacoes: obs,
+                custo_fixo: false
+            };
+            const r = await fetchSupabase('contas_a_receber', 'POST', dados);
+            if (r === null) { alert('Erro ao salvar o acerto. Confira o console.'); return; }
+        } else {
+            const categoriaId = document.getElementById('acertoSaldoCategoria').value;
+            if (!categoriaId) { alert('Selecione a categoria para o lançamento de débito.'); return; }
+            const fornecedorId = document.getElementById('acertoSaldoFornecedor').value;
+            const dados = {
+                fornecedor_id: fornecedorId ? parseInt(fornecedorId) : null,
+                categoria_id: parseInt(categoriaId),
+                descricao: 'Acerto de Saldo',
+                valor: Math.abs(diferenca),
+                data_competencia: data,
+                data_vencimento: data,
+                parcela_atual: 1,
+                total_parcelas: 1,
+                status: 'pago',
+                data_pagamento: data,
+                tipo_pagamento: 'Ajuste de Saldo',
+                banco_id: bancoId,
+                observacoes: obs,
+                custo_fixo: false
+            };
+            const r = await fetchSupabase('contas_a_pagar', 'POST', dados);
+            if (r === null) { alert('Erro ao salvar o acerto. Confira o console.'); return; }
+        }
+
+        closeModal('modalAcertoSaldo');
+        showAlert('Acerto de saldo lançado com sucesso!', 'alertBancos', 'success');
+        await carregarBancos();
+        await atualizarDashboard();
+    }
+
     function openModalBanco() {
         document.getElementById('nomeBanco').value = '';
         document.getElementById('tipoBanco').value = '';
@@ -8244,6 +8593,19 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<td><button class="btn btn-danger btn-small" onclick="deletarTransferencia(' + t.id + ')">Excluir</button></td>' +
                 '</tr>';
         });
+    }
+
+    // ================================================================
+    // BOTÃO FLUTUANTE DE LANÇAMENTO RÁPIDO (mobile)
+    // ================================================================
+    function toggleFabLancamento() {
+        document.getElementById('fabLancamento').classList.toggle('aberto');
+    }
+
+    function fabAbrirLancamento(tipo) {
+        document.getElementById('fabLancamento').classList.remove('aberto');
+        if (tipo === 'receber') openModalLancarReceber();
+        else openModalLancarPagar();
     }
 
     // ================================================================
@@ -10726,6 +11088,233 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         doc.save('DFC_' + (anoSel || 'Completo') + '_' + hoje.replace(/\//g, '-') + '.pdf');
     }
 
+    // ================================================================
+    // BACKUP AUTOMÁTICO DE DADOS
+    // Gera um arquivo .json com todas as tabelas do sistema e baixa
+    // automaticamente pelo navegador. Roda sozinho uma vez por dia
+    // (na primeira vez que o sistema é aberto no dia) e também pode
+    // ser disparado manualmente na tela "💾 Backup".
+    // O REGISTRO dos backups (data/hora, tipo, nº de registros) fica
+    // guardado no localStorage do navegador pelos últimos 30 dias —
+    // os arquivos em si ficam na pasta de Downloads do navegador.
+    // ================================================================
+    async function gerarBackupCompleto(silencioso) {
+        try {
+            const tabelas = ['categorias', 'subcategorias', 'produtos', 'fornecedores', 'clientes',
+                              'bancos', 'transferencias', 'contas_a_receber', 'contas_a_pagar', 'lancamentos_dre'];
+            const resultados = await Promise.all(tabelas.map(t => fetchSupabase(t, 'GET')));
+
+            if (resultados.some(r => r === null)) {
+                console.error('Backup: falha ao buscar uma ou mais tabelas.');
+                if (!silencioso) showAlert('Não foi possível gerar o backup — confira sua conexão.', 'alertBackup', 'error');
+                return false;
+            }
+
+            const dadosBackup = {};
+            let totalRegistros = 0;
+            tabelas.forEach((t, i) => {
+                dadosBackup[t] = resultados[i];
+                totalRegistros += resultados[i].length;
+            });
+
+            const agora = new Date();
+            const backup = {
+                sistema: 'CAP Gestão Financeira',
+                gerado_em: agora.toISOString(),
+                total_registros: totalRegistros,
+                tabelas: dadosBackup
+            };
+
+            const carimboHora = agora.toTimeString().slice(0, 5).replace(':', '');
+            const nomeArquivo = 'backup_cap_financeiro_' + agora.toISOString().slice(0, 10) + '_' + carimboHora + '.json';
+            _baixarJSON(backup, nomeArquivo);
+
+            _registrarBackupLog({
+                data: agora.toISOString(),
+                tipo: silencioso ? 'Automático' : 'Manual',
+                arquivo: nomeArquivo,
+                registros: totalRegistros
+            });
+            localStorage.setItem(_chaveUltimoBackupAuto(), agora.toISOString().slice(0, 10));
+
+            if (!silencioso) showAlert('Backup gerado e baixado! (' + totalRegistros + ' registros)', 'alertBackup', 'success');
+            atualizarPainelBackup();
+            return true;
+        } catch (erro) {
+            console.error('Erro ao gerar backup:', erro);
+            if (!silencioso) showAlert('Erro ao gerar backup — confira o console.', 'alertBackup', 'error');
+            return false;
+        }
+    }
+
+    function _baixarJSON(objeto, nomeArquivo) {
+        const blob = new Blob([JSON.stringify(objeto, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    function _chaveBackupLog() {
+        const user = usuarioAtual ? usuarioAtual.email : 'guest';
+        return 'cap_backup_log_' + user;
+    }
+
+    function _chaveUltimoBackupAuto() {
+        const user = usuarioAtual ? usuarioAtual.email : 'guest';
+        return 'cap_backup_ultimo_auto_' + user;
+    }
+
+    function _registrarBackupLog(entrada) {
+        const chave = _chaveBackupLog();
+        let log = [];
+        try { log = JSON.parse(localStorage.getItem(chave) || '[]'); } catch (e) { log = []; }
+        log.unshift(entrada);
+        const limiteData = new Date();
+        limiteData.setDate(limiteData.getDate() - 30);
+        log = log.filter(item => new Date(item.data) >= limiteData);
+        localStorage.setItem(chave, JSON.stringify(log));
+    }
+
+    function atualizarPainelBackup() {
+        const tbody = document.querySelector('#tabelaBackupLog tbody');
+        if (!tbody) return;
+        let log = [];
+        try { log = JSON.parse(localStorage.getItem(_chaveBackupLog()) || '[]'); } catch (e) { log = []; }
+        tbody.innerHTML = '';
+        if (log.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">Nenhum backup registrado ainda neste navegador.</td></tr>';
+            return;
+        }
+        log.forEach(item => {
+            const data = new Date(item.data);
+            tbody.innerHTML += '<tr>' +
+                '<td>' + data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) + '</td>' +
+                '<td>' + item.tipo + '</td>' +
+                '<td style="font-size:11px;color:#666;">' + item.arquivo + '</td>' +
+                '<td>' + item.registros + '</td></tr>';
+        });
+    }
+
+    function verificarBackupAutomatico() {
+        const hoje = new Date().toISOString().slice(0, 10);
+        const ultimo = localStorage.getItem(_chaveUltimoBackupAuto());
+        if (ultimo === hoje) return;
+        gerarBackupCompleto(true);
+    }
+
+    // ================================================================
+    // LIMPEZA DE LANÇAMENTOS ANTIGOS (uso via console do navegador)
+    // Apaga contas a receber (pendentes + recebidas) e contas a pagar
+    // (pendentes + pagas) cujo VENCIMENTO OU PAGAMENTO/RECEBIMENTO seja
+    // até a data de corte informada (inclusive).
+    //
+    // Uso:
+    //   1) previewLimpezaContas("2026-07-31")   -> só mostra o que seria apagado
+    //   2) executarLimpezaContas("2026-07-31")  -> apaga de fato (pede confirmação)
+    // ================================================================
+    async function previewLimpezaContas(dataCorte) {
+        dataCorte = dataCorte || '2026-07-31';
+        const filtroReceber = `or=(data_vencimento.lte.${dataCorte},data_recebimento.lte.${dataCorte})`;
+        const filtroPagar   = `or=(data_vencimento.lte.${dataCorte},data_pagamento.lte.${dataCorte})`;
+
+        const [receber, pagar] = await Promise.all([
+            fetchSupabase('contas_a_receber', 'GET', null, filtroReceber),
+            fetchSupabase('contas_a_pagar', 'GET', null, filtroPagar)
+        ]);
+
+        if (!receber || !pagar) {
+            console.error('Erro ao consultar os dados — confira as mensagens acima.');
+            return null;
+        }
+
+        const resumo = (lista) => {
+            const porStatus = {};
+            let total = 0;
+            lista.forEach(c => {
+                porStatus[c.status] = (porStatus[c.status] || 0) + 1;
+                total += parseFloat(c.valor || 0);
+            });
+            return { quantidade: lista.length, porStatus, valorTotal: total };
+        };
+        const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        const resumoReceber = resumo(receber);
+        const resumoPagar = resumo(pagar);
+
+        console.log('%c=== PREVIEW — lançamentos até ' + dataCorte + ' (vencimento OU pagamento/recebimento) ===', 'font-weight:bold;font-size:13px;color:#FF7A42;');
+        console.log('CONTAS A RECEBER: ' + resumoReceber.quantidade + ' lançamento(s) — ' + fmt(resumoReceber.valorTotal));
+        console.table(resumoReceber.porStatus);
+        console.log('CONTAS A PAGAR: ' + resumoPagar.quantidade + ' lançamento(s) — ' + fmt(resumoPagar.valorTotal));
+        console.table(resumoPagar.porStatus);
+        console.log('%cTOTAL a apagar: ' + (resumoReceber.quantidade + resumoPagar.quantidade) + ' lançamento(s).', 'font-weight:bold;');
+        console.log('Para executar de fato, rode: executarLimpezaContas("' + dataCorte + '")');
+
+        window._previewLimpezaIds = {
+            dataCorte,
+            receberIds: receber.map(c => c.id),
+            pagarIds: pagar.map(c => c.id)
+        };
+
+        return { resumoReceber, resumoPagar };
+    }
+
+    async function executarLimpezaContas(dataCorte) {
+        dataCorte = dataCorte || '2026-07-31';
+        if (!window._previewLimpezaIds || window._previewLimpezaIds.dataCorte !== dataCorte) {
+            console.log('Rodando preview primeiro...');
+            await previewLimpezaContas(dataCorte);
+        }
+        const { receberIds, pagarIds } = window._previewLimpezaIds || { receberIds: [], pagarIds: [] };
+        const total = receberIds.length + pagarIds.length;
+        if (total === 0) {
+            console.log('Nada para apagar com esse critério.');
+            return;
+        }
+
+        const confirmacao = prompt(
+            'ATENÇÃO: isso vai apagar PERMANENTEMENTE ' + total + ' lançamento(s)\n' +
+            '(contas a receber/recebidas + contas a pagar/pagas) com vencimento OU\n' +
+            'pagamento/recebimento até ' + dataCorte + '.\n\n' +
+            'Faça um backup dos dados antes, se ainda não fez.\n\n' +
+            'Digite APAGAR para confirmar:'
+        );
+        if (confirmacao !== 'APAGAR') {
+            console.log('Cancelado — nada foi apagado.');
+            return;
+        }
+
+        let erros = 0;
+        const TAM_LOTE = 200;
+        const apagarEmLotes = async (tabela, ids) => {
+            for (let i = 0; i < ids.length; i += TAM_LOTE) {
+                const lote = ids.slice(i, i + TAM_LOTE);
+                const r = await fetchSupabase(tabela, 'DELETE', null, 'id=in.(' + lote.join(',') + ')');
+                if (r === null) erros++;
+            }
+        };
+
+        await apagarEmLotes('contas_a_receber', receberIds);
+        await apagarEmLotes('contas_a_pagar', pagarIds);
+
+        if (erros === 0) {
+            console.log('%cLimpeza concluída! ' + total + ' lançamento(s) apagado(s).', 'color:#28a745;font-weight:bold;');
+        } else {
+            console.error('Concluído com ' + erros + ' lote(s) com erro — confira as mensagens acima.');
+        }
+        window._previewLimpezaIds = null;
+
+        // Atualiza as telas relevantes, se já estiverem carregadas na página
+        try { await carregarContasReceber(); } catch(e) {}
+        try { await carregarContasPagar(); } catch(e) {}
+        try { await carregarContasRecebidas(); } catch(e) {}
+        try { await carregarContasPagas(); } catch(e) {}
+        try { await carregarBancos(); } catch(e) {}
+        try { await atualizarDashboard(); } catch(e) {}
+    }
 
 </script>
 
