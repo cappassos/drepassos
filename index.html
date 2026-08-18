@@ -3456,6 +3456,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <option value="DESP_ADMIN">Despesas Administrativas</option>
                         <option value="DESP_FINANCEIRA">Despesas Financeiras</option>
                         <option value="RECEITA_FINANCEIRA">Receitas Financeiras</option>
+                        <option value="IRPJ">IRPJ / CSLL</option>
                         <option value="EMPRESTIMO">Empréstimos e Financiamentos</option>
                         <option value="INVESTIMENTO">Investimentos</option>
                         <option value="OUTRAS_RECEITAS">Outras Receitas</option>
@@ -3925,6 +3926,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         'RECEITA_BRUTA':'Receita Bruta','DEDUCOES':'Deduções/Impostos','CPV':'CPV/CSP',
         'DESP_COMERCIAL':'Desp. Comerciais','DESP_ADMIN':'Desp. Administrativas',
         'DESP_FINANCEIRA':'Desp. Financeiras','RECEITA_FINANCEIRA':'Rec. Financeiras',
+        'IRPJ':'IRPJ/CSLL',
         'EMPRESTIMO':'Empréstimos','INVESTIMENTO':'Investimentos',
         'OUTRAS_RECEITAS':'Outras Receitas','OUTRAS_DESPESAS':'Outras Despesas'
     };
@@ -9610,11 +9612,19 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         { id: 'DESP_ADMIN',         label: '  (-) Despesas Administrativas',       sinal: -1 },
         { id: 'RECEITA_FINANCEIRA', label: '  (+) Receitas Financeiras',           sinal:  1 },
         { id: 'DESP_FINANCEIRA',    label: '  (-) Despesas Financeiras',           sinal: -1 },
+        { id: 'IRPJ',               label: '  (-) IRPJ / CSLL',                    sinal: -1 },
         { id: 'EMPRESTIMO',         label: '  (-) Amortiz. Empréstimos/Financ.',   sinal: -1 },
         { id: 'INVESTIMENTO',       label: '  (-) Investimentos',                  sinal: -1 },
         { id: 'OUTRAS_RECEITAS',    label: '  (+) Outras Receitas',                sinal:  1 },
         { id: 'OUTRAS_DESPESAS',    label: '  (-) Outras Despesas',                sinal: -1 },
     ];
+
+    // Lookup de label por id (mais seguro que indexar o array por posição,
+    // já que a ordem de exibição na tela de DRE não é a mesma ordem do array acima)
+    function gLabelDRE(id) {
+        const g = DRE_GRUPOS.find(x => x.id === id);
+        return g ? g.label : '';
+    }
 
     async function carregarDRE() {
         // Buscar lançamentos DRE diretos + contas recebidas/pagas por competência
@@ -9731,14 +9741,18 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const lucroBruto = recLiq - cpv;
         const despCom   = porGrupo['DESP_COMERCIAL'].total;
         const despAdm   = porGrupo['DESP_ADMIN'].total;
+        // EBITDA agora é apurado antes do Resultado Financeiro (não inclui receitas/despesas financeiras)
+        const ebitda    = lucroBruto - despCom - despAdm;
         const recFin    = porGrupo['RECEITA_FINANCEIRA'].total;
         const despFin   = porGrupo['DESP_FINANCEIRA'].total;
-        const ebitda    = lucroBruto - despCom - despAdm + recFin - despFin;
+        // Resultado Operacional = EBITDA + Resultado Financeiro
+        const resultOperacional = ebitda + recFin - despFin;
+        const irpj      = porGrupo['IRPJ'].total;
         const emprest   = porGrupo['EMPRESTIMO'].total;
         const invest    = porGrupo['INVESTIMENTO'].total;
         const outRec    = porGrupo['OUTRAS_RECEITAS'].total;
         const outDesp   = porGrupo['OUTRAS_DESPESAS'].total;
-        const resultLiq = ebitda - emprest - invest + outRec - outDesp;
+        const resultLiq = resultOperacional - irpj - emprest - invest + outRec - outDesp;
 
         // Atualizar cards
         const setCard = (id, v, positivo) => {
@@ -9764,7 +9778,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (elML) elML.textContent = 'Margem Líquida: ' + pct(resultLiq);
 
         // Renderizar tabela DRE estruturada
-        renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultLiq);
+        renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq);
 
         // Tabela mensal e gráfico
         if (anoSel) {
@@ -9782,7 +9796,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         criarGraficoDRE(dreLancs, contasRec, contasPag, anoSel);
     }
 
-    function renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultLiq) {
+    function renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq) {
         // Popular cache de detalhe para o botão "Ver"
         _dreDetalheCache = {};
         DRE_GRUPOS.forEach(g => { _dreDetalheCache[g.id] = porGrupo[g.id] ? porGrupo[g.id].itens : []; });
@@ -9833,12 +9847,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         let html = '';
         html += linhaSecao('💵 RECEITAS');
-        html += linhaGrupo(DRE_GRUPOS[0].label, porGrupo['RECEITA_BRUTA'].total, 'RECEITA_BRUTA');
-        html += linhaGrupo(DRE_GRUPOS[1].label, -porGrupo['DEDUCOES'].total, 'DEDUCOES');
+        html += linhaGrupo(gLabelDRE('RECEITA_BRUTA'), porGrupo['RECEITA_BRUTA'].total, 'RECEITA_BRUTA');
+        html += linhaGrupo(gLabelDRE('DEDUCOES'), -porGrupo['DEDUCOES'].total, 'DEDUCOES');
         html += linhaSubtotal('= Receita Líquida', recLiq, false);
 
         html += linhaSecao('🏭 CUSTOS');
-        html += linhaGrupo(DRE_GRUPOS[2].label, -porGrupo['CPV'].total, 'CPV');
+        html += linhaGrupo(gLabelDRE('CPV'), -porGrupo['CPV'].total, 'CPV');
         // Sub-linhas CPV por categoria
         if (porGrupo['CPV'] && porGrupo['CPV'].itens.length > 0) {
             // Agrupar itens CPV por categoria
@@ -9861,19 +9875,23 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         html += linhaSubtotal('= Lucro Bruto', lucroBruto, false);
 
         html += linhaSecao('🧾 DESPESAS OPERACIONAIS');
-        html += linhaGrupo(DRE_GRUPOS[3].label, -porGrupo['DESP_COMERCIAL'].total, 'DESP_COMERCIAL');
-        html += linhaGrupo(DRE_GRUPOS[4].label, -porGrupo['DESP_ADMIN'].total, 'DESP_ADMIN');
+        html += linhaGrupo(gLabelDRE('DESP_COMERCIAL'), -porGrupo['DESP_COMERCIAL'].total, 'DESP_COMERCIAL');
+        html += linhaGrupo(gLabelDRE('DESP_ADMIN'), -porGrupo['DESP_ADMIN'].total, 'DESP_ADMIN');
+        html += linhaSubtotal('= EBITDA', ebitda, false);
 
         html += linhaSecao('🏦 RESULTADO FINANCEIRO');
-        html += linhaGrupo(DRE_GRUPOS[5].label, porGrupo['RECEITA_FINANCEIRA'].total, 'RECEITA_FINANCEIRA');
-        html += linhaGrupo(DRE_GRUPOS[6].label, -porGrupo['DESP_FINANCEIRA'].total, 'DESP_FINANCEIRA');
-        html += linhaSubtotal('= EBITDA (Resultado Operacional)', ebitda, false);
+        html += linhaGrupo(gLabelDRE('RECEITA_FINANCEIRA'), porGrupo['RECEITA_FINANCEIRA'].total, 'RECEITA_FINANCEIRA');
+        html += linhaGrupo(gLabelDRE('DESP_FINANCEIRA'), -porGrupo['DESP_FINANCEIRA'].total, 'DESP_FINANCEIRA');
+        html += linhaSubtotal('= Resultado Operacional', resultOperacional, false);
+
+        html += linhaSecao('🧮 IRPJ');
+        html += linhaGrupo(gLabelDRE('IRPJ'), -porGrupo['IRPJ'].total, 'IRPJ');
 
         html += linhaSecao('📦 OUTROS');
-        html += linhaGrupo(DRE_GRUPOS[7].label, -porGrupo['EMPRESTIMO'].total, 'EMPRESTIMO');
-        html += linhaGrupo(DRE_GRUPOS[8].label, -porGrupo['INVESTIMENTO'].total, 'INVESTIMENTO');
-        html += linhaGrupo(DRE_GRUPOS[9].label, porGrupo['OUTRAS_RECEITAS'].total, 'OUTRAS_RECEITAS');
-        html += linhaGrupo(DRE_GRUPOS[10].label, -porGrupo['OUTRAS_DESPESAS'].total, 'OUTRAS_DESPESAS');
+        html += linhaGrupo(gLabelDRE('EMPRESTIMO'), -porGrupo['EMPRESTIMO'].total, 'EMPRESTIMO');
+        html += linhaGrupo(gLabelDRE('INVESTIMENTO'), -porGrupo['INVESTIMENTO'].total, 'INVESTIMENTO');
+        html += linhaGrupo(gLabelDRE('OUTRAS_RECEITAS'), porGrupo['OUTRAS_RECEITAS'].total, 'OUTRAS_RECEITAS');
+        html += linhaGrupo(gLabelDRE('OUTRAS_DESPESAS'), -porGrupo['OUTRAS_DESPESAS'].total, 'OUTRAS_DESPESAS');
         html += linhaSubtotal('= RESULTADO LÍQUIDO DO EXERCÍCIO', resultLiq, true);
 
         tbody.innerHTML = html;
@@ -9954,15 +9972,19 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const lb = rl - cpv;
             const dc = dados['DESP_COMERCIAL'][m];
             const da = dados['DESP_ADMIN'][m];
+            // EBITDA apurado antes do Resultado Financeiro
+            const ebt = lb - dc - da;
             const rf = dados['RECEITA_FINANCEIRA'][m];
             const df = dados['DESP_FINANCEIRA'][m];
-            const ebt = lb - dc - da + rf - df;
+            // Resultado Operacional = EBITDA + Resultado Financeiro
+            const ro = ebt + rf - df;
+            const irpj = dados['IRPJ'][m];
             const emp = dados['EMPRESTIMO'][m];
             const inv = dados['INVESTIMENTO'][m];
             const or = dados['OUTRAS_RECEITAS'][m];
             const od = dados['OUTRAS_DESPESAS'][m];
-            const res = ebt - emp - inv + or - od;
-            return { rb, ded, rl, cpv, lb, dc, da, rf, df, ebt, emp, inv, or, od, res };
+            const res = ro - irpj - emp - inv + or - od;
+            return { rb, ded, rl, cpv, lb, dc, da, ebt, rf, df, ro, irpj, emp, inv, or, od, res };
         };
 
         const fmtV = v => v !== 0 ? 'R$&nbsp;' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '-';
@@ -10016,9 +10038,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             { label: '= Lucro Bruto',             fn: m => calcMes(m).lb,   bg: '#f5f5f5', bold: true },
             { label: '(-) Desp. Comerciais',      fn: m => -calcMes(m).dc,  bg: '' },
             { label: '(-) Desp. Administrativas', fn: m => -calcMes(m).da,  bg: '', expandir: daSubOrdenado },
+            { label: '= EBITDA',                  fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true },
             { label: '(+) Rec. Financeiras',      fn: m => calcMes(m).rf,   bg: '' },
             { label: '(-) Desp. Financeiras',     fn: m => -calcMes(m).df,  bg: '' },
-            { label: '= EBITDA',                  fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true },
+            { label: '= Resultado Operacional',   fn: m => calcMes(m).ro,   bg: '#eef7ee', bold: true },
+            { label: '(-) IRPJ',                  fn: m => -calcMes(m).irpj, bg: '' },
             { label: '(-) Empr\u00e9stimos',      fn: m => -calcMes(m).emp, bg: '' },
             { label: '(-) Investimentos',         fn: m => -calcMes(m).inv, bg: '' },
             { label: '(+) Outras Receitas',       fn: m => calcMes(m).or,   bg: '' },
@@ -11340,6 +11364,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <option value="DESP_ADMIN">Despesas Administrativas (-)</option>
                         <option value="DESP_FINANCEIRA">Despesas Financeiras (-)</option>
                         <option value="RECEITA_FINANCEIRA">Receitas Financeiras (+)</option>
+                        <option value="IRPJ">IRPJ / CSLL (-)</option>
                         <option value="EMPRESTIMO">Empréstimos e Financiamentos (-)</option>
                         <option value="INVESTIMENTO">Investimentos (-)</option>
                         <option value="OUTRAS_RECEITAS">Outras Receitas (+)</option>
