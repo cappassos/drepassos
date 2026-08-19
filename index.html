@@ -1538,7 +1538,10 @@
         <div id="bancos" class="page">
             <div class="page-header">
                 <h1>🏦 Bancos</h1>
-                <button class="btn btn-primary" onclick="openModalBanco()">+ Novo Banco</button>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-secondary" onclick="abrirConfigSaldoTerceiros()">⚙️ Saldo de Terceiros</button>
+                    <button class="btn btn-primary" onclick="openModalBanco()">+ Novo Banco</button>
+                </div>
             </div>
             <div class="alert alert-success" id="alertBancos"></div>
             <div id="cardsSaldoBancos" class="dashboard-grid" style="margin-bottom:20px;"></div>
@@ -1546,7 +1549,9 @@
                 <table id="tabelaBancos">
                     <thead><tr>
                         <th>Banco</th><th>Agência</th><th>Conta</th><th>Tipo</th>
-                        <th>Saldo Inicial</th><th>Saldo Atual</th><th>Status</th><th>Ações</th>
+                        <th>Saldo Inicial</th><th>Saldo Atual</th>
+                        <th>💰 Saldo de Terceiros <span title="Diferença entre a categoria de entrada (ex: Receita de Venda Consignado) e a categoria de saída (ex: Pagamento Parceiros Consignados) — dinheiro que passa pela conta mas não é seu. Configure em ⚙️ Saldo de Terceiros." style="cursor:help;">ℹ️</span></th>
+                        <th>Status</th><th>Ações</th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
@@ -2938,6 +2943,35 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     </div>
 </div>
 
+<!-- MODAL CONFIG SALDO DE TERCEIROS (CONSIGNADO) -->
+<div class="modal" id="modalConfigSaldoTerceiros">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <span>⚙️ Saldo de Terceiros (Consignado)</span>
+            <button class="modal-close" onclick="closeModal('modalConfigSaldoTerceiros')">&times;</button>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;">
+            Escolha a categoria usada para lançar as <b>entradas</b> de vendas de consignado (dinheiro que entra no banco
+            mas pertence ao parceiro/cliente) e a categoria usada para lançar as <b>devoluções/repasses</b> a esses
+            parceiros. O sistema calcula, banco a banco, a diferença entre as duas — ou seja, quanto desse Saldo Atual
+            na verdade <b>não é seu</b>. Ex: entrou R$ 50.000,00 de venda consignado e depois devolveu R$ 50.000,00 ao
+            parceiro → o saldo de terceiros dessa conta zera.
+        </div>
+        <div class="form-group">
+            <label>Categoria de Entrada (ex: Receita de Venda Consignado)</label>
+            <select id="configSaldoTerceirosEntrada"><option value="">Nenhuma selecionada</option></select>
+        </div>
+        <div class="form-group">
+            <label>Categoria de Saída (ex: Pagamento Parceiros Consignados)</label>
+            <select id="configSaldoTerceirosSaida"><option value="">Nenhuma selecionada</option></select>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-success" onclick="salvarConfigSaldoTerceiros()">💾 Salvar</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalConfigSaldoTerceiros')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL TRANSFERÊNCIA ENTRE CONTAS -->
 <div class="modal" id="modalTransferencia">
     <div class="modal-content" style="max-width:480px;">
@@ -3049,6 +3083,23 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <div class="form-group">
                         <label>Descrição*</label>
                         <input type="text" id="descricaoReceber" required placeholder="Ex: Venda de produtos">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoria <span style="font-weight:400;color:#999;">(opcional — use para identificar recebimentos como Venda Consignado, etc.)</span></label>
+                        <div class="combo-pesquisavel" id="comboCategoriaReceber">
+                            <input type="text" id="categoriaReceberBusca" class="combo-pesquisavel-input" autocomplete="off"
+                                   placeholder="Selecione ou digite para buscar..."
+                                   onfocus="_comboAbrir('categoriaReceber')"
+                                   oninput="_comboFiltrar('categoriaReceber')"
+                                   onkeydown="_comboTeclado(event,'categoriaReceber')"
+                                   onblur="_comboFechar('categoriaReceber')">
+                            <div class="combo-pesquisavel-lista" id="categoriaReceberLista"></div>
+                            <select id="categoriaReceber" style="display:none;">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3952,7 +4003,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     function atualizarSelectCategorias() {
         // IDs de todos os selects que recebem lista de categorias
-        const ids = ['categoriaProduto', 'categoriaPagar', 'filtroCategoriaPagar', 'editLancCategoria', 'acertoSaldoCategoria'];
+        const ids = ['categoriaProduto', 'categoriaPagar', 'categoriaReceber', 'filtroCategoriaPagar', 'editLancCategoria', 'acertoSaldoCategoria'];
         const categoriasOrdenadas = (dadosCache.categorias || [])
             .filter(c => c.ativo !== false)
             .slice()
@@ -3971,6 +4022,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             if (valorAtual) select.value = valorAtual;
         });
         _comboSincronizarTexto('categoriaPagar');
+        _comboSincronizarTexto('categoriaReceber');
     }
 
     // ================================================================
@@ -4692,6 +4744,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const obs = document.getElementById('observacoesReceber').value;
         const notaFiscalRec = document.getElementById('notaFiscalReceber').value.trim() || null;
         const clienteId = parseInt(document.getElementById('clienteReceber').value);
+        const categoriaId = document.getElementById('categoriaReceber').value ? parseInt(document.getElementById('categoriaReceber').value) : null;
         const descricao = document.getElementById('descricaoReceber').value;
         const valorTotal = parseFloat(document.getElementById('valorReceber').value);
 
@@ -4726,6 +4779,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             else if (numLancamentos > 1) descParc = descricao + ' (' + (i+1) + '/' + numLancamentos + ')';
             const dados = {
                 cliente_id: clienteId,
+                categoria_id: categoriaId,
                 descricao: descParc,
                 valor: valorLancamento,
                 data_competencia: custoFixo ? addMonths(competencia, i) : competencia,
@@ -7228,6 +7282,57 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         return saldos;
     }
 
+    // ── SALDO DE TERCEIROS (ex: dinheiro de venda consignada que precisa voltar ao parceiro) ──
+    // Config fica salva no navegador (mesmo padrão usado para as Metas do DRE).
+    var configSaldoTerceiros = { catEntradaId: '', catSaidaId: '' };
+    (function _carregarConfigSaldoTerceiros() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('cap_config_saldo_terceiros') || 'null');
+            if (saved) configSaldoTerceiros = Object.assign({ catEntradaId: '', catSaidaId: '' }, saved);
+        } catch (e) {}
+    })();
+
+    function abrirConfigSaldoTerceiros() {
+        const selE = document.getElementById('configSaldoTerceirosEntrada');
+        const selS = document.getElementById('configSaldoTerceirosSaida');
+        if (!selE || !selS) return;
+        const cats = (dadosCache.categorias || []).slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        const opts = '<option value="">Nenhuma selecionada</option>' +
+            cats.map(c => '<option value="' + c.id + '">' + c.nome + '</option>').join('');
+        selE.innerHTML = opts;
+        selS.innerHTML = opts;
+        selE.value = configSaldoTerceiros.catEntradaId || '';
+        selS.value = configSaldoTerceiros.catSaidaId || '';
+        document.getElementById('modalConfigSaldoTerceiros').classList.add('active');
+    }
+
+    function salvarConfigSaldoTerceiros() {
+        const catEntradaId = document.getElementById('configSaldoTerceirosEntrada').value || '';
+        const catSaidaId   = document.getElementById('configSaldoTerceirosSaida').value || '';
+        configSaldoTerceiros = { catEntradaId, catSaidaId };
+        try { localStorage.setItem('cap_config_saldo_terceiros', JSON.stringify(configSaldoTerceiros)); } catch (e) {}
+        closeModal('modalConfigSaldoTerceiros');
+        carregarBancos();
+    }
+
+    // Por banco: soma dos recebimentos na categoria de entrada configurada (ex: Venda Consignado)
+    // menos os pagamentos na categoria de saída configurada (ex: Pagamento Parceiros Consignados).
+    // Só considera lançamentos já baixados (recebido/pago), igual ao cálculo do Saldo Atual.
+    function _calcularSaldosTerceirosBancos(bancos, recebidas, pagas) {
+        const saldos = {};
+        bancos.forEach(b => { saldos[b.id] = 0; });
+        const catE = configSaldoTerceiros.catEntradaId;
+        const catS = configSaldoTerceiros.catSaidaId;
+        if (!catE && !catS) return saldos;
+        (recebidas || []).filter(c => c.status === 'recebido' && c.banco_id && catE && String(c.categoria_id) === String(catE)).forEach(c => {
+            if (saldos[c.banco_id] !== undefined) saldos[c.banco_id] += parseFloat(c.valor || 0);
+        });
+        (pagas || []).filter(c => c.status === 'pago' && c.banco_id && catS && String(c.categoria_id) === String(catS)).forEach(c => {
+            if (saldos[c.banco_id] !== undefined) saldos[c.banco_id] -= parseFloat(c.valor || 0);
+        });
+        return saldos;
+    }
+
     async function carregarBancos() {
         const [bancos, recebidas, pagas, transferencias] = await Promise.all([
             fetchSupabase('bancos', 'GET'),
@@ -7241,20 +7346,26 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (pagas)     dadosCache.contasPagas     = pagas;
         dadosCache.transferencias = transferencias || [];
         const saldos = _calcularSaldosBancos(bancos, recebidas || [], pagas || [], dadosCache.transferencias);
-        atualizarTabelaBancos(saldos);
-        atualizarCardsSaldoBancos(saldos);
+        const saldosTerceiros = _calcularSaldosTerceirosBancos(bancos, recebidas || [], pagas || []);
+        atualizarTabelaBancos(saldos, saldosTerceiros);
+        atualizarCardsSaldoBancos(saldos, saldosTerceiros);
         _popularSelectExtrato();
         await gerarExtrato();
         atualizarTabelaTransferencias();
     }
 
-    function atualizarTabelaBancos(saldos) {
+    function atualizarTabelaBancos(saldos, saldosTerceiros) {
         const tbody = document.querySelector('#tabelaBancos tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
+        const configAtiva = !!(configSaldoTerceiros.catEntradaId || configSaldoTerceiros.catSaidaId);
         (dadosCache.bancos || []).forEach(banco => {
             const saldoAtual = saldos ? (saldos[banco.id] !== undefined ? saldos[banco.id] : parseFloat(banco.saldo_inicial || 0)) : parseFloat(banco.saldo_inicial || 0);
             const saldoClass = saldoAtual >= 0 ? 'color:#28a745;font-weight:600;' : 'color:#dc3545;font-weight:600;';
+            const saldoTerc  = saldosTerceiros && saldosTerceiros[banco.id] !== undefined ? saldosTerceiros[banco.id] : 0;
+            const terceirosHtml = configAtiva
+                ? '<td style="color:#8e44ad;font-weight:600;">R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>'
+                : '<td style="color:#bbb;font-size:11px;">— configure —</td>';
             tbody.innerHTML += '<tr>' +
                 '<td><b>' + banco.nome + '</b></td>' +
                 '<td>' + (banco.agencia || '-') + '</td>' +
@@ -7262,6 +7373,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<td>' + (banco.tipo || '-') + '</td>' +
                 '<td>R$ ' + parseFloat(banco.saldo_inicial || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
                 '<td style="' + saldoClass + '">R$ ' + saldoAtual.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
+                terceirosHtml +
                 '<td><span class="status-badge ' + (banco.ativo ? 'status-recebido' : 'status-atrasado') + '">' + (banco.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
                 '<td><button class="btn btn-secondary btn-small" onclick="editarBanco(' + banco.id + ')">Editar</button> ' +
                 '<button class="btn btn-secondary btn-small" style="background:#fff3cd;color:#856404;" onclick="openModalAcertoSaldo(' + banco.id + ')" title="Corrigir saldo para bater com o extrato real">🔧 Acerto</button> ' +
@@ -7269,20 +7381,26 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
     }
 
-    function atualizarCardsSaldoBancos(saldos) {
+    function atualizarCardsSaldoBancos(saldos, saldosTerceiros) {
         const container = document.getElementById('cardsSaldoBancos');
         if (!container) return;
         container.innerHTML = '';
         let totalGeral = 0;
+        let totalTerceiros = 0;
+        const configAtiva = !!(configSaldoTerceiros.catEntradaId || configSaldoTerceiros.catSaidaId);
         (dadosCache.bancos || []).filter(b => b.ativo).forEach(banco => {
             const saldo = saldos ? (saldos[banco.id] !== undefined ? saldos[banco.id] : parseFloat(banco.saldo_inicial || 0)) : parseFloat(banco.saldo_inicial || 0);
             totalGeral += saldo;
+            const saldoTerc = saldosTerceiros && saldosTerceiros[banco.id] !== undefined ? saldosTerceiros[banco.id] : 0;
+            totalTerceiros += saldoTerc;
             const cor = saldo >= 0 ? '#28a745' : '#dc3545';
             container.innerHTML += '<div class="stat-card" style="border-left-color:' + cor + ';">' +
                 '<div class="stat-label">🏦 ' + banco.nome + '</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">' + (banco.tipo || '') + '</div>' +
                 '<div class="stat-value" style="color:' + cor + ';font-size:20px;">R$ ' + saldo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-                '<div style="font-size:11px;color:#999;margin-top:4px;">Inicial: R$ ' + parseFloat(banco.saldo_inicial||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+                '<div style="font-size:11px;color:#999;margin-top:4px;">Inicial: R$ ' + parseFloat(banco.saldo_inicial||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) +
+                (configAtiva && saldoTerc !== 0 ? ' · <span style="color:#8e44ad;">Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' : '') +
+                '</div>' +
                 '</div>';
         });
         if ((dadosCache.bancos || []).filter(b => b.ativo).length > 1) {
@@ -7291,6 +7409,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<div class="stat-label">💰 Saldo Total</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">Todos os bancos</div>' +
                 '<div class="stat-value" style="color:' + corTotal + ';font-size:20px;">R$ ' + totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+                '</div>';
+        }
+        if (configAtiva) {
+            const corTerc = totalTerceiros >= 0 ? '#8e44ad' : '#dc3545';
+            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTerc + ';">' +
+                '<div class="stat-label">👤 Saldo de Terceiros</div>' +
+                '<div style="font-size:11px;color:#999;margin-bottom:4px;">Não é seu — a devolver/repassar</div>' +
+                '<div class="stat-value" style="color:' + corTerc + ';font-size:20px;">R$ ' + totalTerceiros.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '</div>';
         }
     }
@@ -8615,6 +8741,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // ================================================================
     function openModalLancarReceber() {
         document.getElementById('clienteReceber').value = '';
+        document.getElementById('categoriaReceber').value = '';
+        document.getElementById('categoriaReceberBusca').value = '';
+        document.getElementById('categoriaReceberLista').classList.remove('aberta');
         document.getElementById('descricaoReceber').value = '';
         document.getElementById('valorReceber').value = '';
         document.getElementById('competenciaReceber').value = new Date().toISOString().slice(0,7) + '-01';
