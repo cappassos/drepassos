@@ -1551,6 +1551,7 @@
                         <th>Banco</th><th>Agência</th><th>Conta</th><th>Tipo</th>
                         <th>Saldo Inicial</th><th>Saldo Atual</th>
                         <th>💰 Saldo de Terceiros <span title="Diferença entre a categoria de entrada (ex: Receita de Venda Consignado) e a categoria de saída (ex: Pagamento Parceiros Consignados) — dinheiro que passa pela conta mas não é seu. Configure em ⚙️ Saldo de Terceiros." style="cursor:help;">ℹ️</span></th>
+                        <th>Saldo Real <span title="Saldo Atual menos o Saldo de Terceiros — quanto do saldo em conta é realmente seu." style="cursor:help;">ℹ️</span></th>
                         <th>Status</th><th>Ações</th>
                     </tr></thead>
                     <tbody></tbody>
@@ -7366,6 +7367,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const terceirosHtml = configAtiva
                 ? '<td style="color:#8e44ad;font-weight:600;">R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>'
                 : '<td style="color:#bbb;font-size:11px;">— configure —</td>';
+            const saldoReal = saldoAtual - saldoTerc;
+            const saldoRealClass = saldoReal >= 0 ? 'color:#28a745;font-weight:600;' : 'color:#dc3545;font-weight:600;';
+            const saldoRealHtml = '<td style="' + saldoRealClass + '">R$ ' + saldoReal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>';
             tbody.innerHTML += '<tr>' +
                 '<td><b>' + banco.nome + '</b></td>' +
                 '<td>' + (banco.agencia || '-') + '</td>' +
@@ -7374,6 +7378,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<td>R$ ' + parseFloat(banco.saldo_inicial || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
                 '<td style="' + saldoClass + '">R$ ' + saldoAtual.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
                 terceirosHtml +
+                saldoRealHtml +
                 '<td><span class="status-badge ' + (banco.ativo ? 'status-recebido' : 'status-atrasado') + '">' + (banco.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
                 '<td><button class="btn btn-secondary btn-small" onclick="editarBanco(' + banco.id + ')">Editar</button> ' +
                 '<button class="btn btn-secondary btn-small" style="background:#fff3cd;color:#856404;" onclick="openModalAcertoSaldo(' + banco.id + ')" title="Corrigir saldo para bater com o extrato real">🔧 Acerto</button> ' +
@@ -7399,7 +7404,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">' + (banco.tipo || '') + '</div>' +
                 '<div class="stat-value" style="color:' + cor + ';font-size:20px;">R$ ' + saldo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '<div style="font-size:11px;color:#999;margin-top:4px;">Inicial: R$ ' + parseFloat(banco.saldo_inicial||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) +
-                (configAtiva && saldoTerc !== 0 ? ' · <span style="color:#8e44ad;">Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' : '') +
+                ' · <span style="color:#8e44ad;">Saldo de Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
                 '</div>' +
                 '</div>';
         });
