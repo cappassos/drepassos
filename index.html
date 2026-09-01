@@ -1112,6 +1112,63 @@
             vertical-align: middle;
         }
 
+        /* Células clicáveis da tabela DRE Mensal — abrem os lançamentos do período */
+        #dre table#tabelaDREMensal td.dre-cel-click {
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        #dre table#tabelaDREMensal td.dre-cel-click:hover {
+            filter: brightness(0.92);
+            text-decoration: underline;
+        }
+
+        /* Modal de detalhe da DRE (lançamentos por grupo/categoria/mês) — mais largo,
+           com cabeçalho e resumo fixos e a lista de lançamentos rolando por baixo, para
+           caber todas as colunas (inclusive Ações) sem cortar nada. */
+        #modalDetalheDRE .modal-content {
+            max-width: 1150px;
+        }
+        #modalDetalheDRE .table-container {
+            max-height: 52vh;
+            overflow-y: auto;
+        }
+        #modalDetalheDRE thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: var(--cor-primaria);
+            color: #fff;
+        }
+        #modalDetalheDRE table#tabelaDetalheDRE td {
+            white-space: nowrap;
+        }
+        #modalDetalheDRE table#tabelaDetalheDRE td:nth-child(2) {
+            white-space: normal;
+        }
+        #dreDetalheResumo .dre-detalhe-chip {
+            background: #f7f7f8;
+            border-radius: 8px;
+            padding: 10px 18px;
+            min-width: 140px;
+        }
+        #dreDetalheResumo .dre-detalhe-chip-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        #dreDetalheResumo .dre-detalhe-chip-valor {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            margin-top: 2px;
+        }
+        @media (max-width: 768px) {
+            #modalDetalheDRE .table-container {
+                max-height: 44vh;
+            }
+        }
+
         /* ==========================================================================
            EXPERIENCIA MOBILE (v2)
            Este bloco fica no FINAL da folha de estilos, portanto tem prioridade
@@ -2284,6 +2341,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </div>
             </div>
 
+            <div class="dashboard-grid" style="margin-bottom:20px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+                <div class="stat-card" style="border-left-color:#28a745;">
+                    <div class="stat-label">Total Recebido (filtro atual)</div>
+                    <div class="stat-value" id="totalCaixaRecebidas" style="color:#28a745;">R$ 0,00</div>
+                    <div class="stat-change" id="countCaixaRecebidas">0 lançamentos</div>
+                </div>
+            </div>
+
             <div class="table-container">
                 <table id="tabelaRecebidas">
                     <colgroup>
@@ -2379,6 +2444,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             <option value="vencimento_asc">Vencimento (mais antiga)</option>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom:20px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+                <div class="stat-card" style="border-left-color:#dc3545;">
+                    <div class="stat-label">Total Pago (filtro atual)</div>
+                    <div class="stat-value" id="totalCaixaPagas" style="color:#dc3545;">R$ 0,00</div>
+                    <div class="stat-change" id="countCaixaPagas">0 lançamentos</div>
                 </div>
             </div>
 
@@ -3075,7 +3148,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <div class="stat-change" id="dreCardMargemLiq">Margem: 0%</div>
                 </div>
             </div>
-            <div class="card dre-table-card">
+            <div class="card dre-table-card" style="display:none;">
                 <div class="card-title" id="dreTituloPeriodo">DRE por Competência</div>
                 <div class="table-container">
                     <table id="tabelaDRE" style="font-size:13px;width:auto;min-width:600px;max-width:900px;">
@@ -5444,6 +5517,17 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </td>
             </tr>`;
         });
+
+        // Caixa de totais — reflete a soma e a quantidade do filtro atualmente aplicado
+        const totalRecebidoBox = document.getElementById('totalCaixaRecebidas');
+        const countRecebidoBox = document.getElementById('countCaixaRecebidas');
+        if (totalRecebidoBox) {
+            const somaRecebida = filtrado.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+            totalRecebidoBox.textContent = 'R$ ' + somaRecebida.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+        if (countRecebidoBox) {
+            countRecebidoBox.textContent = filtrado.length + (filtrado.length === 1 ? ' lançamento' : ' lançamentos');
+        }
     }
 
     // CONTAS PAGAS
@@ -5518,6 +5602,17 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </td>
             </tr>`;
         });
+
+        // Caixa de totais — reflete a soma e a quantidade do filtro atualmente aplicado
+        const totalPagoBox = document.getElementById('totalCaixaPagas');
+        const countPagoBox = document.getElementById('countCaixaPagas');
+        if (totalPagoBox) {
+            const somaPaga = filtrado.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+            totalPagoBox.textContent = 'R$ ' + somaPaga.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+        if (countPagoBox) {
+            countPagoBox.textContent = filtrado.length + (filtrado.length === 1 ? ' lançamento' : ' lançamentos');
+        }
     }
 
     // MARCAR COMO RECEBIDO/PAGO
@@ -5691,6 +5786,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     async function salvarEdicaoLancamento(event) {
         event.preventDefault();
+        // Se este formulário foi aberto a partir do modal de detalhes da DRE, guardamos
+        // a intenção aqui (e zeramos a flag) para reabrir aquele detalhe já atualizado
+        // assim que o salvamento terminar.
+        const vindoDoDetalheDRE = _dreDetalheRetornoPendente;
+        _dreDetalheRetornoPendente = false;
         const id    = parseInt(document.getElementById('editLancId').value);
         const tipo  = document.getElementById('editLancTipo').value;
         const catVal = document.getElementById('editLancCategoria') ? document.getElementById('editLancCategoria').value : '';
@@ -5720,8 +5820,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await carregarContasPagas();
             await atualizarDashboard();
             _atualizarCalendarioSeAtivo();
+            if (vindoDoDetalheDRE) await _dreDetalheAtualizarAposAcao();
         }
     }
+
 
     // DELETAR CONTAS
     async function deletarConta(id, tabela) {
@@ -10479,11 +10581,95 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         document.getElementById('modalDetalheDRE').classList.add('active');
     }
 
+    // Guarda os dados brutos usados para montar a tabela DRE Mensal, para que os cliques
+    // nos números possam reconstruir a lista de lançamentos daquele grupo/mês sob demanda.
+    let _dreMensalRawData = null;
+
+    // Estado do modal de detalhes da DRE: guarda a última consulta feita (para poder
+    // recarregar/reabrir o mesmo recorte depois de uma edição/exclusão/reversão feita
+    // a partir dele) e uma flag temporária usada quando o usuário abre outro modal
+    // (editar lançamento) a partir daqui, para saber se deve voltar para o detalhe DRE.
+    let _dreDetalheUltimoParams = null;
+    let _dreDetalheRetornoPendente = false;
+
+    // Recarrega a DRE (para refletir a mudança nos totais/tabelas por trás) e, se havia
+    // uma consulta de detalhe aberta, reabre o mesmo recorte já atualizado — assim o
+    // usuário continua vendo a lista e pode agir em outro lançamento sem perder o contexto.
+    async function _dreDetalheAtualizarAposAcao() {
+        await carregarDRE();
+        if (!_dreDetalheUltimoParams) return;
+        const p = _dreDetalheUltimoParams;
+        if (p.tipo === 'grupo') abrirDetalheDREMes(p.gruposStr, p.mesIdx, p.ano, p.labelLinha);
+        else if (p.tipo === 'categoria') abrirDetalheDRECategoriaMes(p.grupoId, p.nomeSub, p.mesIdx, p.ano);
+    }
+
+    // Monta a caixa de resumo (total + quantidade) exibida no topo do modal de detalhe.
+    function _renderResumoDetalheDRE(itens) {
+        const el = document.getElementById('dreDetalheResumo');
+        if (!el) return;
+        const soma = itens.reduce((s, it) => s + parseFloat(it.valor || 0), 0);
+        el.innerHTML =
+            '<div class="dre-detalhe-chip">' +
+                '<div class="dre-detalhe-chip-label">Total do período</div>' +
+                '<div class="dre-detalhe-chip-valor">R$ ' + soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+            '</div>' +
+            '<div class="dre-detalhe-chip">' +
+                '<div class="dre-detalhe-chip-label">Lançamentos</div>' +
+                '<div class="dre-detalhe-chip-valor" style="color:#333;">' + itens.length + '</div>' +
+            '</div>';
+    }
+
+    // Monta os botões de ação de cada linha do modal de detalhe da DRE, de acordo com a
+    // origem do lançamento — permite editar, reverter (voltar para pendente) ou excluir
+    // diretamente dali, sem precisar navegar até Contas a Pagar/Receber.
+    function _acoesDetalheDRE(item) {
+        if (item.fonte === 'dre' && item.id) {
+            return '<button onclick="editarLancDRE(' + item.id + ')" class="btn btn-secondary btn-small" title="Editar">✏️</button> ' +
+                   '<button onclick="deletarLancDRE(' + item.id + ')" class="btn btn-danger btn-small" title="Excluir">🗑️</button>';
+        }
+        if (item.fonte === 'pagar' && item.id) {
+            return '<button onclick="dreDetalheEditarLancamento(' + item.id + ",'pagar')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                   '<button onclick="dreDetalheReverterPagamento(' + item.id + ')" class="btn btn-warning btn-small" style="background:#ffc107;color:#333;" title="Reverter para pendente">↩</button> ' +
+                   '<button onclick="dreDetalheDeletarConta(' + item.id + ",'contas_a_pagar')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+        }
+        if (item.fonte === 'receber' && item.id) {
+            return '<button onclick="dreDetalheEditarLancamento(' + item.id + ",'receber')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                   '<button onclick="dreDetalheReverterRecebimento(' + item.id + ')" class="btn btn-warning btn-small" style="background:#ffc107;color:#333;" title="Reverter para pendente">↩</button> ' +
+                   '<button onclick="dreDetalheDeletarConta(' + item.id + ",'contas_a_receber')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+        }
+        return '<span style="color:#aaa;font-size:11px;">automático</span>';
+    }
+
+    // Ações disparadas pelos botões acima — fecham/reabrem o modal de detalhe conforme
+    // necessário para manter o usuário no contexto da DRE após a ação.
+    function dreDetalheEditarLancamento(id, tipo) {
+        _dreDetalheRetornoPendente = true;
+        closeModal('modalDetalheDRE');
+        editarLancamento(id, tipo);
+    }
+
+    async function dreDetalheReverterPagamento(id) {
+        await reverterPagamento(id);
+        await _dreDetalheAtualizarAposAcao();
+    }
+
+    async function dreDetalheReverterRecebimento(id) {
+        await reverterRecebimento(id);
+        await _dreDetalheAtualizarAposAcao();
+    }
+
+    async function dreDetalheDeletarConta(id, tabela) {
+        await deletarConta(id, tabela);
+        await _dreDetalheAtualizarAposAcao();
+    }
+
     function gerarTabelaMensalDRE(dreLancs, contasRec, contasPag, ano) {
         const headerRow = document.getElementById('dreHeaderMeses');
         const tbody = document.querySelector('#tabelaDREMensal tbody');
         if (!headerRow || !tbody) return;
         const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+        _dreMensalRawData = { dreLancs: dreLancs || [], contasRec: contasRec || [], contasPag: contasPag || [], ano };
 
         // Cabeçalho com meses
         headerRow.innerHTML = '<th style="min-width:180px;text-align:left;">Descrição</th>' +
@@ -10586,53 +10772,279 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             b[1].reduce((s,v)=>s+v,0) - a[1].reduce((s,v)=>s+v,0)
         );
 
+        // Grupos DRE que alimentam cada linha — usados para localizar os lançamentos
+        // reais por trás de cada número quando o usuário clica numa célula.
+        const G_REC_LIQ = ['RECEITA_BRUTA','DEDUCOES'];
+        const G_LUCRO_BRUTO = [...G_REC_LIQ, 'CPV'];
+        const G_EBITDA = [...G_LUCRO_BRUTO, 'DESP_COMERCIAL', 'DESP_ADMIN'];
+        const G_RESULT_OPER = [...G_EBITDA, 'RECEITA_FINANCEIRA', 'DESP_FINANCEIRA'];
+        const G_RESULT_LIQ = [...G_RESULT_OPER, 'IRPJ', 'EMPRESTIMO', 'INVESTIMENTO', 'OUTRAS_RECEITAS', 'OUTRAS_DESPESAS'];
+
         const linhas = [
-            { label: 'Receita Bruta',             fn: m => calcMes(m).rb,   bg: '' },
-            { label: '(-) Dedu\u00e7\u00f5es',   fn: m => -calcMes(m).ded, bg: '' },
-            { label: '= Receita L\u00edquida',    fn: m => calcMes(m).rl,   bg: '#f5f5f5', bold: true },
-            { label: '(-) CPV/CSP',               fn: m => -calcMes(m).cpv, bg: '', bold: false, expandir: cpvSubOrdenado },
-            { label: '= Lucro Bruto',             fn: m => calcMes(m).lb,   bg: '#f5f5f5', bold: true },
-            { label: '(-) Desp. Comerciais',      fn: m => -calcMes(m).dc,  bg: '' },
-            { label: '(-) Desp. Administrativas', fn: m => -calcMes(m).da,  bg: '', expandir: daSubOrdenado },
-            { label: '= EBITDA',                  fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true },
-            { label: '(+) Rec. Financeiras',      fn: m => calcMes(m).rf,   bg: '' },
-            { label: '(-) Desp. Financeiras',     fn: m => -calcMes(m).df,  bg: '' },
-            { label: '= Resultado Operacional',   fn: m => calcMes(m).ro,   bg: '#eef7ee', bold: true },
-            { label: '(-) IRPJ',                  fn: m => -calcMes(m).irpj, bg: '' },
-            { label: '(-) Empr\u00e9stimos',      fn: m => -calcMes(m).emp, bg: '' },
-            { label: '(-) Investimentos',         fn: m => -calcMes(m).inv, bg: '' },
-            { label: '(+) Outras Receitas',       fn: m => calcMes(m).or,   bg: '' },
-            { label: '(-) Outras Despesas',       fn: m => -calcMes(m).od,  bg: '' },
-            { label: '= Resultado L\u00edquido',  fn: m => calcMes(m).res,  bg: 'var(--cor-primaria)', cor: 'white', bold: true },
+            { label: 'Receita Bruta',             fn: m => calcMes(m).rb,   bg: '', grupos: ['RECEITA_BRUTA'] },
+            { label: '(-) Dedu\u00e7\u00f5es',   fn: m => -calcMes(m).ded, bg: '', grupos: ['DEDUCOES'] },
+            { label: '= Receita L\u00edquida',    fn: m => calcMes(m).rl,   bg: '#f5f5f5', bold: true, grupos: G_REC_LIQ },
+            { label: '(-) CPV/CSP',               fn: m => -calcMes(m).cpv, bg: '', bold: false, expandir: cpvSubOrdenado, grupos: ['CPV'] },
+            { label: '= Lucro Bruto',             fn: m => calcMes(m).lb,   bg: '#f5f5f5', bold: true, grupos: G_LUCRO_BRUTO },
+            { label: '(-) Desp. Comerciais',      fn: m => -calcMes(m).dc,  bg: '', grupos: ['DESP_COMERCIAL'] },
+            { label: '(-) Desp. Administrativas', fn: m => -calcMes(m).da,  bg: '', expandir: daSubOrdenado, grupos: ['DESP_ADMIN'] },
+            { label: '= EBITDA',                  fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true, grupos: G_EBITDA },
+            { label: '(+) Rec. Financeiras',      fn: m => calcMes(m).rf,   bg: '', grupos: ['RECEITA_FINANCEIRA'] },
+            { label: '(-) Desp. Financeiras',     fn: m => -calcMes(m).df,  bg: '', grupos: ['DESP_FINANCEIRA'] },
+            { label: '= Resultado Operacional',   fn: m => calcMes(m).ro,   bg: '#eef7ee', bold: true, grupos: G_RESULT_OPER },
+            { label: '(-) IRPJ',                  fn: m => -calcMes(m).irpj, bg: '', grupos: ['IRPJ'] },
+            { label: '(-) Empr\u00e9stimos',      fn: m => -calcMes(m).emp, bg: '', grupos: ['EMPRESTIMO'] },
+            { label: '(-) Investimentos',         fn: m => -calcMes(m).inv, bg: '', grupos: ['INVESTIMENTO'] },
+            { label: '(+) Outras Receitas',       fn: m => calcMes(m).or,   bg: '', grupos: ['OUTRAS_RECEITAS'] },
+            { label: '(-) Outras Despesas',       fn: m => -calcMes(m).od,  bg: '', grupos: ['OUTRAS_DESPESAS'] },
+            // Linha final: cor dinâmica (verde/vermelho) por célula, conforme o resultado
+            // daquele mês/total for positivo ou negativo — em vez da cor fixa de antes.
+            { label: '= Resultado L\u00edquido',  fn: m => calcMes(m).res,  bold: true, corPorSinal: true, grupos: G_RESULT_LIQ },
         ];
+
+        // Escapa aspas simples para uso seguro dentro de atributos onclick="..." construídos com aspas simples.
+        const escApos = s => String(s).replace(/'/g, "\\'");
 
         tbody.innerHTML = '';
         linhas.forEach(linha => {
             const vals = Array.from({length: 12}, (_, m) => linha.fn(m));
             const total = vals.reduce((s, v) => s + v, 0);
+
+            // Linha "= Resultado Líquido": a cor de fundo passa a acompanhar o sinal do
+            // resultado (verde = positivo, vermelho = negativo) em vez de ficar sempre laranja.
+            if (linha.corPorSinal) {
+                linha.bg = total >= 0 ? '#1e8449' : '#c0392b';
+                linha.cor = '#fff';
+            }
+
             const rowBg = linha.bg ? 'background:' + linha.bg + ';' : '';
             const rowFc = linha.cor ? 'color:' + linha.cor + ';' : '';
             const bold  = linha.bold ? 'font-weight:700;' : '';
+
+            const celula = (v, mesIdx) => {
+                let estilo = 'text-align:right;padding:5px 8px;';
+                if (linha.corPorSinal) {
+                    estilo += 'background:' + (v >= 0 ? '#1e8449' : '#c0392b') + ';color:#fff;';
+                } else if (!linha.cor) {
+                    estilo += cor(v);
+                }
+                const clicavel = linha.grupos && linha.grupos.length && v !== 0;
+                const classe = clicavel ? ' class="dre-cel-click"' : '';
+                const click = clicavel
+                    ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "'," + mesIdx + ",'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
+                    : '';
+                return '<td style="' + estilo + '"' + classe + click + '>' + fmtV(v) + '</td>';
+            };
+
+            let totalEstilo = 'text-align:right;padding:5px 8px;font-weight:700;';
+            if (linha.corPorSinal) {
+                totalEstilo += 'background:' + (total >= 0 ? '#1e8449' : '#c0392b') + ';color:#fff;';
+            } else if (!linha.cor) {
+                totalEstilo += cor(total);
+            }
+            const totalClicavel = linha.grupos && linha.grupos.length && total !== 0;
+            const totalClasse = totalClicavel ? ' class="dre-cel-click"' : '';
+            const totalClick = totalClicavel
+                ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "',-1,'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
+                : '';
+            const totalTd = '<td style="' + totalEstilo + '"' + totalClasse + totalClick + '>' + fmtV(total) + '</td>';
+
             tbody.innerHTML += '<tr style="' + rowBg + rowFc + bold + '">' +
                 '<td style="padding:5px 8px;' + bold + '">' + linha.label + '</td>' +
-                vals.map(v => '<td style="text-align:right;padding:5px 8px;' + (linha.cor ? '' : cor(v)) + '">' + fmtV(v) + '</td>').join('') +
-                '<td style="text-align:right;padding:5px 8px;font-weight:700;' + (linha.cor ? '' : cor(total)) + '">' + fmtV(total) + '</td>' +
+                vals.map((v, m) => celula(v, m)).join('') +
+                totalTd +
                 '</tr>';
 
-            // Subcategorias expandidas
+            // Subcategorias expandidas — cada categoria (ex.: "Empréstimos", "Salários" dentro
+            // de Despesas Administrativas) também abre os lançamentos ao ser clicada, seja no
+            // nome da categoria (abre o total do ano) ou em um valor de um mês específico.
             if (linha.expandir && linha.expandir.length > 0) {
+                const grupoSub = (linha.grupos && linha.grupos[0]) || '';
                 linha.expandir.forEach(([nomeSub, mesesSub]) => {
                     const totalSub = mesesSub.reduce((s,v)=>s+v,0);
                     if (totalSub === 0) return;
+                    const nomeSubEsc = escApos(nomeSub);
+                    const labelClasse = grupoSub ? ' class="dre-cel-click"' : '';
+                    const labelClick = grupoSub
+                        ? " onclick=\"abrirDetalheDRECategoriaMes('" + grupoSub + "','" + nomeSubEsc + "',-1,'" + ano + "')\""
+                        : '';
+                    const celulasSub = mesesSub.map((v, m) => {
+                        const clicavel = grupoSub && v > 0;
+                        const classe = clicavel ? ' class="dre-cel-click"' : '';
+                        const click = clicavel
+                            ? " onclick=\"abrirDetalheDRECategoriaMes('" + grupoSub + "','" + nomeSubEsc + "'," + m + ",'" + ano + "')\""
+                            : '';
+                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;"' + classe + click + '>' + (v > 0 ? fmtV(-v) : '-') + '</td>';
+                    }).join('');
                     tbody.innerHTML += '<tr style="background:#fafafa;">' +
-                        '<td style="padding:4px 8px 4px 22px;font-size:11px;color:#888;">' +
+                        '<td style="padding:4px 8px 4px 22px;font-size:11px;color:#888;"' + labelClasse + labelClick + '>' +
                         '<span style="color:#bbb;margin-right:4px;">\u21b3</span>' + nomeSub + '</td>' +
-                        mesesSub.map(v => '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;">' + (v > 0 ? fmtV(-v) : '-') + '</td>').join('') +
-                        '<td style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;">' + fmtV(-totalSub) + '</td>' +
+                        celulasSub +
+                        '<td style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;"' + labelClasse + labelClick + '>' + fmtV(-totalSub) + '</td>' +
                         '</tr>';
                 });
             }
         });
+    }
+
+    // Abre o modal de detalhes filtrado por uma subcategoria específica (dentro de CPV ou
+    // Despesas Administrativas) e um mês/ano — ou o total do ano quando mesIdx = -1.
+    function abrirDetalheDRECategoriaMes(grupoId, nomeSub, mesIdx, ano) {
+        const raw = _dreMensalRawData;
+        if (!raw) return;
+        const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const mm = mesIdx >= 0 ? String(mesIdx + 1).padStart(2, '0') : null;
+        const prefixo = String(ano) + (mm ? '-' + mm : '');
+
+        const itens = [];
+
+        if (grupoId === 'CPV') {
+            (raw.dreLancs || []).forEach(l => {
+                if (l.grupo !== 'CPV') return;
+                const catNomeLanc = l.categoria || 'CPV/CSP';
+                if (catNomeLanc !== nomeSub) return;
+                if (!l.competencia || !l.competencia.startsWith(prefixo)) return;
+                itens.push({
+                    competencia: l.competencia.substring(0, 7),
+                    descricao: l.descricao || '-',
+                    catNome: catNomeLanc,
+                    parte: l.parte || '-',
+                    centro: l.centro || '-',
+                    valor: l.valor,
+                    fonte: 'dre',
+                    id: l.id
+                });
+            });
+        }
+
+        (raw.contasPag || []).forEach(c => {
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            if (!cat || cat.grupo_dre !== grupoId || cat.nome !== nomeSub) return;
+            if (!c.data_competencia || !c.data_competencia.startsWith(prefixo)) return;
+            itens.push({
+                competencia: c.data_competencia.substring(0, 7),
+                descricao: c.descricao || '-',
+                catNome: cat.nome,
+                parte: (dadosCache.fornecedores.find(x => x.id === c.fornecedor_id) || {}).nome || '-',
+                centro: '-',
+                valor: c.valor,
+                fonte: 'pagar',
+                id: c.id
+            });
+        });
+
+        const periodoTxt = mesIdx >= 0 ? (mNomes[mesIdx] + '/' + ano) : ('Total ' + ano);
+        const tituloEl = document.getElementById('tituloDetalheDRE');
+        if (tituloEl) tituloEl.textContent = nomeSub + ' — ' + periodoTxt;
+
+        _renderResumoDetalheDRE(itens);
+        _dreDetalheUltimoParams = { tipo: 'categoria', grupoId, nomeSub, mesIdx, ano };
+
+        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        itens.forEach(item => {
+            const val = parseFloat(item.valor || 0);
+            tbody.innerHTML += '<tr>' +
+                '<td>' + (item.competencia || '-') + '</td>' +
+                '<td>' + (item.descricao || '-') + '</td>' +
+                '<td>' + (item.catNome || '-') + '</td>' +
+                '<td>' + (item.parte || '-') + '</td>' +
+                '<td>' + (item.centro || '-') + '</td>' +
+                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
+                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
+                '</tr>';
+        });
+        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
+        document.getElementById('modalDetalheDRE').classList.add('active');
+    }
+
+    // Abre o modal de detalhes com os lançamentos que compõem uma célula da tabela
+    // DRE Mensal (grupo(s) + mês específico, ou o total do ano quando mesIdx = -1).
+    function abrirDetalheDREMes(gruposStr, mesIdx, ano, labelLinha) {
+        const raw = _dreMensalRawData;
+        if (!raw) return;
+        const gruposArr = gruposStr.split(',');
+        const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const mm = mesIdx >= 0 ? String(mesIdx + 1).padStart(2, '0') : null;
+        const prefixo = String(ano) + (mm ? '-' + mm : '');
+
+        const itens = [];
+
+        (raw.dreLancs || []).forEach(l => {
+            if (!gruposArr.includes(l.grupo)) return;
+            if (!l.competencia || !l.competencia.startsWith(prefixo)) return;
+            const cat = dadosCache.categorias.find(c => c.id === l.categoria_id);
+            itens.push({
+                competencia: l.competencia.substring(0, 7),
+                descricao: l.descricao || '-',
+                catNome: cat ? cat.nome : '-',
+                parte: l.parte || '-',
+                centro: l.centro || '-',
+                valor: l.valor,
+                fonte: 'dre',
+                id: l.id
+            });
+        });
+
+        (raw.contasRec || []).forEach(c => {
+            if (!c.data_competencia || !c.data_competencia.startsWith(prefixo)) return;
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            const grupo = (cat && cat.grupo_dre) ? cat.grupo_dre : 'RECEITA_BRUTA';
+            if (!gruposArr.includes(grupo)) return;
+            itens.push({
+                competencia: c.data_competencia.substring(0, 7),
+                descricao: c.descricao || '-',
+                catNome: cat ? cat.nome : 'Receita',
+                parte: (dadosCache.clientes.find(x => x.id === c.cliente_id) || {}).nome || '-',
+                centro: '-',
+                valor: c.valor,
+                fonte: 'receber',
+                id: c.id
+            });
+        });
+
+        (raw.contasPag || []).forEach(c => {
+            if (!c.data_competencia || !c.data_competencia.startsWith(prefixo)) return;
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            const grupo = (cat && cat.grupo_dre) ? cat.grupo_dre : 'DESP_ADMIN';
+            if (!gruposArr.includes(grupo)) return;
+            itens.push({
+                competencia: c.data_competencia.substring(0, 7),
+                descricao: c.descricao || '-',
+                catNome: cat ? cat.nome : 'Custo',
+                parte: (dadosCache.fornecedores.find(x => x.id === c.fornecedor_id) || {}).nome || '-',
+                centro: '-',
+                valor: c.valor,
+                fonte: 'pagar',
+                id: c.id
+            });
+        });
+
+        const periodoTxt = mesIdx >= 0 ? (mNomes[mesIdx] + '/' + ano) : ('Total ' + ano);
+        const tituloEl = document.getElementById('tituloDetalheDRE');
+        if (tituloEl) tituloEl.textContent = labelLinha + ' — ' + periodoTxt;
+
+        _renderResumoDetalheDRE(itens);
+        _dreDetalheUltimoParams = { tipo: 'grupo', gruposStr, mesIdx, ano, labelLinha };
+
+        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        itens.forEach(item => {
+            const val = parseFloat(item.valor || 0);
+            tbody.innerHTML += '<tr>' +
+                '<td>' + (item.competencia || '-') + '</td>' +
+                '<td>' + (item.descricao || '-') + '</td>' +
+                '<td>' + (item.catNome || '-') + '</td>' +
+                '<td>' + (item.parte || '-') + '</td>' +
+                '<td>' + (item.centro || '-') + '</td>' +
+                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
+                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
+                '</tr>';
+        });
+        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
+        document.getElementById('modalDetalheDRE').classList.add('active');
     }
 
     function criarGraficoDRE(dreLancs, contasRec, contasPag, anoSel) {
@@ -10754,6 +11166,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     async function salvarLancDRE(event) {
         event.preventDefault();
+        const vindoDoDetalheDRE = _dreDetalheRetornoPendente;
+        _dreDetalheRetornoPendente = false;
         const id = document.getElementById('lancDREId').value;
         const dados = {
             grupo:       document.getElementById('lancDREGrupo').value,
@@ -10770,7 +11184,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             : await fetchSupabase('lancamentos_dre', 'POST', dados);
         if (r !== null) {
             closeModal('modalLancDRE');
-            await carregarDRE();
+            if (vindoDoDetalheDRE) { await _dreDetalheAtualizarAposAcao(); }
+            else { await carregarDRE(); }
         }
     }
 
@@ -10778,15 +11193,21 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (!confirm('Deletar este lançamento da DRE?')) return;
         const r = await fetchSupabase('lancamentos_dre', 'DELETE', null, 'id=eq.' + id);
         if (r !== null) {
-            closeModal('modalDetalheDRE');
-            await carregarDRE();
+            if (_dreDetalheUltimoParams) {
+                await _dreDetalheAtualizarAposAcao();
+            } else {
+                closeModal('modalDetalheDRE');
+                await carregarDRE();
+            }
         }
     }
 
     function editarLancDRE(id) {
+        _dreDetalheRetornoPendente = true;
         closeModal('modalDetalheDRE');
         abrirModalLancDRE(id);
     }
+
 
     function exportarDRE() {
         const rows = [['Descrição','Valor','AV%']];
@@ -11904,7 +12325,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     <div class="modal-content" style="max-width:560px;">
         <div class="modal-header">
             <span id="tituloModalLancDRE">📊 Lançar na DRE por Competência</span>
-            <button class="modal-close" onclick="closeModal('modalLancDRE')">&times;</button>
+            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;closeModal('modalLancDRE')">&times;</button>
         </div>
         <form onsubmit="salvarLancDRE(event)">
             <input type="hidden" id="lancDREId">
@@ -11964,21 +12385,22 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">💾 Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('modalLancDRE')">Cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;closeModal('modalLancDRE')">Cancelar</button>
             </div>
         </form>
     </div>
 </div>
 
 <div class="modal" id="modalDetalheDRE">
-    <div class="modal-content" style="max-width:700px;">
+    <div class="modal-content" style="max-width:1150px;">
         <div class="modal-header">
             <span id="tituloDetalheDRE">Detalhes</span>
             <button class="modal-close" onclick="closeModal('modalDetalheDRE')">&times;</button>
         </div>
+        <div id="dreDetalheResumo" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
         <div class="table-container">
             <table id="tabelaDetalheDRE">
-                <thead><tr><th>Competência</th><th>Descrição</th><th>Categoria</th><th>Parte</th><th>Centro</th><th style="text-align:right;">Valor</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Competência</th><th>Descrição</th><th>Categoria</th><th>Parte</th><th>Centro</th><th style="text-align:right;">Valor</th><th style="min-width:150px;">Ações</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -11992,7 +12414,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     <div class="modal-content" style="max-width:500px;">
         <div class="modal-header">
             <span id="editLancTituloModal">Editar Lançamento</span>
-            <button class="modal-close" onclick="closeModal('modalEditarLancamento')">&times;</button>
+            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;closeModal('modalEditarLancamento')">&times;</button>
         </div>
         <form onsubmit="salvarEdicaoLancamento(event)">
             <input type="hidden" id="editLancId">
@@ -12043,7 +12465,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">💾 Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditarLancamento')">Cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;closeModal('modalEditarLancamento')">Cancelar</button>
             </div>
         </form>
     </div>
