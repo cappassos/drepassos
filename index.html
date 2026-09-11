@@ -1740,6 +1740,27 @@
 
             <div class="alert alert-success" id="alertCategorias"></div>
 
+            <div class="filter-container" style="margin-bottom:16px;">
+                <div class="filter-row" style="align-items:flex-end;gap:12px;flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1;min-width:220px;">
+                        <label>Pesquisar</label>
+                        <input type="text" id="buscaCategorias" placeholder="Nome, grupo DRE, tipo ou descrição..." oninput="atualizarTabelaCategorias()">
+                    </div>
+                    <div class="form-group" style="min-width:180px;">
+                        <label>Grupo DRE</label>
+                        <select id="filtroGrupoCategorias" onchange="atualizarTabelaCategorias()">
+                            <option value="">Todos os grupos</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="padding-bottom:2px;">
+                        <button class="btn btn-secondary btn-small" onclick="limparBuscaCategorias()">Limpar</button>
+                    </div>
+                    <div class="form-group" style="padding-bottom:6px;">
+                        <span id="contadorCategorias" style="font-size:12px;color:#777;"></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="table-container">
                 <table id="tabelaCategorias">
                     <thead>
@@ -4468,9 +4489,31 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const dados = await fetchSupabase('categorias', 'GET');
         if (dados) {
             dadosCache.categorias = dados;
+            _popularFiltroGrupoCategorias();
             atualizarTabelaCategorias();
             atualizarSelectCategorias();
         }
+    }
+
+    // Popula o select de Grupo DRE do filtro da tela de Categorias com os grupos
+    // realmente usados, preservando a opção selecionada.
+    function _popularFiltroGrupoCategorias() {
+        const sel = document.getElementById('filtroGrupoCategorias');
+        if (!sel) return;
+        const atual = sel.value;
+        let html = '<option value="">Todos os grupos</option>';
+        html += '<option value="__sem__">— Sem grupo —</option>';
+        Object.keys(_GRUPOS_DRE_LABELS).forEach(id => {
+            html += '<option value="' + id + '">' + _GRUPOS_DRE_LABELS[id] + '</option>';
+        });
+        sel.innerHTML = html;
+        sel.value = atual;
+    }
+
+    function limparBuscaCategorias() {
+        const b = document.getElementById('buscaCategorias'); if (b) b.value = '';
+        const g = document.getElementById('filtroGrupoCategorias'); if (g) g.value = '';
+        atualizarTabelaCategorias();
     }
 
     const _GRUPOS_DRE_LABELS = {
@@ -4485,7 +4528,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     function atualizarTabelaCategorias() {
         const tbody = document.querySelector('#tabelaCategorias tbody');
         tbody.innerHTML = '';
-        dadosCache.categorias.forEach(cat => {
+        const termo = (document.getElementById('buscaCategorias') || {}).value || '';
+        const grupoFiltro = (document.getElementById('filtroGrupoCategorias') || {}).value || '';
+        const termoNorm = normalizarTexto(termo.trim()).toLowerCase();
+
+        const lista = (dadosCache.categorias || []).filter(cat => {
+            if (grupoFiltro === '__sem__' && cat.grupo_dre) return false;
+            if (grupoFiltro && grupoFiltro !== '__sem__' && cat.grupo_dre !== grupoFiltro) return false;
+            if (!termoNorm) return true;
+            const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '';
+            const alvo = normalizarTexto([cat.nome, grupoLabel, cat.tipo, cat.descricao].filter(Boolean).join(' ')).toLowerCase();
+            return alvo.includes(termoNorm);
+        });
+
+        lista.forEach(cat => {
             const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '-';
             tbody.innerHTML += `<tr>
                 <td><b>${cat.nome}</b></td>
@@ -4499,6 +4555,18 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </td>
             </tr>`;
         });
+
+        if (lista.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Nenhuma categoria encontrada' + (termo || grupoFiltro ? ' para o filtro atual.' : '.') + '</td></tr>';
+        }
+
+        const contador = document.getElementById('contadorCategorias');
+        if (contador) {
+            const total = (dadosCache.categorias || []).length;
+            contador.textContent = (termoNorm || grupoFiltro)
+                ? lista.length + ' de ' + total + ' categoria(s)'
+                : total + ' categoria(s)';
+        }
     }
 
     function atualizarSelectCategorias() {
@@ -11295,6 +11363,21 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         _aplicarVisibilidadeDRE();
     }
 
+    // Base efetiva (competência ou vencimento) para casar uma conta paga com o período
+    // exibido nos modais de detalhe — respeita o seletor de empréstimos da DRE, para que
+    // ao clicar numa célula apareçam exatamente os lançamentos contados naquela célula.
+    function _dreBaseEmprestimoSel() {
+        return (document.getElementById('filtroBaseEmprestimoDRE') || {}).value || 'competencia';
+    }
+    function _dreMatchDataConta(c, grupo) {
+        if (grupo === 'EMPRESTIMO') {
+            return _dreBaseEmprestimoSel() === 'vencimento'
+                ? (c.data_vencimento || c.data_competencia)
+                : (c.data_competencia || c.data_vencimento);
+        }
+        return c.data_competencia;
+    }
+
     // Abre o modal de detalhes filtrado por uma subcategoria específica (dentro de CPV ou
     // Despesas Administrativas) e um mês/ano — ou o total do ano quando mesIdx = -1.
     function abrirDetalheDRECategoriaMes(grupoId, nomeSub, mesIdx, ano) {
@@ -11328,9 +11411,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         (raw.contasPag || []).forEach(c => {
             const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
             if (!cat || cat.grupo_dre !== grupoId || cat.nome !== nomeSub) return;
-            if (!c.data_competencia || !c.data_competencia.startsWith(prefixo)) return;
+            const dbase = _dreMatchDataConta(c, grupoId);
+            if (!dbase || !dbase.startsWith(prefixo)) return;
             itens.push({
-                competencia: c.data_competencia.substring(0, 7),
+                competencia: dbase.substring(0, 7),
                 descricao: c.descricao || '-',
                 catNome: cat.nome,
                 parte: (dadosCache.fornecedores.find(x => x.id === c.fornecedor_id) || {}).nome || '-',
@@ -11413,12 +11497,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
 
         (raw.contasPag || []).forEach(c => {
-            if (!c.data_competencia || !c.data_competencia.startsWith(prefixo)) return;
             const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
             const grupo = (cat && cat.grupo_dre) ? cat.grupo_dre : 'DESP_ADMIN';
             if (!gruposArr.includes(grupo)) return;
+            const dbase = _dreMatchDataConta(c, grupo);
+            if (!dbase || !dbase.startsWith(prefixo)) return;
             itens.push({
-                competencia: c.data_competencia.substring(0, 7),
+                competencia: dbase.substring(0, 7),
                 descricao: c.descricao || '-',
                 catNome: cat ? cat.nome : 'Custo',
                 parte: (dadosCache.fornecedores.find(x => x.id === c.fornecedor_id) || {}).nome || '-',
