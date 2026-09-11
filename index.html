@@ -3095,6 +3095,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             <option value="11">Novembro</option><option value="12">Dezembro</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Empréstimos por <span title="Define se os empréstimos entram na DRE pela data de competência (regime contábil) ou pela data de vencimento (quando a parcela vence)." style="cursor:help;">ℹ️</span></label>
+                        <select id="filtroBaseEmprestimoDRE" onchange="carregarDRE()">
+                            <option value="vencimento" selected>Vencimento</option>
+                            <option value="competencia">Competência</option>
+                        </select>
+                    </div>
                     <div class="form-group" style="display:flex;gap:8px;align-items:flex-end;padding-bottom:2px;">
                         <button class="btn btn-primary btn-small" onclick="abrirModalLancDRE()">+ Lançar</button>
                         <button class="btn btn-secondary btn-small" onclick="exportarDRE()">📥 Exportar</button>
@@ -3103,35 +3110,35 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </div>
             </div>
             <div class="dre-kpi-grid">
-                <div class="dre-kpi-card" style="--kpi-cor:#28a745;">
+                <div class="dre-kpi-card" style="--kpi-cor:#28a745;cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('RECEITA_BRUTA','Receita Bruta')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(40,167,69,0.12);">💰</span>
                         <span class="dre-kpi-label">Receita Bruta</span>
                     </div>
                     <div class="stat-value" id="dreCardReceita" style="color:#28a745;">R$ 0,00</div>
                 </div>
-                <div class="dre-kpi-card" style="--kpi-cor:#17a2b8;">
+                <div class="dre-kpi-card" style="--kpi-cor:#17a2b8;cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('DEDUCOES','Deduções')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(23,162,184,0.12);">🧾</span>
                         <span class="dre-kpi-label">Deduções</span>
                     </div>
                     <div class="stat-value" id="dreCardDeducoes" style="color:#17a2b8;">R$ 0,00</div>
                 </div>
-                <div class="dre-kpi-card" style="--kpi-cor:#FF7A42;">
+                <div class="dre-kpi-card" style="--kpi-cor:#FF7A42;cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('RECEITA_BRUTA,DEDUCOES','Receita Líquida')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(255,122,66,0.12);">📈</span>
                         <span class="dre-kpi-label">Receita Líquida</span>
                     </div>
                     <div class="stat-value" id="dreCardRecLiq" style="color:#FF7A42;">R$ 0,00</div>
                 </div>
-                <div class="dre-kpi-card" style="--kpi-cor:#dc3545;">
+                <div class="dre-kpi-card" style="--kpi-cor:#dc3545;cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('CPV','CPV/CSP')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(220,53,69,0.12);">🏭</span>
                         <span class="dre-kpi-label">CPV/CSP</span>
                     </div>
                     <div class="stat-value" id="dreCardCPV" style="color:#dc3545;">R$ 0,00</div>
                 </div>
-                <div class="dre-kpi-card" id="dreCardLucroBrutoBox">
+                <div class="dre-kpi-card" id="dreCardLucroBrutoBox" style="cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('RECEITA_BRUTA,DEDUCOES,CPV','Lucro Bruto')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(0,0,0,0.05);">📊</span>
                         <span class="dre-kpi-label">Lucro Bruto</span>
@@ -3139,13 +3146,21 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <div class="stat-value" id="dreCardLucroBruto">R$ 0,00</div>
                     <div class="stat-change" id="dreCardMargemBruta">Margem: 0%</div>
                 </div>
-                <div class="dre-kpi-card" id="dreCardResultadoBox">
+                <div class="dre-kpi-card" id="dreCardResultadoBox" style="cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('RECEITA_BRUTA,DEDUCOES,CPV,DESP_COMERCIAL,DESP_ADMIN,RECEITA_FINANCEIRA,DESP_FINANCEIRA,IRPJ,EMPRESTIMO,INVESTIMENTO,OUTRAS_RECEITAS,OUTRAS_DESPESAS','Resultado Líquido do Exercício')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(0,0,0,0.05);">🏆</span>
                         <span class="dre-kpi-label">Resultado Líquido</span>
                     </div>
                     <div class="stat-value" id="dreCardResultado">R$ 0,00</div>
                     <div class="stat-change" id="dreCardMargemLiq">Margem: 0%</div>
+                </div>
+                <div class="dre-kpi-card" id="dreCardPEBox" style="--kpi-cor:#8e44ad;">
+                    <div class="dre-kpi-top">
+                        <span class="dre-kpi-icon" style="background:rgba(142,68,173,0.12);">⚖️</span>
+                        <span class="dre-kpi-label">Ponto de Equilíbrio <span title="Faturamento mínimo para o resultado ser zero. Cálculo: Custos e Despesas Fixas (Desp. Comerciais + Administrativas) ÷ Índice de Margem de Contribuição (Lucro Bruto ÷ Receita Líquida). Assume CPV/CSP como custo variável." style="cursor:help;">ℹ️</span></span>
+                    </div>
+                    <div class="stat-value" id="dreCardPontoEquilibrio" style="color:#8e44ad;">R$ 0,00</div>
+                    <div class="stat-change" id="dreCardPEInfo">Faturamento p/ resultado zero</div>
                 </div>
             </div>
             <div class="card dre-table-card" style="display:none;">
@@ -3166,6 +3181,17 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
             <div class="card" id="cardDREMensal" style="display:none;margin-top:16px;">
                 <div class="card-title" id="tituloDREMensal">📅 DRE Mensal</div>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:#f8f9fa;border-radius:8px;font-size:13px;">
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" id="chkDREMostrarPct" checked onchange="toggleDREPct(this)"> Mostrar % s/ Receita Bruta
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" id="chkDREOcultarMeses" onchange="toggleDREMeses(this)"> Ocultar meses
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <input type="checkbox" id="chkDREOcultarAcum" onchange="toggleDREAcum(this)"> Ocultar acumulado (Total)
+                    </label>
+                </div>
                 <div style="overflow-x:auto;">
                     <table id="tabelaDREMensal" style="font-size:12px;min-width:900px;">
                         <thead><tr id="dreHeaderMeses"><th style="min-width:180px;">Descrição</th></tr></thead>
@@ -5791,6 +5817,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         // assim que o salvamento terminar.
         const vindoDoDetalheDRE = _dreDetalheRetornoPendente;
         _dreDetalheRetornoPendente = false;
+        const vindoDoBancoLanc = _bancoLancRetornoPendente;
+        _bancoLancRetornoPendente = false;
         const id    = parseInt(document.getElementById('editLancId').value);
         const tipo  = document.getElementById('editLancTipo').value;
         const catVal = document.getElementById('editLancCategoria') ? document.getElementById('editLancCategoria').value : '';
@@ -5821,6 +5849,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await atualizarDashboard();
             _atualizarCalendarioSeAtivo();
             if (vindoDoDetalheDRE) await _dreDetalheAtualizarAposAcao();
+            if (vindoDoBancoLanc) {
+                await carregarBancos();
+                _renderLancamentosBanco();
+                document.getElementById('modalLancamentosBanco').classList.add('active');
+            }
         }
     }
 
@@ -7923,31 +7956,241 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const saldoTerc = saldosTerceiros && saldosTerceiros[banco.id] !== undefined ? saldosTerceiros[banco.id] : 0;
             totalTerceiros += saldoTerc;
             const cor = saldo >= 0 ? '#28a745' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + cor + ';">' +
+            container.innerHTML += '<div class="stat-card" style="border-left-color:' + cor + ';cursor:pointer;" title="Clique para ver e editar os lançamentos desta caixa" onclick="abrirLancamentosBanco(' + banco.id + ')">' +
                 '<div class="stat-label">🏦 ' + banco.nome + '</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">' + (banco.tipo || '') + '</div>' +
                 '<div class="stat-value" style="color:' + cor + ';font-size:20px;">R$ ' + saldo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '<div style="font-size:11px;color:#999;margin-top:4px;">Inicial: R$ ' + parseFloat(banco.saldo_inicial||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) +
                 ' · <span style="color:#8e44ad;">Saldo de Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
                 '</div>' +
+                '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
                 '</div>';
         });
         if ((dadosCache.bancos || []).filter(b => b.ativo).length > 1) {
             const corTotal = totalGeral >= 0 ? '#FF7A42' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTotal + ';">' +
+            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTotal + ';cursor:pointer;" title="Clique para ver os lançamentos de todas as caixas" onclick="abrirLancamentosBanco(\'\')">' +
                 '<div class="stat-label">💰 Saldo Total</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">Todos os bancos</div>' +
                 '<div class="stat-value" style="color:' + corTotal + ';font-size:20px;">R$ ' + totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+                '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
                 '</div>';
         }
         if (configAtiva) {
             const corTerc = totalTerceiros >= 0 ? '#8e44ad' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTerc + ';">' +
+            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTerc + ';cursor:pointer;" title="Clique para ver os lançamentos que compõem o Saldo de Terceiros" onclick="abrirLancamentosTerceiros()">' +
                 '<div class="stat-label">👤 Saldo de Terceiros</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">Não é seu — a devolver/repassar</div>' +
                 '<div class="stat-value" style="color:' + corTerc + ';font-size:20px;">R$ ' + totalTerceiros.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+                '<div style="font-size:10px;color:#8e44ad;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
                 '</div>';
         }
+    }
+
+    // ================================================================
+    // LANÇAMENTOS POR CAIXA/BANCO — abre ao clicar num card de saldo
+    // Lista recebimentos, pagamentos e transferências daquela conta e
+    // permite editar / reverter / excluir cada lançamento no local.
+    // ================================================================
+    let _bancoLancModalAtual = null;
+    let _bancoLancRetornoPendente = false;
+
+    function abrirLancamentosBanco(bancoId) {
+        _bancoLancModalAtual = (bancoId === '' || bancoId === null || bancoId === undefined) ? '' : bancoId;
+        _renderLancamentosBanco();
+        document.getElementById('modalLancamentosBanco').classList.add('active');
+    }
+
+    // Abre os lançamentos que compõem o Saldo de Terceiros: recebimentos na categoria de
+    // entrada configurada (crédito) e pagamentos na categoria de saída configurada (débito).
+    function abrirLancamentosTerceiros() {
+        _bancoLancModalAtual = '__terceiros__';
+        _renderLancamentosBanco();
+        document.getElementById('modalLancamentosBanco').classList.add('active');
+    }
+
+    function _renderLancamentosBanco() {
+        const bancoId = _bancoLancModalAtual;
+        const tbody = document.querySelector('#tabelaLancamentosBanco tbody');
+        const tituloEl = document.getElementById('tituloLancamentosBanco');
+        const resumoEl = document.getElementById('resumoLancamentosBanco');
+        if (!tbody) return;
+
+        const fmtVal = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        const fmtData = d => { if (!d) return '-'; const p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
+
+        // Modo especial: composição do Saldo de Terceiros.
+        if (bancoId === '__terceiros__') {
+            _renderLancamentosTerceiros(tbody, tituloEl, resumoEl, fmtVal, fmtData);
+            return;
+        }
+
+        const banco = bancoId !== '' ? (dadosCache.bancos || []).find(b => String(b.id) === String(bancoId)) : null;
+        if (tituloEl) tituloEl.textContent = '📒 Lançamentos — ' + (banco ? banco.nome : 'Todas as caixas');
+        const bate = c => bancoId === '' || String(c.banco_id) === String(bancoId);
+
+        const movs = [];
+        (dadosCache.contasRecebidas || []).forEach(c => {
+            if (!c.data_recebimento || !bate(c)) return;
+            const cliente = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+            movs.push({ data: c.data_recebimento, tipo: 'credito', fonte: 'receber', id: c.id,
+                descricao: c.descricao || '-', parte: cliente ? cliente.nome : '-', valor: parseFloat(c.valor || 0) });
+        });
+        (dadosCache.contasPagas || []).forEach(c => {
+            if (!c.data_pagamento || !bate(c)) return;
+            const forn = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+            movs.push({ data: c.data_pagamento, tipo: 'debito', fonte: 'pagar', id: c.id,
+                descricao: c.descricao || '-', parte: forn ? forn.nome : '-', valor: parseFloat(c.valor || 0) });
+        });
+        (dadosCache.transferencias || []).forEach(t => {
+            if (!t.data) return;
+            const org = (dadosCache.bancos || []).find(b => b.id === t.banco_origem_id);
+            const dst = (dadosCache.bancos || []).find(b => b.id === t.banco_destino_id);
+            if (bancoId === '' || String(t.banco_origem_id) === String(bancoId)) {
+                movs.push({ data: t.data, tipo: 'debito', fonte: 'transferencia', id: t.id,
+                    descricao: 'Transferência' + (t.descricao ? ' — ' + t.descricao : ''),
+                    parte: 'para ' + (dst ? dst.nome : '-'), valor: parseFloat(t.valor || 0) });
+            }
+            if (bancoId === '' || String(t.banco_destino_id) === String(bancoId)) {
+                movs.push({ data: t.data, tipo: 'credito', fonte: 'transferencia', id: t.id,
+                    descricao: 'Transferência' + (t.descricao ? ' — ' + t.descricao : ''),
+                    parte: 'de ' + (org ? org.nome : '-'), valor: parseFloat(t.valor || 0) });
+            }
+        });
+        movs.sort((a, b) => b.data.localeCompare(a.data));
+
+        let totCred = 0, totDeb = 0;
+        tbody.innerHTML = '';
+        movs.forEach(m => {
+            if (m.tipo === 'credito') totCred += m.valor; else totDeb += m.valor;
+            const badge = m.tipo === 'credito'
+                ? '<span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:#d4edda;color:#155724;">Crédito</span>'
+                : '<span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:#f8d7da;color:#721c24;">Débito</span>';
+            let acoes;
+            if (m.fonte === 'receber') {
+                acoes = '<button onclick="bancoLancEditar(' + m.id + ",'receber')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                        '<button onclick="bancoLancReverter(' + m.id + ",'receber')\" class=\"btn btn-small\" style=\"background:#ffc107;color:#333;\" title=\"Reverter para pendente\">↩</button> " +
+                        '<button onclick="bancoLancExcluir(' + m.id + ",'contas_a_receber')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+            } else if (m.fonte === 'pagar') {
+                acoes = '<button onclick="bancoLancEditar(' + m.id + ",'pagar')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                        '<button onclick="bancoLancReverter(' + m.id + ",'pagar')\" class=\"btn btn-small\" style=\"background:#ffc107;color:#333;\" title=\"Reverter para pendente\">↩</button> " +
+                        '<button onclick="bancoLancExcluir(' + m.id + ",'contas_a_pagar')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+            } else {
+                acoes = '<button onclick="bancoLancExcluirTransferencia(' + m.id + ')" class="btn btn-danger btn-small" title="Estornar transferência">🗑️</button>';
+            }
+            tbody.innerHTML += '<tr>' +
+                '<td>' + fmtData(m.data) + '</td>' +
+                '<td>' + m.descricao + '</td>' +
+                '<td style="font-size:11px;color:#666;">' + m.parte + '</td>' +
+                '<td>' + badge + '</td>' +
+                '<td style="text-align:right;font-weight:600;color:' + (m.tipo === 'credito' ? '#28a745' : '#dc3545') + ';">' + (m.tipo === 'credito' ? '+' : '-') + fmtVal(m.valor) + '</td>' +
+                '<td style="white-space:nowrap;">' + acoes + '</td>' +
+                '</tr>';
+        });
+        if (movs.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Nenhum lançamento nesta caixa.</td></tr>';
+
+        if (resumoEl) {
+            const fluxo = totCred - totDeb;
+            resumoEl.innerHTML =
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Entradas</div><div class="dre-detalhe-chip-valor" style="color:#28a745;">' + fmtVal(totCred) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Saídas</div><div class="dre-detalhe-chip-valor" style="color:#dc3545;">' + fmtVal(totDeb) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Fluxo</div><div class="dre-detalhe-chip-valor" style="color:' + (fluxo >= 0 ? '#28a745' : '#dc3545') + ';">' + (fluxo >= 0 ? '+' : '-') + fmtVal(fluxo) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Lançamentos</div><div class="dre-detalhe-chip-valor" style="color:#333;">' + movs.length + '</div></div>';
+        }
+    }
+
+    // Renderiza os lançamentos que formam o Saldo de Terceiros (entrada − saída das
+    // categorias configuradas em ⚙️ Saldo de Terceiros), somando por todas as caixas.
+    function _renderLancamentosTerceiros(tbody, tituloEl, resumoEl, fmtVal, fmtData) {
+        if (tituloEl) tituloEl.textContent = '👤 Saldo de Terceiros — lançamentos';
+        const catE = configSaldoTerceiros.catEntradaId;
+        const catS = configSaldoTerceiros.catSaidaId;
+
+        const movs = [];
+        if (catE) {
+            (dadosCache.contasRecebidas || []).forEach(c => {
+                if (c.status !== 'recebido' || !c.banco_id || String(c.categoria_id) !== String(catE)) return;
+                const banco = (dadosCache.bancos || []).find(b => b.id === c.banco_id);
+                const cliente = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+                movs.push({ data: c.data_recebimento || '', tipo: 'credito', fonte: 'receber', id: c.id,
+                    descricao: c.descricao || '-',
+                    parte: (cliente ? cliente.nome : '-') + (banco ? ' · ' + banco.nome : ''),
+                    valor: parseFloat(c.valor || 0) });
+            });
+        }
+        if (catS) {
+            (dadosCache.contasPagas || []).forEach(c => {
+                if (c.status !== 'pago' || !c.banco_id || String(c.categoria_id) !== String(catS)) return;
+                const banco = (dadosCache.bancos || []).find(b => b.id === c.banco_id);
+                const forn = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+                movs.push({ data: c.data_pagamento || '', tipo: 'debito', fonte: 'pagar', id: c.id,
+                    descricao: c.descricao || '-',
+                    parte: (forn ? forn.nome : '-') + (banco ? ' · ' + banco.nome : ''),
+                    valor: parseFloat(c.valor || 0) });
+            });
+        }
+        movs.sort((a, b) => b.data.localeCompare(a.data));
+
+        let totCred = 0, totDeb = 0;
+        tbody.innerHTML = '';
+        movs.forEach(m => {
+            if (m.tipo === 'credito') totCred += m.valor; else totDeb += m.valor;
+            const badge = m.tipo === 'credito'
+                ? '<span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:#d4edda;color:#155724;">Entrada</span>'
+                : '<span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:#f8d7da;color:#721c24;">Saída</span>';
+            let acoes;
+            if (m.fonte === 'receber') {
+                acoes = '<button onclick="bancoLancEditar(' + m.id + ",'receber')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                        '<button onclick="bancoLancReverter(' + m.id + ",'receber')\" class=\"btn btn-small\" style=\"background:#ffc107;color:#333;\" title=\"Reverter para pendente\">↩</button> " +
+                        '<button onclick="bancoLancExcluir(' + m.id + ",'contas_a_receber')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+            } else {
+                acoes = '<button onclick="bancoLancEditar(' + m.id + ",'pagar')\" class=\"btn btn-secondary btn-small\" title=\"Editar\">✏️</button> " +
+                        '<button onclick="bancoLancReverter(' + m.id + ",'pagar')\" class=\"btn btn-small\" style=\"background:#ffc107;color:#333;\" title=\"Reverter para pendente\">↩</button> " +
+                        '<button onclick="bancoLancExcluir(' + m.id + ",'contas_a_pagar')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
+            }
+            tbody.innerHTML += '<tr>' +
+                '<td>' + fmtData(m.data) + '</td>' +
+                '<td>' + m.descricao + '</td>' +
+                '<td style="font-size:11px;color:#666;">' + m.parte + '</td>' +
+                '<td>' + badge + '</td>' +
+                '<td style="text-align:right;font-weight:600;color:' + (m.tipo === 'credito' ? '#28a745' : '#dc3545') + ';">' + (m.tipo === 'credito' ? '+' : '-') + fmtVal(m.valor) + '</td>' +
+                '<td style="white-space:nowrap;">' + acoes + '</td>' +
+                '</tr>';
+        });
+        if (movs.length === 0) {
+            const semConfig = !catE && !catS;
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">' +
+                (semConfig ? 'Configure as categorias em ⚙️ Saldo de Terceiros para ver os lançamentos.' : 'Nenhum lançamento de terceiros encontrado.') +
+                '</td></tr>';
+        }
+        if (resumoEl) {
+            const saldo = totCred - totDeb;
+            resumoEl.innerHTML =
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Entradas (recebido p/ terceiros)</div><div class="dre-detalhe-chip-valor" style="color:#28a745;">' + fmtVal(totCred) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Saídas (repassado a terceiros)</div><div class="dre-detalhe-chip-valor" style="color:#dc3545;">' + fmtVal(totDeb) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Saldo de Terceiros</div><div class="dre-detalhe-chip-valor" style="color:' + (saldo >= 0 ? '#8e44ad' : '#dc3545') + ';">' + (saldo >= 0 ? '' : '-') + fmtVal(saldo) + '</div></div>' +
+                '<div class="dre-detalhe-chip"><div class="dre-detalhe-chip-label">Lançamentos</div><div class="dre-detalhe-chip-valor" style="color:#333;">' + movs.length + '</div></div>';
+        }
+    }
+
+    // Marca que o modal de edição foi aberto a partir da lista de lançamentos da caixa,
+    // para reabrir/atualizar essa lista após salvar.
+    function bancoLancEditar(id, tipo) {
+        _bancoLancRetornoPendente = true;
+        closeModal('modalLancamentosBanco');
+        editarLancamento(id, tipo);
+    }
+    async function bancoLancReverter(id, tipo) {
+        if (tipo === 'receber') await reverterRecebimento(id); else await reverterPagamento(id);
+        _renderLancamentosBanco();
+    }
+    async function bancoLancExcluir(id, tabela) {
+        await deletarConta(id, tabela);
+        await carregarBancos();
+        _renderLancamentosBanco();
+    }
+    async function bancoLancExcluirTransferencia(id) {
+        await deletarTransferencia(id);
+        _renderLancamentosBanco();
     }
 
     function _popularSelectExtrato() {
@@ -10295,14 +10538,42 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const filtroMes = document.getElementById('filtroMesDRE');
         const anoSel = filtroAno ? filtroAno.value : '';
         const mesSel = filtroMes ? filtroMes.value : '';
+        const baseEmprestimo = (document.getElementById('filtroBaseEmprestimoDRE') || {}).value || 'competencia';
 
         const dreLancs = lancsDRE || [];
+
+        // Grupo DRE de uma conta (pela categoria) e data-base efetiva usada para posicioná-la
+        // no período. Empréstimos podem ser vistos por competência ou por vencimento.
+        const _grupoDaConta = (c, padrao) => {
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            return (cat && cat.grupo_dre) ? cat.grupo_dre : padrao;
+        };
+        const _dataBaseConta = (c, padrao) => {
+            const grupo = _grupoDaConta(c, padrao);
+            if (grupo === 'EMPRESTIMO') {
+                return baseEmprestimo === 'vencimento'
+                    ? (c.data_vencimento || c.data_competencia)
+                    : (c.data_competencia || c.data_vencimento);
+            }
+            return c.data_competencia;
+        };
 
         // Filtrar por competência
         function filtrarComp(arr, campoData) {
             return arr.filter(c => {
                 if (!c[campoData]) return false;
                 const d = c[campoData].substring(0, 7); // YYYY-MM
+                if (anoSel && !d.startsWith(anoSel)) return false;
+                if (mesSel && !d.endsWith('-' + mesSel)) return false;
+                return true;
+            });
+        }
+        // Filtra contas usando a data-base efetiva (respeita empréstimos por vencimento).
+        function filtrarPorBase(arr, padrao) {
+            return arr.filter(c => {
+                const dv = _dataBaseConta(c, padrao);
+                if (!dv) return false;
+                const d = dv.substring(0, 7);
                 if (anoSel && !d.startsWith(anoSel)) return false;
                 if (mesSel && !d.endsWith('-' + mesSel)) return false;
                 return true;
@@ -10323,11 +10594,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             contasRec,
             'data_competencia'
         );
-        // Contas pagas/pendentes por competência
-        const pagComp = filtrarComp(
-            contasPag,
-            'data_competencia'
-        );
+        // Contas pagas/pendentes por competência (empréstimos podem ir por vencimento)
+        const pagComp = filtrarPorBase(contasPag, 'DESP_ADMIN');
 
         // Aviso pendentes
         const pendentes = contasRec.filter(c => c.status === 'pendente').length
@@ -10371,7 +10639,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             porGrupo[grupo].total += parseFloat(c.valor || 0);
             const comp = c.data_competencia || c.data_recebimento || '';
             porGrupo[grupo].itens.push({
-                descricao: c.descricao, valor: c.valor, competencia: comp.substring(0,7),
+                descricao: c.descricao, valor: c.valor, competencia: comp.substring(0,7), id: c.id,
                 parte: (dadosCache.clientes.find(x => x.id === c.cliente_id) || {}).nome || '-',
                 catNome: cat ? cat.nome : 'Receita', fonte: 'receber'
             });
@@ -10383,9 +10651,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const grupo = (cat && cat.grupo_dre) ? cat.grupo_dre : 'DESP_ADMIN';
             if (!porGrupo[grupo]) return;
             porGrupo[grupo].total += parseFloat(c.valor || 0);
-            const comp = c.data_competencia || c.data_pagamento || '';
+            const comp = _dataBaseConta(c, 'DESP_ADMIN') || c.data_pagamento || '';
             porGrupo[grupo].itens.push({
-                descricao: c.descricao, valor: c.valor, competencia: comp.substring(0,7),
+                descricao: c.descricao, valor: c.valor, competencia: comp.substring(0,7), id: c.id,
                 parte: (dadosCache.fornecedores.find(x => x.id === c.fornecedor_id) || {}).nome || '-',
                 catNome: cat ? cat.nome : 'Custo', fonte: 'pagar'
             });
@@ -10435,8 +10703,32 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const elML = document.getElementById('dreCardMargemLiq');
         if (elML) elML.textContent = 'Margem Líquida: ' + pct(resultLiq);
 
+        // Ponto de Equilíbrio (break-even)
+        // Custos/Despesas fixas consideradas: Desp. Comerciais + Desp. Administrativas.
+        // Margem de Contribuição considerada: Lucro Bruto (Receita Líquida − CPV/CSP),
+        // tratando o CPV/CSP como custo variável.
+        const custosFixos = despCom + despAdm;
+        const indiceMC = recLiq > 0 ? (lucroBruto / recLiq) : 0;
+        const pontoEquilibrio = indiceMC > 0 ? (custosFixos / indiceMC) : 0;
+        const elPE = document.getElementById('dreCardPontoEquilibrio');
+        const elPEInfo = document.getElementById('dreCardPEInfo');
+        if (elPE) {
+            if (indiceMC > 0) {
+                elPE.textContent = fmtBRL(pontoEquilibrio);
+                if (elPEInfo) {
+                    const atingido = recBruta >= pontoEquilibrio;
+                    elPEInfo.textContent = 'MC ' + (indiceMC * 100).toFixed(1) + '% · ' +
+                        (atingido ? '✅ atingido' : '⚠️ abaixo do ponto');
+                    elPEInfo.style.color = atingido ? '#28a745' : '#dc3545';
+                }
+            } else {
+                elPE.textContent = '—';
+                if (elPEInfo) { elPEInfo.textContent = 'Sem margem de contribuição no período'; elPEInfo.style.color = '#999'; }
+            }
+        }
+
         // Renderizar tabela DRE estruturada
-        renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq);
+        renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq, custosFixos, indiceMC, pontoEquilibrio);
 
         // Tabela mensal e gráfico
         if (anoSel) {
@@ -10444,7 +10736,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             if (cardMensal) {
                 cardMensal.style.display = '';
                 document.getElementById('tituloDREMensal').textContent = '📅 DRE Mensal — ' + anoSel;
-                gerarTabelaMensalDRE(dreLancs, contasRec, contasPag, anoSel);
+                gerarTabelaMensalDRE(dreLancs, contasRec, contasPag, anoSel, baseEmprestimo);
             }
         } else {
             const cardMensal = document.getElementById('cardDREMensal');
@@ -10454,7 +10746,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         criarGraficoDRE(dreLancs, contasRec, contasPag, anoSel);
     }
 
-    function renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq) {
+    function renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq, custosFixos, indiceMC, pontoEquilibrio) {
         // Popular cache de detalhe para o botão "Ver"
         _dreDetalheCache = {};
         DRE_GRUPOS.forEach(g => { _dreDetalheCache[g.id] = porGrupo[g.id] ? porGrupo[g.id].itens : []; });
@@ -10552,6 +10844,31 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         html += linhaGrupo(gLabelDRE('OUTRAS_DESPESAS'), -porGrupo['OUTRAS_DESPESAS'].total, 'OUTRAS_DESPESAS');
         html += linhaSubtotal('= RESULTADO LÍQUIDO DO EXERCÍCIO', resultLiq, true);
 
+        // Ponto de Equilíbrio (break-even) — faturamento mínimo para o resultado ser zero.
+        if (typeof pontoEquilibrio !== 'undefined' && indiceMC > 0) {
+            const atingido = recBruta >= pontoEquilibrio;
+            const corPE = atingido ? '#1e8449' : '#c0392b';
+            html += linhaSecao('⚖️ PONTO DE EQUILÍBRIO');
+            html += `<tr style="font-size:12px;color:#666;background:#faf5ff;">
+                <td style="padding-left:16px;">Custos e Despesas Fixas <span style="color:#aaa;font-size:11px;">(Comerciais + Administrativas)</span></td>
+                <td style="text-align:right;">R$ ${fmtV(custosFixos)}</td>
+                <td style="text-align:right;color:#aaa;">${pct(custosFixos)}</td>
+                <td></td>
+            </tr>`;
+            html += `<tr style="font-size:12px;color:#666;background:#faf5ff;">
+                <td style="padding-left:16px;">Índice de Margem de Contribuição <span style="color:#aaa;font-size:11px;">(Lucro Bruto ÷ Receita Líquida)</span></td>
+                <td style="text-align:right;">${(indiceMC * 100).toFixed(1)}%</td>
+                <td style="text-align:right;color:#aaa;">-</td>
+                <td></td>
+            </tr>`;
+            html += `<tr style="font-weight:700;background:${corPE};color:white;">
+                <td style="padding:10px 12px;">= Ponto de Equilíbrio (Faturamento mínimo)</td>
+                <td style="text-align:right;padding:10px;color:white;">R$ ${fmtV(pontoEquilibrio)}</td>
+                <td style="text-align:right;color:rgba(255,255,255,0.85);">${atingido ? '✅ atingido' : '⚠️ abaixo'}</td>
+                <td></td>
+            </tr><tr><td colspan="4" style="height:4px;background:#f9f9f9;"></td></tr>`;
+        }
+
         tbody.innerHTML = html;
     }
 
@@ -10581,9 +10898,67 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         document.getElementById('modalDetalheDRE').classList.add('active');
     }
 
+    // Abre o modal de detalhe agregando os lançamentos de um ou mais grupos DRE.
+    // Usado pelos cards (KPIs) da DRE, que podem representar um total estrutural
+    // composto por vários grupos (ex.: Receita Líquida = Receita Bruta + Deduções).
+    function verDetalheDREGrupos(grupoIds, titulo) {
+        const ids = String(grupoIds).split(',').map(s => s.trim()).filter(Boolean);
+        const itens = [];
+        ids.forEach(gid => { (_dreDetalheCache[gid] || []).forEach(it => itens.push(it)); });
+        itens.sort((a, b) => String(a.competencia || '').localeCompare(String(b.competencia || '')));
+
+        const tituloEl = document.getElementById('tituloDetalheDRE');
+        if (tituloEl) tituloEl.textContent = titulo || 'Detalhes';
+        _renderResumoDetalheDRE(itens);
+        _dreDetalheUltimoParams = { tipo: 'kpi', grupoIds: ids.join(','), titulo };
+
+        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        itens.forEach(item => {
+            const val = parseFloat(item.valor || 0);
+            tbody.innerHTML += '<tr>' +
+                '<td>' + (item.competencia || '-') + '</td>' +
+                '<td>' + (item.descricao || '-') + '</td>' +
+                '<td>' + (item.catNome || '-') + '</td>' +
+                '<td>' + (item.parte || '-') + '</td>' +
+                '<td>' + (item.centro || '-') + '</td>' +
+                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
+                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
+                '</tr>';
+        });
+        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
+        document.getElementById('modalDetalheDRE').classList.add('active');
+    }
+
     // Guarda os dados brutos usados para montar a tabela DRE Mensal, para que os cliques
     // nos números possam reconstruir a lista de lançamentos daquele grupo/mês sob demanda.
     let _dreMensalRawData = null;
+
+    // Estado das opções de visualização da DRE Mensal (ocultar meses/acumulado, mostrar %).
+    let _dreOcultarMeses = false;
+    let _dreOcultarAcum = false;
+    let _dreMostrarPct = true;
+
+    // Aplica a visibilidade das colunas de meses e da coluna de total (acumulado)
+    // conforme as opções marcadas — reaplicada a cada redesenho da tabela.
+    function _aplicarVisibilidadeDRE() {
+        const tbl = document.getElementById('tabelaDREMensal');
+        if (!tbl) return;
+        tbl.querySelectorAll('.dre-mes-col').forEach(el => { el.style.display = _dreOcultarMeses ? 'none' : ''; });
+        tbl.querySelectorAll('.dre-tot-col').forEach(el => { el.style.display = _dreOcultarAcum ? 'none' : ''; });
+    }
+
+    function _reRenderDREMensal() {
+        const raw = _dreMensalRawData;
+        if (!raw) return;
+        const base = (document.getElementById('filtroBaseEmprestimoDRE') || {}).value || 'competencia';
+        gerarTabelaMensalDRE(raw.dreLancs, raw.contasRec, raw.contasPag, raw.ano, base);
+    }
+
+    function toggleDREMeses(cb) { _dreOcultarMeses = cb.checked; _aplicarVisibilidadeDRE(); }
+    function toggleDREAcum(cb)  { _dreOcultarAcum  = cb.checked; _aplicarVisibilidadeDRE(); }
+    function toggleDREPct(cb)   { _dreMostrarPct   = cb.checked; _reRenderDREMensal(); }
 
     // Estado do modal de detalhes da DRE: guarda a última consulta feita (para poder
     // recarregar/reabrir o mesmo recorte depois de uma edição/exclusão/reversão feita
@@ -10601,6 +10976,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const p = _dreDetalheUltimoParams;
         if (p.tipo === 'grupo') abrirDetalheDREMes(p.gruposStr, p.mesIdx, p.ano, p.labelLinha);
         else if (p.tipo === 'categoria') abrirDetalheDRECategoriaMes(p.grupoId, p.nomeSub, p.mesIdx, p.ano);
+        else if (p.tipo === 'kpi') verDetalheDREGrupos(p.grupoIds, p.titulo);
     }
 
     // Monta a caixa de resumo (total + quantidade) exibida no topo do modal de detalhe.
@@ -10663,18 +11039,34 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         await _dreDetalheAtualizarAposAcao();
     }
 
-    function gerarTabelaMensalDRE(dreLancs, contasRec, contasPag, ano) {
+    function gerarTabelaMensalDRE(dreLancs, contasRec, contasPag, ano, baseEmprestimo) {
         const headerRow = document.getElementById('dreHeaderMeses');
         const tbody = document.querySelector('#tabelaDREMensal tbody');
         if (!headerRow || !tbody) return;
         const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        baseEmprestimo = baseEmprestimo || 'competencia';
 
         _dreMensalRawData = { dreLancs: dreLancs || [], contasRec: contasRec || [], contasPag: contasPag || [], ano };
 
+        // Data-base efetiva de uma conta paga: empréstimos podem ir por vencimento.
+        const _mesBaseConta = (c, padrao) => {
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            const grupo = (cat && cat.grupo_dre) ? cat.grupo_dre : padrao;
+            let dv;
+            if (grupo === 'EMPRESTIMO') {
+                dv = baseEmprestimo === 'vencimento'
+                    ? (c.data_vencimento || c.data_competencia)
+                    : (c.data_competencia || c.data_vencimento);
+            } else {
+                dv = c.data_competencia;
+            }
+            return dv || '';
+        };
+
         // Cabeçalho com meses
         headerRow.innerHTML = '<th style="min-width:180px;text-align:left;">Descrição</th>' +
-            mNomes.map(m => '<th style="text-align:right;min-width:90px;">' + m + '/' + String(ano).slice(2) + '</th>').join('') +
-            '<th style="text-align:right;min-width:100px;">Total</th>';
+            mNomes.map(m => '<th class="dre-mes-col" style="text-align:right;min-width:90px;">' + m + '/' + String(ano).slice(2) + '</th>').join('') +
+            '<th class="dre-tot-col" style="text-align:right;min-width:100px;">Total</th>';
 
         // Para cada mês, calcular valores por grupo
         const dados = {};
@@ -10696,9 +11088,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             dados[g][m] += parseFloat(c.valor || 0);
         });
 
-        // Contas pagas — por competência (inclui pendentes no regime de competência)
-        contasPag.filter(c => c.data_competencia && c.data_competencia.startsWith(ano)).forEach(c => {
-            const m = parseInt(c.data_competencia.substring(5,7)) - 1;
+        // Contas pagas — por competência (empréstimos podem ir por vencimento)
+        contasPag.forEach(c => {
+            const dbase = _mesBaseConta(c, 'DESP_ADMIN');
+            if (!dbase || !dbase.startsWith(ano)) return;
+            const m = parseInt(dbase.substring(5,7)) - 1;
             const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
             const g = (cat && cat.grupo_dre) ? cat.grupo_dre : 'DESP_ADMIN';
             if (m < 0 || m > 11 || !dados[g]) return;
@@ -10805,6 +11199,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         // Escapa aspas simples para uso seguro dentro de atributos onclick="..." construídos com aspas simples.
         const escApos = s => String(s).replace(/'/g, "\\'");
 
+        // Receita Bruta por mês e no ano — base para os percentuais (% s/ Receita Bruta).
+        const rbMes = dados['RECEITA_BRUTA'];
+        const rbTot = rbMes.reduce((s, v) => s + v, 0);
+        const pctSub = (v, base) => (_dreMostrarPct && base > 0 && v !== 0)
+            ? '<div style="font-size:9px;line-height:1;margin-top:2px;opacity:0.8;">' + (Math.abs(v) / base * 100).toFixed(1) + '%</div>'
+            : '';
+
         tbody.innerHTML = '';
         linhas.forEach(linha => {
             const vals = Array.from({length: 12}, (_, m) => linha.fn(m));
@@ -10829,11 +11230,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     estilo += cor(v);
                 }
                 const clicavel = linha.grupos && linha.grupos.length && v !== 0;
-                const classe = clicavel ? ' class="dre-cel-click"' : '';
+                const classes = ['dre-mes-col'];
+                if (clicavel) classes.push('dre-cel-click');
+                const classe = ' class="' + classes.join(' ') + '"';
                 const click = clicavel
                     ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "'," + mesIdx + ",'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
                     : '';
-                return '<td style="' + estilo + '"' + classe + click + '>' + fmtV(v) + '</td>';
+                return '<td style="' + estilo + '"' + classe + click + '>' + fmtV(v) + pctSub(v, rbMes[mesIdx]) + '</td>';
             };
 
             let totalEstilo = 'text-align:right;padding:5px 8px;font-weight:700;';
@@ -10843,11 +11246,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 totalEstilo += cor(total);
             }
             const totalClicavel = linha.grupos && linha.grupos.length && total !== 0;
-            const totalClasse = totalClicavel ? ' class="dre-cel-click"' : '';
+            const totalClasses = ['dre-tot-col'];
+            if (totalClicavel) totalClasses.push('dre-cel-click');
+            const totalClasse = ' class="' + totalClasses.join(' ') + '"';
             const totalClick = totalClicavel
                 ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "',-1,'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
                 : '';
-            const totalTd = '<td style="' + totalEstilo + '"' + totalClasse + totalClick + '>' + fmtV(total) + '</td>';
+            const totalTd = '<td style="' + totalEstilo + '"' + totalClasse + totalClick + '>' + fmtV(total) + pctSub(total, rbTot) + '</td>';
 
             tbody.innerHTML += '<tr style="' + rowBg + rowFc + bold + '">' +
                 '<td style="padding:5px 8px;' + bold + '">' + linha.label + '</td>' +
@@ -10870,21 +11275,24 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         : '';
                     const celulasSub = mesesSub.map((v, m) => {
                         const clicavel = grupoSub && v > 0;
-                        const classe = clicavel ? ' class="dre-cel-click"' : '';
+                        const classes = ['dre-mes-col'];
+                        if (clicavel) classes.push('dre-cel-click');
+                        const classe = ' class="' + classes.join(' ') + '"';
                         const click = clicavel
                             ? " onclick=\"abrirDetalheDRECategoriaMes('" + grupoSub + "','" + nomeSubEsc + "'," + m + ",'" + ano + "')\""
                             : '';
-                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;"' + classe + click + '>' + (v > 0 ? fmtV(-v) : '-') + '</td>';
+                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;"' + classe + click + '>' + (v > 0 ? fmtV(-v) : '-') + pctSub(v, rbMes[m]) + '</td>';
                     }).join('');
                     tbody.innerHTML += '<tr style="background:#fafafa;">' +
                         '<td style="padding:4px 8px 4px 22px;font-size:11px;color:#888;"' + labelClasse + labelClick + '>' +
                         '<span style="color:#bbb;margin-right:4px;">\u21b3</span>' + nomeSub + '</td>' +
                         celulasSub +
-                        '<td style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;"' + labelClasse + labelClick + '>' + fmtV(-totalSub) + '</td>' +
+                        '<td class="dre-tot-col" style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;"' + labelClick + '>' + fmtV(-totalSub) + pctSub(totalSub, rbTot) + '</td>' +
                         '</tr>';
                 });
             }
         });
+        _aplicarVisibilidadeDRE();
     }
 
     // Abre o modal de detalhes filtrado por uma subcategoria específica (dentro de CPV ou
@@ -12406,6 +12814,25 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         </div>
         <div class="form-actions" style="margin-top:12px;">
             <button class="btn btn-secondary" onclick="closeModal('modalDetalheDRE')">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modalLancamentosBanco">
+    <div class="modal-content" style="max-width:1000px;">
+        <div class="modal-header">
+            <span id="tituloLancamentosBanco">Lançamentos</span>
+            <button class="modal-close" onclick="closeModal('modalLancamentosBanco')">&times;</button>
+        </div>
+        <div id="resumoLancamentosBanco" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div class="table-container">
+            <table id="tabelaLancamentosBanco">
+                <thead><tr><th>Data</th><th>Descrição</th><th>Parte</th><th>Tipo</th><th style="text-align:right;">Valor</th><th style="min-width:150px;">Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="form-actions" style="margin-top:12px;">
+            <button class="btn btn-secondary" onclick="closeModal('modalLancamentosBanco')">Fechar</button>
         </div>
     </div>
 </div>
