@@ -1170,6 +1170,187 @@
         }
 
         /* ==========================================================================
+           AJUSTES: DRE / ANALISE DE CATEGORIAS / FLUXO DE CAIXA DIARIO
+           ========================================================================== */
+
+        /* --- DRE Mensal: cabecalho fixo, apenas o corpo rola --- */
+        #dre .dre-scroll-wrap {
+            max-height: 68vh;
+            overflow: auto;
+            border: 1px solid #ececec;
+            border-radius: 8px;
+            background: #fff;
+        }
+        #dre table#tabelaDREMensal thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: var(--cor-primaria);
+            color: #fff;
+            padding: 8px 8px;
+            font-size: 11px;
+            white-space: nowrap;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+        }
+        #dre table#tabelaDREMensal thead th:first-child {
+            left: 0;
+            z-index: 7;
+        }
+        #dre table#tabelaDREMensal tbody td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+        }
+        #dre table#tabelaDREMensal td.dre-pct-col {
+            font-size: 10.5px;
+            border-left: 1px dotted rgba(0,0,0,0.08);
+        }
+        #dre table#tabelaDREMensal th.dre-pct-col {
+            min-width: 52px;
+            text-align: right;
+        }
+
+        /* --- Analise de Categorias: cabecalho fixo + colunas ocultaveis --- */
+        #analise-categorias .ac-scroll-wrap {
+            max-height: 68vh;
+            overflow: auto;
+            border: 1px solid #ececec;
+            border-radius: 8px;
+            background: #fff;
+        }
+        #analise-categorias table#tabelaAnaliseCategorias thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: var(--cor-primaria);
+            color: #fff;
+            padding: 9px 10px;
+            font-size: 11.5px;
+            white-space: nowrap;
+        }
+        #analise-categorias table#tabelaAnaliseCategorias thead th:first-child {
+            left: 0;
+            z-index: 7;
+        }
+        #analise-categorias table#tabelaAnaliseCategorias tbody td:first-child,
+        #analise-categorias table#tabelaAnaliseCategorias tfoot td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #fff;
+        }
+        #analise-categorias table#tabelaAnaliseCategorias tfoot td {
+            position: sticky;
+            bottom: 0;
+            background: #fafafa;
+            z-index: 4;
+        }
+        #analise-categorias table#tabelaAnaliseCategorias tfoot td:first-child {
+            background: #fafafa;
+            z-index: 6;
+        }
+        .painel-opcoes-tabela {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .painel-opcoes-tabela label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* --- Celulas clicaveis genericas (DFC / FCP / Fluxo Diario) --- */
+        td.cel-click {
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        td.cel-click:hover {
+            filter: brightness(0.92);
+            text-decoration: underline;
+        }
+
+        /* --- Modal generico de lancamentos --- */
+        #modalDetalheLanc .modal-content { max-width: 1150px; }
+        #modalDetalheLanc .table-container { max-height: 52vh; overflow-y: auto; }
+        #modalDetalheLanc thead th {
+            position: sticky; top: 0; z-index: 2;
+            background: var(--cor-primaria); color: #fff;
+        }
+        #modalDetalheLanc table#tabelaDetalheLanc td { white-space: nowrap; }
+        #modalDetalheLanc table#tabelaDetalheLanc td:nth-child(2) { white-space: normal; }
+        #detalheLancResumo .det-chip {
+            background: #f7f7f8; border-radius: 8px; padding: 10px 18px; min-width: 130px;
+        }
+        #detalheLancResumo .det-chip-label {
+            font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        #detalheLancResumo .det-chip-valor {
+            font-size: 19px; font-weight: 700; color: var(--cor-primaria); margin-top: 2px;
+        }
+
+        /* --- Fluxo de Caixa Diario --- */
+        #fluxo-diario .fd-sub { font-size: 12.5px; color: #888; font-weight: 500; }
+        #fluxo-diario .fd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 16px;
+        }
+        #fluxo-diario table.fd-tabela {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        #fluxo-diario table.fd-tabela th {
+            background: #f3f4f6;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-size: 10.5px;
+            padding: 7px 8px;
+            border-bottom: 1px solid #e3e3e3;
+            white-space: nowrap;
+        }
+        #fluxo-diario table.fd-tabela td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+        #fluxo-diario table.fd-tabela td.fd-dia {
+            width: 38px;
+            text-align: center;
+            font-weight: 700;
+            color: #555;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+        #fluxo-diario tr.fd-hoje td { outline: 2px solid var(--cor-primaria); outline-offset: -2px; }
+        #fluxo-diario .fd-res-pill {
+            display: block;
+            text-align: right;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #fff;
+        }
+        #fluxo-diario .fd-analise {
+            display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+            background: #f8f9fa; border-radius: 8px; padding: 10px 14px;
+            font-size: 12.5px; margin-bottom: 16px;
+        }
+        #fluxo-diario .fd-analise-titulo {
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* ==========================================================================
            EXPERIENCIA MOBILE (v2)
            Este bloco fica no FINAL da folha de estilos, portanto tem prioridade
            sobre as regras responsivas antigas. Objetivos:
@@ -1552,6 +1733,7 @@
             <div class="menu-section-title">Resultados da Empresa</div>
             <div class="menu-item" onclick="showPage('dre', this)">📊 DRE</div>
             <div class="menu-item" onclick="showPage('dfc', this)">💹 DFC</div>
+            <div class="menu-item" onclick="showPage('fluxo-diario', this)">📆 Fluxo de Caixa Diário</div>
             <div class="menu-item" onclick="showPage('fcp', this)">🔮 Fluxo Projetado</div>
         </div>
 
@@ -3020,6 +3202,82 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
         </div>
 
+        <!-- FLUXO DE CAIXA DIÁRIO -->
+        <div id="fluxo-diario" class="page">
+            <div class="page-header">
+                <h1>📆 Fluxo de Caixa Diário</h1>
+                <span class="fd-sub">Receita, despesa e resultado de cada dia do mês — clique em um valor para ver os lançamentos</span>
+            </div>
+
+            <div class="filter-container">
+                <div class="filter-row" style="align-items:flex-end;gap:12px;flex-wrap:wrap;">
+                    <div class="form-group">
+                        <label>Ano</label>
+                        <select id="filtroAnoFD" onchange="carregarFluxoDiario()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mês</label>
+                        <select id="filtroMesFD" onchange="carregarFluxoDiario()">
+                            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+                            <option value="03">Março</option><option value="04">Abril</option>
+                            <option value="05">Maio</option><option value="06">Junho</option>
+                            <option value="07">Julho</option><option value="08">Agosto</option>
+                            <option value="09">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;gap:6px;align-items:flex-end;padding-bottom:2px;">
+                        <button class="btn btn-secondary btn-small" onclick="fdNavegarMes(-1)" title="Mês anterior">◀</button>
+                        <button class="btn btn-secondary btn-small" onclick="fdMesAtual()">Mês atual</button>
+                        <button class="btn btn-secondary btn-small" onclick="fdNavegarMes(1)" title="Próximo mês">▶</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Base</label>
+                        <select id="filtroBaseFD" onchange="carregarFluxoDiario()">
+                            <option value="realizado">Realizado (o que entrou e saiu)</option>
+                            <option value="previsto">Previsto (pendentes por vencimento)</option>
+                            <option value="ambos">Realizado + Previsto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Conta / Banco</label>
+                        <select id="filtroBancoFD" onchange="carregarFluxoDiario()">
+                            <option value="">Todas as Contas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                        <button class="btn btn-secondary btn-small" onclick="gerarPDFFluxoDiario()" style="background:#e67e22;color:white;">📄 PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom:16px;">
+                <div class="stat-card" style="border-left-color:#28a745;">
+                    <div class="stat-value" id="fdCardReceita" style="color:#28a745;font-size:24px;">R$ 0,00</div>
+                    <div class="stat-label">RECEITA DO MÊS</div>
+                </div>
+                <div class="stat-card" style="border-left-color:#dc3545;">
+                    <div class="stat-value" id="fdCardDespesa" style="color:#dc3545;font-size:24px;">R$ 0,00</div>
+                    <div class="stat-label">DESPESA DO MÊS</div>
+                </div>
+                <div class="stat-card" id="fdCardResultadoBox">
+                    <div class="stat-value" id="fdCardResultado" style="font-size:24px;">R$ 0,00</div>
+                    <div class="stat-label">RESULTADO DO MÊS</div>
+                </div>
+                <div class="stat-card" style="border-left-color:#8e44ad;">
+                    <div class="stat-value" id="fdCardDias" style="color:#8e44ad;font-size:24px;">0</div>
+                    <div class="stat-label">DIAS COM MOVIMENTO</div>
+                </div>
+            </div>
+
+            <div class="fd-analise" id="fdAnalise" style="display:none;"></div>
+
+            <div class="card">
+                <div class="card-title" id="fdTituloTabela">Dias do mês</div>
+                <div class="fd-grid" id="fdTabelas"></div>
+            </div>
+        </div>
+
         <!-- FLUXO DE CAIXA PROJETADO -->
         <div id="fcp" class="page">
             <div class="page-header">
@@ -3130,7 +3388,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     </div>
                 </div>
             </div>
-            <div class="dre-kpi-grid">
+            <!-- Caixas (KPIs) removidas da tela: mantidas ocultas apenas para não quebrar
+                 o código que preenche esses valores e é reaproveitado no PDF/exportação. -->
+            <div class="dre-kpi-grid" style="display:none;">
                 <div class="dre-kpi-card" style="--kpi-cor:#28a745;cursor:pointer;" title="Clique para ver os lançamentos" onclick="verDetalheDREGrupos('RECEITA_BRUTA','Receita Bruta')">
                     <div class="dre-kpi-top">
                         <span class="dre-kpi-icon" style="background:rgba(40,167,69,0.12);">💰</span>
@@ -3210,10 +3470,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <input type="checkbox" id="chkDREOcultarMeses" onchange="toggleDREMeses(this)"> Ocultar meses
                     </label>
                     <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-                        <input type="checkbox" id="chkDREOcultarAcum" onchange="toggleDREAcum(this)"> Ocultar acumulado (Total)
+                        <input type="checkbox" id="chkDREOcultarAcum" onchange="toggleDREAcum(this)"> Ocultar Acumulado Ano
                     </label>
                 </div>
-                <div style="overflow-x:auto;">
+                <div class="dre-scroll-wrap">
                     <table id="tabelaDREMensal" style="font-size:12px;min-width:900px;">
                         <thead><tr id="dreHeaderMeses"><th style="min-width:180px;">Descrição</th></tr></thead>
                         <tbody></tbody>
@@ -3260,7 +3520,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             <div class="card">
                 <div class="card-title">Valores por Categoria (competência)</div>
                 <div style="font-size:12px;color:#888;margin-bottom:10px;">Somatório de contas a pagar por categoria e mês, com base na Data de Competência. Categorias sem movimento no período selecionado não aparecem na lista.</div>
-                <div style="overflow-x:auto;">
+                <div class="painel-opcoes-tabela">
+                    <label><input type="checkbox" id="chkACOcultarMeses" onchange="toggleACMeses(this)"> Ocultar meses</label>
+                    <label><input type="checkbox" id="chkACOcultarAcum" onchange="toggleACAcum(this)"> Ocultar Acumulado Ano</label>
+                    <label><input type="checkbox" id="chkACOcultarGrupo" onchange="toggleACGrupo(this)"> Ocultar Grupo DRE</label>
+                    <label><input type="checkbox" id="chkACOcultarTudo" onchange="toggleACTudo(this)"> <b>Ocultar todas as colunas</b></label>
+                </div>
+                <div class="ac-scroll-wrap">
                     <table id="tabelaAnaliseCategorias" style="font-size:12.5px;min-width:900px;">
                         <thead><tr id="analiseCategoriasCabecalho"></tr></thead>
                         <tbody id="analiseCategoriasCorpo"></tbody>
@@ -5887,6 +6153,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         _dreDetalheRetornoPendente = false;
         const vindoDoBancoLanc = _bancoLancRetornoPendente;
         _bancoLancRetornoPendente = false;
+        // Mesma ideia para o modal genérico de lançamentos (DFC / Projetado / Diário / Categorias)
+        const vindoDoDetalheLanc = _detLancRetornoPendente;
+        _detLancRetornoPendente = false;
         const id    = parseInt(document.getElementById('editLancId').value);
         const tipo  = document.getElementById('editLancTipo').value;
         const catVal = document.getElementById('editLancCategoria') ? document.getElementById('editLancCategoria').value : '';
@@ -5917,6 +6186,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             await atualizarDashboard();
             _atualizarCalendarioSeAtivo();
             if (vindoDoDetalheDRE) await _dreDetalheAtualizarAposAcao();
+            if (vindoDoDetalheLanc) await _detLancAposAcao();
             if (vindoDoBancoLanc) {
                 await carregarBancos();
                 _renderLancamentosBanco();
@@ -6525,6 +6795,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             else if (pageId === 'dre') carregarDRE();
             else if (pageId === 'analise-categorias') carregarAnaliseCategorias();
             else if (pageId === 'fcp') carregarFCP();
+            else if (pageId === 'fluxo-diario') carregarFluxoDiario();
             else if (pageId === 'bancos') carregarBancos();
             else if (pageId === 'transferencias') carregarTransferencias();
             else if (pageId === 'dashboard') atualizarDashboard();
@@ -8298,11 +8569,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         _popularSelectsTransferencia();
 
         // Filtros de banco em Contas Pagas / Contas Recebidas
-        ['filtroBancoPaga', 'filtroBancoRecebida'].forEach(id => {
+        ['filtroBancoPaga', 'filtroBancoRecebida', 'filtroBancoFD'].forEach(id => {
             const selBanco = document.getElementById(id);
             if (!selBanco) return;
             const valBanco = selBanco.value;
-            selBanco.innerHTML = '<option value="">Todos</option>';
+            selBanco.innerHTML = '<option value="">' + (id === 'filtroBancoFD' ? 'Todas as Contas' : 'Todos') + '</option>';
             (dadosCache.bancos || []).filter(b => b.ativo).forEach(b => {
                 const opt = document.createElement('option');
                 opt.value = b.id; opt.textContent = b.nome;
@@ -9876,6 +10147,139 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     function fmtBRL(v) { return 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
     function fmtValSig(v) { return (v < 0 ? '-' : '') + fmtBRL(v); }
 
+    // ================================================================
+    // MODAL GENÉRICO DE LANÇAMENTOS
+    // Usado ao clicar em qualquer número do DFC, do Fluxo de Caixa Projetado,
+    // do Fluxo de Caixa Diário e da Análise de Categorias. Mostra os lançamentos
+    // que compõem aquele número e permite editar / reverter / excluir ali mesmo.
+    // ================================================================
+    let _detLancReabrir = null;        // função que recarrega a tela e reabre o mesmo recorte
+    let _detLancRetornoPendente = false; // avisa o form de edição que veio daqui
+
+    function _fmtDataBR(d) {
+        if (!d) return '-';
+        const s = String(d).substring(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+        return new Date(s + 'T12:00:00').toLocaleDateString('pt-BR');
+    }
+
+    // Converte uma conta (a pagar / a receber) no formato usado pelo modal.
+    function _itemLanc(c, fonte, data) {
+        const cat = (dadosCache.categorias || []).find(x => x.id === c.categoria_id);
+        const parte = fonte === 'receber'
+            ? ((dadosCache.clientes || []).find(x => x.id === c.cliente_id) || {}).nome
+            : ((dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id) || {}).nome;
+        return {
+            id: c.id,
+            fonte: fonte,
+            data: data || c.data_pagamento || c.data_recebimento || c.data_vencimento || '',
+            descricao: c.descricao || '-',
+            catNome: cat ? cat.nome : '-',
+            parte: parte || '-',
+            status: c.status || '-',
+            valor: parseFloat(c.valor || 0)
+        };
+    }
+
+    function _acoesDetalheLanc(item) {
+        const tabela = item.fonte === 'receber' ? 'contas_a_receber' : 'contas_a_pagar';
+        let html = '<button onclick="_detLancEditar(' + item.id + ",'" + item.fonte + '\')" class="btn btn-secondary btn-small" title="Editar">✏️</button> ';
+        if (item.status === 'pago' || item.status === 'recebido') {
+            html += '<button onclick="_detLancReverter(' + item.id + ",'" + item.fonte + '\')" class="btn btn-warning btn-small" style="background:#ffc107;color:#333;" title="Reverter para pendente">↩</button> ';
+        }
+        html += '<button onclick="_detLancExcluir(' + item.id + ",'" + tabela + '\')" class="btn btn-danger btn-small" title="Excluir">🗑️</button>';
+        return html;
+    }
+
+    // Abre o modal com a lista de lançamentos.
+    // `reabrir` é uma função (opcional) que recarrega a tela de origem e chama de
+    // novo esta mesma consulta — usada depois de editar/excluir para o usuário
+    // continuar vendo a lista já atualizada, sem perder o contexto.
+    function abrirDetalheLanc(titulo, itens, reabrir) {
+        _detLancReabrir = reabrir || null;
+        itens = (itens || []).slice().sort((a, b) => String(a.data).localeCompare(String(b.data)));
+
+        const tituloEl = document.getElementById('tituloDetalheLanc');
+        if (tituloEl) tituloEl.textContent = titulo;
+
+        const entradas = itens.filter(i => i.fonte === 'receber').reduce((s, i) => s + i.valor, 0);
+        const saidas   = itens.filter(i => i.fonte === 'pagar').reduce((s, i) => s + i.valor, 0);
+        const resumoEl = document.getElementById('detalheLancResumo');
+        if (resumoEl) {
+            let html = '';
+            if (entradas > 0) html += '<div class="det-chip"><div class="det-chip-label">Entradas</div><div class="det-chip-valor" style="color:#28a745;">' + fmtBRL(entradas) + '</div></div>';
+            if (saidas > 0)   html += '<div class="det-chip"><div class="det-chip-label">Saídas</div><div class="det-chip-valor" style="color:#dc3545;">' + fmtBRL(saidas) + '</div></div>';
+            if (entradas > 0 && saidas > 0) {
+                const liq = entradas - saidas;
+                html += '<div class="det-chip"><div class="det-chip-label">Resultado</div><div class="det-chip-valor" style="color:' + (liq >= 0 ? '#28a745' : '#dc3545') + ';">' + fmtValSig(liq) + '</div></div>';
+            }
+            html += '<div class="det-chip"><div class="det-chip-label">Lançamentos</div><div class="det-chip-valor" style="color:#333;">' + itens.length + '</div></div>';
+            resumoEl.innerHTML = html;
+        }
+
+        const tbody = document.querySelector('#tabelaDetalheLanc tbody');
+        if (!tbody) return;
+        if (itens.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
+        } else {
+            tbody.innerHTML = itens.map(item => {
+                const ent = item.fonte === 'receber';
+                const corV = ent ? '#28a745' : '#dc3545';
+                const tipo = ent
+                    ? '<span class="status-badge" style="background:#d4edda;color:#155724;">Entrada</span>'
+                    : '<span class="status-badge" style="background:#f8d7da;color:#721c24;">Saída</span>';
+                const stMap = { pago: 'Pago', recebido: 'Recebido', pendente: 'Pendente' };
+                return '<tr>' +
+                    '<td>' + _fmtDataBR(item.data) + '</td>' +
+                    '<td>' + item.descricao + '</td>' +
+                    '<td>' + item.catNome + '</td>' +
+                    '<td>' + item.parte + '</td>' +
+                    '<td>' + tipo + '</td>' +
+                    '<td style="font-size:11px;color:#777;">' + (stMap[item.status] || item.status) + '</td>' +
+                    '<td style="text-align:right;font-weight:600;color:' + corV + ';">' + fmtBRL(item.valor) + '</td>' +
+                    '<td style="white-space:nowrap;">' + _acoesDetalheLanc(item) + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+        document.getElementById('modalDetalheLanc').classList.add('active');
+    }
+
+    async function _detLancAposAcao() {
+        if (typeof _detLancReabrir === 'function') {
+            const fn = _detLancReabrir;
+            await fn();
+        }
+    }
+
+    // Garante que o lançamento esteja no cache antes de abrir o form de edição
+    // (o form lê de dadosCache; telas como o Fluxo Diário podem trazer contas
+    // que ainda não foram carregadas em Contas Pagas / Recebidas).
+    async function _detLancEditar(id, fonte) {
+        const tabela  = fonte === 'receber' ? 'contas_a_receber' : 'contas_a_pagar';
+        const chavePend = fonte === 'receber' ? 'contasReceber'   : 'contasPagar';
+        const chaveFeito = fonte === 'receber' ? 'contasRecebidas' : 'contasPagas';
+        const achou = (dadosCache[chavePend] || []).some(c => c.id === id)
+                   || (dadosCache[chaveFeito] || []).some(c => c.id === id);
+        if (!achou) {
+            const r = await fetchSupabase(tabela, 'GET', null, 'id=eq.' + id);
+            if (r && r.length) dadosCache[chaveFeito] = (dadosCache[chaveFeito] || []).concat(r);
+        }
+        _detLancRetornoPendente = true;
+        closeModal('modalDetalheLanc');
+        editarLancamento(id, fonte);
+    }
+
+    async function _detLancReverter(id, fonte) {
+        if (fonte === 'receber') await reverterRecebimento(id);
+        else await reverterPagamento(id);
+        await _detLancAposAcao();
+    }
+
+    async function _detLancExcluir(id, tabela) {
+        await deletarConta(id, tabela);
+        await _detLancAposAcao();
+    }
+
     async function carregarDFC() {
         const contasReceber = await fetchSupabase('contas_a_receber', 'GET');
         const contasPagar   = await fetchSupabase('contas_a_pagar',   'GET');
@@ -10065,20 +10469,30 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 + '</tr>';
         }
 
-        function addCatRow(nome, data, cor, bgEven, bgOdd, idx) {
+        // Clique em qualquer número abre os lançamentos daquela categoria/mês.
+        var escQ = function(s){ return String(s).replace(/'/g, "\\'"); };
+        function clkCat(tipo, nome, mesIdx, temValor) {
+            if (!temValor) return '';
+            return ' class="cel-click" onclick="abrirDetalheDFCCat(\'' + tipo + '\',\'' + escQ(nome) + '\',' + mesIdx + ')"';
+        }
+
+        function addCatRow(nome, data, cor, bgEven, bgOdd, idx, tipoClique) {
             var bg = idx%2===0 ? bgEven : bgOdd;
             var cells = visao === 'mensal'
-                ? data.meses.map(function(v){
-                    return '<td style="text-align:right;padding:5px 8px;color:' + (v>0?cor:'#ccc') + ';font-weight:' + (v>0?'600':'400') + ';">'
+                ? data.meses.map(function(v, m){
+                    return '<td style="text-align:right;padding:5px 8px;color:' + (v>0?cor:'#ccc') + ';font-weight:' + (v>0?'600':'400') + ';"'
+                        + clkCat(tipoClique, nome, m, v>0) + '>'
                         + (v>0 ? fmtValFull(v) : '—') + '</td>';
                   }).join('')
-                : '<td style="text-align:right;padding:5px 8px;color:' + (data.total>0?cor:'#ccc') + ';font-weight:600;">'
+                : '<td style="text-align:right;padding:5px 8px;color:' + (data.total>0?cor:'#ccc') + ';font-weight:600;"'
+                    + clkCat(tipoClique, nome, -1, data.total>0) + '>'
                     + (data.total>0 ? fmtValFull(data.total) : '—') + '</td>';
             tbody.innerHTML += '<tr style="background:' + bg + ';">'
                 + '<td style="padding:6px 10px 6px 22px;font-size:12px;font-weight:500;color:#333;position:sticky;left:0;background:' + bg + ';">'
                 + nome + '</td>'
                 + cells
-                + '<td style="text-align:right;padding:5px 10px;font-weight:700;color:' + cor + ';">'
+                + '<td style="text-align:right;padding:5px 10px;font-weight:700;color:' + cor + ';"'
+                + clkCat(tipoClique, nome, -1, data.total>0) + '>'
                 + fmtValFull(data.total) + '</td>'
                 + '</tr>';
         }
@@ -10111,7 +10525,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         addSectionHeader('(+) ENTRADAS DE CAIXA', '#28a745', '#f0fff4');
         var entKeys = Object.keys(entradasCat).sort(function(a,b){ return entradasCat[b].total - entradasCat[a].total; });
         entKeys.forEach(function(nome, idx) {
-            addCatRow(nome, entradasCat[nome], '#28a745', 'white', '#f8fff8', idx);
+            addCatRow(nome, entradasCat[nome], '#28a745', 'white', '#f8fff8', idx, 'ent');
         });
         addSubtotal('(=) TOTAL ENTRADAS', totalEntradas, '#28a745', '#e8f8ee', 'ent');
 
@@ -10119,24 +10533,27 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         addSectionHeader('(-) SAIDAS DE CAIXA', '#dc3545', '#fff5f5');
         var saiKeys = Object.keys(saidasCat).sort(function(a,b){ return saidasCat[b].total - saidasCat[a].total; });
         saiKeys.forEach(function(pref, idx) {
-            addCatRow(pref, saidasCat[pref], '#dc3545', 'white', '#fff8f8', idx);
+            addCatRow(pref, saidasCat[pref], '#dc3545', 'white', '#fff8f8', idx, 'sai-pref');
             // Subcategorias abertas abaixo do prefixo
             var subs = saidasCat[pref].subs || {};
             var subKeys = Object.keys(subs).sort(function(a,b){ return subs[b].total - subs[a].total; });
             subKeys.forEach(function(subNome) {
                 var d = subs[subNome];
                 var cells = visao === 'mensal'
-                    ? d.meses.map(function(v){
-                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (v>0?'#dc3545':'#ccc') + ';">'
+                    ? d.meses.map(function(v, m){
+                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (v>0?'#dc3545':'#ccc') + ';"'
+                            + clkCat('sai-sub', subNome, m, v>0) + '>'
                             + (v>0 ? fmtValFull(v) : '—') + '</td>';
                       }).join('')
-                    : '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (d.total>0?'#dc3545':'#ccc') + ';">'
+                    : '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (d.total>0?'#dc3545':'#ccc') + ';"'
+                        + clkCat('sai-sub', subNome, -1, d.total>0) + '>'
                         + (d.total>0 ? fmtValFull(d.total) : '—') + '</td>';
                 tbody.innerHTML += '<tr style="background:#fffbfb;">'
                     + '<td style="padding:4px 10px 4px 30px;font-size:11px;color:#999;position:sticky;left:0;background:#fffbfb;">'
                     + '<span style="color:#ddd;margin-right:5px;">↳</span>' + subNome + '</td>'
                     + cells
-                    + '<td style="text-align:right;padding:4px 10px;font-size:11px;font-weight:600;color:#dc3545;">'
+                    + '<td style="text-align:right;padding:4px 10px;font-size:11px;font-weight:600;color:#dc3545;"'
+                    + clkCat('sai-sub', subNome, -1, d.total>0) + '>'
                     + fmtValFull(d.total) + '</td>'
                     + '</tr>';
             });
@@ -10168,6 +10585,57 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             + fluxoMeses
             + '<td style="text-align:right;padding:9px 10px;font-weight:800;font-size:13px;color:' + fluxoCor + ';">' + fmtValFull(fluxoLiq) + '</td>'
             + '</tr>';
+    }
+
+    // ── DFC: abrir lançamentos ao clicar num número ──────────────────────────
+    // Tabela "DFC Mensal" (Entradas / Saídas / Fluxo Líquido de cada mês).
+    function abrirDetalheDFCMes(tipo, mesIdx, ano) {
+        const prefixo = String(ano) + '-' + String(mesIdx + 1).padStart(2, '0');
+        const mesesNome = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        const itens = [];
+        if (tipo === 'ent' || tipo === 'liq') {
+            (window._dfcRecAno || []).forEach(c => {
+                if (c.data_recebimento && c.data_recebimento.startsWith(prefixo)) itens.push(_itemLanc(c, 'receber', c.data_recebimento));
+            });
+        }
+        if (tipo === 'sai' || tipo === 'liq') {
+            (window._dfcPagAno || []).forEach(c => {
+                if (c.data_pagamento && c.data_pagamento.startsWith(prefixo)) itens.push(_itemLanc(c, 'pagar', c.data_pagamento));
+            });
+        }
+        const rot = tipo === 'ent' ? 'Entradas' : tipo === 'sai' ? 'Saídas' : 'Fluxo Líquido';
+        abrirDetalheLanc(rot + ' — ' + mesesNome[mesIdx] + '/' + ano, itens, async () => {
+            await carregarDFC();
+            abrirDetalheDFCMes(tipo, mesIdx, ano);
+        });
+    }
+
+    // Tabela "DFC Detalhado por Categoria" (linha de categoria x coluna de mês).
+    function abrirDetalheDFCCat(tipo, nome, mesIdx) {
+        const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const casaMes = d => mesIdx < 0 || (d && parseInt(d.substring(5, 7), 10) - 1 === mesIdx);
+        const itens = [];
+        if (tipo === 'ent') {
+            (window._dfcRecebidos || []).forEach(c => {
+                const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+                const n = cat ? cat.nome : 'Receitas de Clientes';
+                if (n !== nome || !casaMes(c.data_recebimento)) return;
+                itens.push(_itemLanc(c, 'receber', c.data_recebimento));
+            });
+        } else {
+            (window._dfcPagos || []).forEach(c => {
+                const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+                const nCompleto = cat ? cat.nome : 'Sem Categoria';
+                const n = tipo === 'sai-pref' ? getCatPrefixo(nCompleto) : nCompleto;
+                if (n !== nome || !casaMes(c.data_pagamento)) return;
+                itens.push(_itemLanc(c, 'pagar', c.data_pagamento));
+            });
+        }
+        const periodo = mesIdx >= 0 ? (mNomes[mesIdx] + (window._dfcAnoSel ? '/' + String(window._dfcAnoSel).slice(2) : '')) : 'Total do período';
+        abrirDetalheLanc(nome + ' — ' + periodo, itens, async () => {
+            await carregarDFC();
+            abrirDetalheDFCCat(tipo, nome, mesIdx);
+        });
     }
 
     function exportarDFCCatXLSX() {
@@ -10231,6 +10699,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const tbody = document.querySelector('#tabelaDFCMensal tbody');
         const mesesNome = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
         if (!tbody) return;
+        // Guardados para o modal de detalhe (clique em um número da tabela).
+        window._dfcRecAno = recebidos; window._dfcPagAno = pagos; window._dfcAnoTabela = ano;
         tbody.innerHTML = '';
         let totEnt = 0, totSai = 0, acumulado = 0;
         mesesNome.forEach((nome, idx) => {
@@ -10246,11 +10716,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const liqCor = liq >= 0 ? '#28a745' : '#dc3545';
             const acuCor = acumulado >= 0 ? '#28a745' : '#dc3545';
             const hasData = ent > 0 || sai > 0;
+            const cl = (tipo, temValor) => temValor
+                ? ` class="cel-click" onclick="abrirDetalheDFCMes('${tipo}',${idx},'${ano}')"`
+                : '';
             tbody.innerHTML += `<tr style="${hasData ? '' : 'color:#ccc;'}">
                 <td style="font-weight:${hasData?'600':'400'};">${nome}</td>
-                <td style="color:${hasData?'#28a745':'#ccc'};">${ent > 0 ? fmtBRL(ent) : '-'}</td>
-                <td style="color:${hasData?'#dc3545':'#ccc'};">${sai > 0 ? fmtBRL(sai) : '-'}</td>
-                <td style="color:${hasData?liqCor:'#ccc'};font-weight:${hasData?'600':'400'};">${hasData ? fmtValSig(liq) : '-'}</td>
+                <td style="color:${hasData?'#28a745':'#ccc'};"${cl('ent', ent > 0)}>${ent > 0 ? fmtBRL(ent) : '-'}</td>
+                <td style="color:${hasData?'#dc3545':'#ccc'};"${cl('sai', sai > 0)}>${sai > 0 ? fmtBRL(sai) : '-'}</td>
+                <td style="color:${hasData?liqCor:'#ccc'};font-weight:${hasData?'600':'400'};"${cl('liq', hasData)}>${hasData ? fmtValSig(liq) : '-'}</td>
                 <td style="color:${acuCor};font-weight:600;">${fmtValSig(acumulado)}</td>
             </tr>`;
         });
@@ -10369,6 +10842,249 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // FLUXO DE CAIXA PROJETADO — igual à DRE mensal Jan→Dez
     // ================================================================
 
+    // ================================================================
+    // FLUXO DE CAIXA DIÁRIO
+    // Mostra receita, despesa e resultado de cada dia do mês selecionado.
+    // Clicar em qualquer número abre os lançamentos daquele dia, com opção
+    // de editar e excluir.
+    // ================================================================
+    const _FD_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+    function _fdFiltros() {
+        return {
+            ano:   (document.getElementById('filtroAnoFD')   || {}).value || String(new Date().getFullYear()),
+            mes:   (document.getElementById('filtroMesFD')   || {}).value || String(new Date().getMonth() + 1).padStart(2, '0'),
+            base:  (document.getElementById('filtroBaseFD')  || {}).value || 'realizado',
+            banco: (document.getElementById('filtroBancoFD') || {}).value || ''
+        };
+    }
+
+    function fdNavegarMes(passo) {
+        const selAno = document.getElementById('filtroAnoFD');
+        const selMes = document.getElementById('filtroMesFD');
+        if (!selAno || !selMes) return;
+        let ano = parseInt(selAno.value || new Date().getFullYear(), 10);
+        let mes = parseInt(selMes.value || '01', 10) + passo;
+        if (mes < 1)  { mes = 12; ano--; }
+        if (mes > 12) { mes = 1;  ano++; }
+        const mm = String(mes).padStart(2, '0');
+        if (selAno.querySelector('option[value="' + ano + '"]')) selAno.value = String(ano);
+        selMes.value = mm;
+        carregarFluxoDiario();
+    }
+
+    function fdMesAtual() {
+        const hoje = new Date();
+        const selAno = document.getElementById('filtroAnoFD');
+        const selMes = document.getElementById('filtroMesFD');
+        if (selAno && selAno.querySelector('option[value="' + hoje.getFullYear() + '"]')) selAno.value = String(hoje.getFullYear());
+        if (selMes) selMes.value = String(hoje.getMonth() + 1).padStart(2, '0');
+        carregarFluxoDiario();
+    }
+
+    // Data efetiva de uma conta neste contexto: pagamento/recebimento quando já
+    // aconteceu, vencimento quando ainda está pendente (projeção).
+    function _fdDataConta(c, tipo) {
+        if (c.status === 'pago' || c.status === 'recebido') {
+            return (tipo === 'receber' ? c.data_recebimento : c.data_pagamento) || c.data_vencimento || '';
+        }
+        return c.data_vencimento || '';
+    }
+
+    function _fdContaEntra(c, base) {
+        const realizado = (c.status === 'pago' || c.status === 'recebido');
+        if (base === 'realizado') return realizado;
+        if (base === 'previsto')  return c.status === 'pendente';
+        return realizado || c.status === 'pendente';
+    }
+
+    async function carregarFluxoDiario() {
+        const f = _fdFiltros();
+        const contasReceber = await fetchSupabase('contas_a_receber', 'GET');
+        const contasPagar   = await fetchSupabase('contas_a_pagar',   'GET');
+        if (!contasReceber || !contasPagar) return;
+
+        const prefixo = f.ano + '-' + f.mes;
+        const filtrar = (lista, tipo) => lista.filter(c => {
+            if (!_fdContaEntra(c, f.base)) return false;
+            if (f.banco && String(c.banco_id || '') !== String(f.banco)) return false;
+            const d = _fdDataConta(c, tipo);
+            return d && d.startsWith(prefixo);
+        });
+
+        const rec = filtrar(contasReceber, 'receber');
+        const pag = filtrar(contasPagar,   'pagar');
+
+        // Guardado para o modal de detalhe do dia.
+        window._fdRec = rec; window._fdPag = pag; window._fdPrefixo = prefixo;
+
+        const diasNoMes = new Date(parseInt(f.ano, 10), parseInt(f.mes, 10), 0).getDate();
+        const receitaDia = Array(diasNoMes + 1).fill(0);
+        const despesaDia = Array(diasNoMes + 1).fill(0);
+
+        rec.forEach(c => {
+            const d = parseInt(_fdDataConta(c, 'receber').substring(8, 10), 10);
+            if (d >= 1 && d <= diasNoMes) receitaDia[d] += parseFloat(c.valor || 0);
+        });
+        pag.forEach(c => {
+            const d = parseInt(_fdDataConta(c, 'pagar').substring(8, 10), 10);
+            if (d >= 1 && d <= diasNoMes) despesaDia[d] += parseFloat(c.valor || 0);
+        });
+
+        const totRec = receitaDia.reduce((s, v) => s + v, 0);
+        const totDesp = despesaDia.reduce((s, v) => s + v, 0);
+        const resultado = totRec - totDesp;
+        let diasComMov = 0, melhorDia = 0, piorDia = 0;
+        for (let d = 1; d <= diasNoMes; d++) {
+            if (receitaDia[d] > 0 || despesaDia[d] > 0) diasComMov++;
+            const r = receitaDia[d] - despesaDia[d];
+            if (receitaDia[d] > 0 || despesaDia[d] > 0) {
+                if (melhorDia === 0 || r > (receitaDia[melhorDia] - despesaDia[melhorDia])) melhorDia = d;
+                if (piorDia === 0   || r < (receitaDia[piorDia]   - despesaDia[piorDia]))   piorDia = d;
+            }
+        }
+
+        // Cards
+        document.getElementById('fdCardReceita').textContent  = fmtBRL(totRec);
+        document.getElementById('fdCardDespesa').textContent  = fmtBRL(totDesp);
+        const elRes = document.getElementById('fdCardResultado');
+        elRes.textContent = fmtValSig(resultado);
+        elRes.style.color = resultado >= 0 ? '#28a745' : '#dc3545';
+        document.getElementById('fdCardResultadoBox').style.borderLeftColor = resultado >= 0 ? '#28a745' : '#dc3545';
+        document.getElementById('fdCardDias').innerHTML = diasComMov + ' <span style="font-size:14px;color:#aaa;font-weight:500;">/ ' + diasNoMes + '</span>';
+
+        // Análise do resultado (melhor / pior dia)
+        const elAnalise = document.getElementById('fdAnalise');
+        if (melhorDia > 0) {
+            const vMelhor = receitaDia[melhorDia] - despesaDia[melhorDia];
+            const vPior   = receitaDia[piorDia]   - despesaDia[piorDia];
+            elAnalise.style.display = '';
+            elAnalise.innerHTML =
+                '<span class="fd-analise-titulo">Análise do resultado</span>' +
+                '<span><b>Melhor dia de ' + _FD_MESES[parseInt(f.mes, 10) - 1] + ':</b> dia ' + melhorDia +
+                    ' <span style="color:' + (vMelhor >= 0 ? '#28a745' : '#dc3545') + ';font-weight:600;">(' + fmtValSig(vMelhor) + ')</span></span>' +
+                '<span><b>Pior dia:</b> dia ' + piorDia +
+                    ' <span style="color:' + (vPior >= 0 ? '#28a745' : '#dc3545') + ';font-weight:600;">(' + fmtValSig(vPior) + ')</span></span>';
+        } else {
+            elAnalise.style.display = 'none';
+        }
+
+        document.getElementById('fdTituloTabela').textContent =
+            _FD_MESES[parseInt(f.mes, 10) - 1] + ' / ' + f.ano +
+            (f.base === 'previsto' ? ' — projetado' : f.base === 'ambos' ? ' — realizado + projetado' : '');
+
+        _fdRenderTabelas(diasNoMes, receitaDia, despesaDia, totRec, totDesp, f);
+    }
+
+    // Monta os três blocos de dias (1-10, 11-20, 21-fim), como no modelo.
+    function _fdRenderTabelas(diasNoMes, receitaDia, despesaDia, totRec, totDesp, f) {
+        const cont = document.getElementById('fdTabelas');
+        if (!cont) return;
+        const hoje = new Date();
+        const ehMesAtual = (String(hoje.getFullYear()) === String(f.ano)) &&
+                           (String(hoje.getMonth() + 1).padStart(2, '0') === f.mes);
+        const diaHoje = hoje.getDate();
+
+        const blocos = [[1, 10], [11, 20], [21, diasNoMes]];
+        const vazio = '<span style="color:#ccc;">R$ &nbsp;–</span>';
+
+        cont.innerHTML = blocos.map(function (bloco, bi) {
+            let linhas = '';
+            for (let d = bloco[0]; d <= bloco[1]; d++) {
+                const r = receitaDia[d] || 0;
+                const s = despesaDia[d] || 0;
+                const res = r - s;
+                const temMov = r > 0 || s > 0;
+                const clicavel = v => v > 0 ? ' class="cel-click"' : '';
+                const onRec = r > 0 ? ' onclick="abrirDetalheFluxoDiario(' + d + ",'rec')\"" : '';
+                const onSai = s > 0 ? ' onclick="abrirDetalheFluxoDiario(' + d + ",'pag')\"" : '';
+                const onRes = temMov ? ' class="cel-click" onclick="abrirDetalheFluxoDiario(' + d + ",'tudo')\"" : '';
+                const pill = temMov
+                    ? '<span class="fd-res-pill" style="background:' + (res >= 0 ? '#1e8449' : '#c0392b') + ';">' +
+                        (res < 0 ? '(' + fmtBRL(res) + ')' : fmtBRL(res)) + '</span>'
+                    : '<span style="color:#ccc;">–</span>';
+                linhas +=
+                    '<tr' + (ehMesAtual && d === diaHoje ? ' class="fd-hoje"' : '') + '>' +
+                    '<td class="fd-dia">' + d + '</td>' +
+                    '<td style="text-align:right;color:#28a745;font-weight:' + (r > 0 ? '600' : '400') + ';"' + clicavel(r) + onRec + '>' + (r > 0 ? fmtBRL(r) : vazio) + '</td>' +
+                    '<td style="text-align:right;color:#dc3545;font-weight:' + (s > 0 ? '600' : '400') + ';"' + clicavel(s) + onSai + '>' + (s > 0 ? fmtBRL(s) : vazio) + '</td>' +
+                    '<td style="min-width:120px;"' + onRes + '>' + pill + '</td>' +
+                    '</tr>';
+            }
+            // O rodapé com os totais do mês aparece só no último bloco.
+            const rodape = (bi === blocos.length - 1)
+                ? '<tfoot><tr style="background:#f7f7f8;font-weight:700;">' +
+                    '<td style="padding:7px 8px;">Total</td>' +
+                    '<td style="text-align:right;color:#28a745;">' + fmtBRL(totRec) + '</td>' +
+                    '<td style="text-align:right;color:#dc3545;">' + fmtBRL(totDesp) + '</td>' +
+                    '<td style="text-align:right;color:' + ((totRec - totDesp) >= 0 ? '#1e8449' : '#c0392b') + ';">' + fmtValSig(totRec - totDesp) + '</td>' +
+                  '</tr></tfoot>'
+                : '';
+            return '<div><table class="fd-tabela">' +
+                '<thead><tr><th>Dia</th><th style="text-align:right;">Receita</th><th style="text-align:right;">Despesa</th><th style="text-align:right;">Resultado do dia</th></tr></thead>' +
+                '<tbody>' + linhas + '</tbody>' + rodape + '</table></div>';
+        }).join('');
+    }
+
+    // Abre os lançamentos de um dia específico.
+    function abrirDetalheFluxoDiario(dia, tipo) {
+        const f = _fdFiltros();
+        const dd = String(dia).padStart(2, '0');
+        const dataAlvo = (window._fdPrefixo || (f.ano + '-' + f.mes)) + '-' + dd;
+        const itens = [];
+        if (tipo === 'rec' || tipo === 'tudo') {
+            (window._fdRec || []).forEach(c => {
+                if (_fdDataConta(c, 'receber') === dataAlvo) itens.push(_itemLanc(c, 'receber', dataAlvo));
+            });
+        }
+        if (tipo === 'pag' || tipo === 'tudo') {
+            (window._fdPag || []).forEach(c => {
+                if (_fdDataConta(c, 'pagar') === dataAlvo) itens.push(_itemLanc(c, 'pagar', dataAlvo));
+            });
+        }
+        const rot = tipo === 'rec' ? 'Receitas' : tipo === 'pag' ? 'Despesas' : 'Lançamentos';
+        abrirDetalheLanc(rot + ' — ' + dia + ' de ' + _FD_MESES[parseInt(f.mes, 10) - 1] + ' de ' + f.ano, itens, async () => {
+            await carregarFluxoDiario();
+            abrirDetalheFluxoDiario(dia, tipo);
+        });
+    }
+
+    function gerarPDFFluxoDiario() {
+        const f = _fdFiltros();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        doc.setFontSize(14);
+        doc.text('Fluxo de Caixa Diário — ' + _FD_MESES[parseInt(f.mes, 10) - 1] + '/' + f.ano, 14, 16);
+
+        const diasNoMes = new Date(parseInt(f.ano, 10), parseInt(f.mes, 10), 0).getDate();
+        const rec = Array(diasNoMes + 1).fill(0), pag = Array(diasNoMes + 1).fill(0);
+        (window._fdRec || []).forEach(c => {
+            const d = parseInt(_fdDataConta(c, 'receber').substring(8, 10), 10);
+            if (d >= 1 && d <= diasNoMes) rec[d] += parseFloat(c.valor || 0);
+        });
+        (window._fdPag || []).forEach(c => {
+            const d = parseInt(_fdDataConta(c, 'pagar').substring(8, 10), 10);
+            if (d >= 1 && d <= diasNoMes) pag[d] += parseFloat(c.valor || 0);
+        });
+
+        const body = [];
+        for (let d = 1; d <= diasNoMes; d++) {
+            body.push([d, rec[d] ? fmtBRL(rec[d]) : '-', pag[d] ? fmtBRL(pag[d]) : '-', fmtValSig(rec[d] - pag[d])]);
+        }
+        const tR = rec.reduce((s, v) => s + v, 0), tP = pag.reduce((s, v) => s + v, 0);
+        body.push(['TOTAL', fmtBRL(tR), fmtBRL(tP), fmtValSig(tR - tP)]);
+
+        doc.autoTable({
+            startY: 22,
+            head: [['Dia', 'Receita', 'Despesa', 'Resultado do dia']],
+            body: body,
+            styles: { fontSize: 8, cellPadding: 1.6 },
+            headStyles: { fillColor: [255, 122, 66] },
+            columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } }
+        });
+        doc.save('Fluxo_Diario_' + f.ano + '-' + f.mes + '.pdf');
+    }
+
     async function carregarFCP() {
         const contasReceber = await fetchSupabase('contas_a_receber', 'GET');
         const contasPagar   = await fetchSupabase('contas_a_pagar',   'GET');
@@ -10402,6 +11118,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         // Filtrar apenas pendentes do ano selecionado
         const recAno = contasReceber.filter(c => c.status === 'pendente' && dataFCP(c,'rec').startsWith(anoSel));
         const pagAno = contasPagar.filter(c => c.status === 'pendente' && dataFCP(c,'pag').startsWith(anoSel));
+
+        // Guardados para o modal de detalhe (clique em um número da tabela).
+        window._fcpRecAno = recAno; window._fcpPagAno = pagAno; window._fcpAno = anoSel;
 
         // Totais para cards
         const totalEnt   = recAno.reduce((s,c) => s + parseFloat(c.valor||0), 0);
@@ -10476,15 +11195,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         tbody.innerHTML = '';
 
         // ── Função auxiliar para uma linha ──
+        // `clique` define o que abre ao clicar num número: { tipo, nome }
+        const escQF = s => String(s).replace(/'/g, "\\'");
         function linhaTabela(label, vals, opts = {}) {
-            const { bg = '', fc = '', bold = false, indent = false } = opts;
+            const { bg = '', fc = '', bold = false, indent = false, clique = null } = opts;
             const total = vals.reduce((s,v) => s + v, 0);
             const rowStyle = (bg ? 'background:' + bg + ';' : '') + (fc ? 'color:' + fc + ';' : '') + (bold ? 'font-weight:700;' : '');
             const lbl = (indent ? '&nbsp;&nbsp;&nbsp;↳ ' : '') + label;
+            const clk = (v, m) => (clique && v !== 0)
+                ? ' class="cel-click" onclick="abrirDetalheFCP(\'' + clique.tipo + '\',\'' + escQF(clique.nome) + '\',' + m + ')"'
+                : '';
             return '<tr style="' + rowStyle + '">' +
                 '<td style="padding:5px 8px;' + (bold ? 'font-weight:700;' : '') + (indent ? 'color:#555;' : '') + '">' + lbl + '</td>' +
-                vals.map(v => '<td style="text-align:right;padding:5px 8px;' + (fc ? '' : cor(v)) + '">' + fmtV(v) + '</td>').join('') +
-                '<td style="text-align:right;padding:5px 8px;font-weight:700;' + (fc ? '' : cor(total)) + '">' + fmtV(total) + '</td>' +
+                vals.map((v, m) => '<td style="text-align:right;padding:5px 8px;' + (fc ? '' : cor(v)) + '"' + clk(v, m) + '>' + fmtV(v) + '</td>').join('') +
+                '<td style="text-align:right;padding:5px 8px;font-weight:700;' + (fc ? '' : cor(total)) + '"' + clk(total, -1) + '>' + fmtV(total) + '</td>' +
                 '</tr>';
         }
 
@@ -10498,10 +11222,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             tbody.innerHTML += '<tr><td colspan="' + (13+1) + '" style="padding:6px 10px;color:#aaa;font-size:12px;">Nenhum recebimento no período</td></tr>';
         } else {
             Object.entries(catRec).sort((a,b) => b[1].reduce((s,v)=>s+v,0) - a[1].reduce((s,v)=>s+v,0)).forEach(([cat, arr]) => {
-                tbody.innerHTML += linhaTabela(cat, arr, { indent: true });
+                tbody.innerHTML += linhaTabela(cat, arr, { indent: true, clique: { tipo: 'rec-cat', nome: cat } });
             });
         }
-        tbody.innerHTML += linhaTabela('= Total Entradas', totEntMes, { bg: '#d4edda', fc: '#155724', bold: true });
+        tbody.innerHTML += linhaTabela('= Total Entradas', totEntMes, { bg: '#d4edda', fc: '#155724', bold: true, clique: { tipo: 'rec-todos', nome: '' } });
 
         // ── Seção SAÍDAS ──
         tbody.innerHTML += linhaSeparador('SAÍDAS DE CAIXA');
@@ -10510,14 +11234,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         } else {
             Object.entries(catPag).sort((a,b) => b[1].reduce((s,v)=>s+v,0) - a[1].reduce((s,v)=>s+v,0)).forEach(([cat, arr]) => {
                 const negArr = arr.map(v => -v);
-                tbody.innerHTML += linhaTabela(cat, negArr, { indent: true });
+                tbody.innerHTML += linhaTabela(cat, negArr, { indent: true, clique: { tipo: 'pag-cat', nome: cat } });
             });
         }
-        tbody.innerHTML += linhaTabela('= Total Saídas', totSaiMes.map(v => -v), { bg: '#f8d7da', fc: '#721c24', bold: true });
+        tbody.innerHTML += linhaTabela('= Total Saídas', totSaiMes.map(v => -v), { bg: '#f8d7da', fc: '#721c24', bold: true, clique: { tipo: 'pag-todos', nome: '' } });
 
         // ── Saldo mensal e acumulado ──
         tbody.innerHTML += linhaSeparador('SALDO');
-        tbody.innerHTML += linhaTabela('Saldo Mensal (Entradas - Saídas)', saldoMes, { bg: '#f5f5f5', bold: true });
+        tbody.innerHTML += linhaTabela('Saldo Mensal (Entradas - Saídas)', saldoMes, { bg: '#f5f5f5', bold: true, clique: { tipo: 'saldo', nome: '' } });
         tbody.innerHTML += linhaTabela('Saldo Acumulado', acumArr, { bg: 'var(--cor-primaria)', fc: 'white', bold: true });
 
         // Mostrar card
@@ -10551,6 +11275,43 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 }
             });
         }
+    }
+
+    // ── Fluxo Projetado: abrir lançamentos ao clicar num número ──────────────
+    function abrirDetalheFCP(tipo, nome, mesIdx) {
+        const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const ano = window._fcpAno || '';
+        const casaMes = d => mesIdx < 0 || (d && parseInt(d.substring(5, 7), 10) - 1 === mesIdx);
+        const nomeCat = c => {
+            const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
+            return cat ? cat.nome : null;
+        };
+        const itens = [];
+
+        if (tipo === 'rec-cat' || tipo === 'rec-todos' || tipo === 'saldo') {
+            (window._fcpRecAno || []).forEach(c => {
+                if (!casaMes(c.data_vencimento)) return;
+                if (tipo === 'rec-cat' && (nomeCat(c) || 'Receita') !== nome) return;
+                itens.push(_itemLanc(c, 'receber', c.data_vencimento));
+            });
+        }
+        if (tipo === 'pag-cat' || tipo === 'pag-todos' || tipo === 'saldo') {
+            (window._fcpPagAno || []).forEach(c => {
+                if (!casaMes(c.data_vencimento)) return;
+                if (tipo === 'pag-cat' && (nomeCat(c) || 'Pagamento') !== nome) return;
+                itens.push(_itemLanc(c, 'pagar', c.data_vencimento));
+            });
+        }
+
+        const rotulos = {
+            'rec-cat': nome, 'rec-todos': 'Total Entradas',
+            'pag-cat': nome, 'pag-todos': 'Total Saídas', 'saldo': 'Saldo Mensal'
+        };
+        const periodo = mesIdx >= 0 ? (mNomes[mesIdx] + '/' + String(ano).slice(2)) : ('Acumulado Ano ' + ano);
+        abrirDetalheLanc((rotulos[tipo] || 'Lançamentos') + ' — ' + periodo, itens, async () => {
+            await carregarFCP();
+            abrirDetalheFCP(tipo, nome, mesIdx);
+        });
     }
 
     function gerarPDFFCP() {
@@ -11131,10 +11892,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             return dv || '';
         };
 
-        // Cabeçalho com meses
+        // Cabeçalho com meses.
+        // Quando "Mostrar % s/ Receita Bruta" está ligado, cada mês (e o acumulado do ano)
+        // ganha uma coluna "%" ao lado, em vez do percentual impresso abaixo do valor.
+        const _pctOn = _dreMostrarPct;
         headerRow.innerHTML = '<th style="min-width:180px;text-align:left;">Descrição</th>' +
-            mNomes.map(m => '<th class="dre-mes-col" style="text-align:right;min-width:90px;">' + m + '/' + String(ano).slice(2) + '</th>').join('') +
-            '<th class="dre-tot-col" style="text-align:right;min-width:100px;">Total</th>';
+            mNomes.map(m => '<th class="dre-mes-col" style="text-align:right;min-width:90px;">' + m + '/' + String(ano).slice(2) + '</th>' +
+                (_pctOn ? '<th class="dre-mes-col dre-pct-col">%</th>' : '')).join('') +
+            '<th class="dre-tot-col" style="text-align:right;min-width:120px;">Acumulado Ano</th>' +
+            (_pctOn ? '<th class="dre-tot-col dre-pct-col">%</th>' : '');
 
         // Para cada mês, calcular valores por grupo
         const dados = {};
@@ -11270,9 +12036,16 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         // Receita Bruta por mês e no ano — base para os percentuais (% s/ Receita Bruta).
         const rbMes = dados['RECEITA_BRUTA'];
         const rbTot = rbMes.reduce((s, v) => s + v, 0);
-        const pctSub = (v, base) => (_dreMostrarPct && base > 0 && v !== 0)
-            ? '<div style="font-size:9px;line-height:1;margin-top:2px;opacity:0.8;">' + (Math.abs(v) / base * 100).toFixed(1) + '%</div>'
-            : '';
+
+        // Coluna "%" ao lado de cada valor (em vez do percentual embaixo do número).
+        // `classeCol` mantém a célula de % sincronizada com os botões de ocultar
+        // meses / acumulado, e `estiloExtra` replica o fundo das linhas coloridas.
+        const pctCel = (v, base, classeCol, estiloExtra) => {
+            if (!_pctOn) return '';
+            const txt = (base > 0 && v !== 0) ? (Math.abs(v) / base * 100).toFixed(1) + '%' : '-';
+            return '<td class="' + classeCol + ' dre-pct-col" style="text-align:right;padding:5px 6px;' +
+                   (estiloExtra || 'color:#999;') + '">' + txt + '</td>';
+        };
 
         tbody.innerHTML = '';
         linhas.forEach(linha => {
@@ -11292,8 +12065,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
             const celula = (v, mesIdx) => {
                 let estilo = 'text-align:right;padding:5px 8px;';
+                let estiloPct = 'color:#999;';
                 if (linha.corPorSinal) {
-                    estilo += 'background:' + (v >= 0 ? '#1e8449' : '#c0392b') + ';color:#fff;';
+                    const bgCel = v >= 0 ? '#1e8449' : '#c0392b';
+                    estilo += 'background:' + bgCel + ';color:#fff;';
+                    estiloPct = 'background:' + bgCel + ';color:#fff;opacity:0.85;';
                 } else if (!linha.cor) {
                     estilo += cor(v);
                 }
@@ -11304,12 +12080,16 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 const click = clicavel
                     ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "'," + mesIdx + ",'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
                     : '';
-                return '<td style="' + estilo + '"' + classe + click + '>' + fmtV(v) + pctSub(v, rbMes[mesIdx]) + '</td>';
+                return '<td style="' + estilo + '"' + classe + click + '>' + fmtV(v) + '</td>' +
+                       pctCel(v, rbMes[mesIdx], 'dre-mes-col', estiloPct);
             };
 
             let totalEstilo = 'text-align:right;padding:5px 8px;font-weight:700;';
+            let totalEstiloPct = 'color:#999;font-weight:700;';
             if (linha.corPorSinal) {
-                totalEstilo += 'background:' + (total >= 0 ? '#1e8449' : '#c0392b') + ';color:#fff;';
+                const bgTot = total >= 0 ? '#1e8449' : '#c0392b';
+                totalEstilo += 'background:' + bgTot + ';color:#fff;';
+                totalEstiloPct = 'background:' + bgTot + ';color:#fff;font-weight:700;opacity:0.85;';
             } else if (!linha.cor) {
                 totalEstilo += cor(total);
             }
@@ -11320,10 +12100,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const totalClick = totalClicavel
                 ? " onclick=\"abrirDetalheDREMes('" + linha.grupos.join(',') + "',-1,'" + ano + "','" + escApos(linha.label.replace(/^=\s*/, '')) + "')\""
                 : '';
-            const totalTd = '<td style="' + totalEstilo + '"' + totalClasse + totalClick + '>' + fmtV(total) + pctSub(total, rbTot) + '</td>';
+            const totalTd = '<td style="' + totalEstilo + '"' + totalClasse + totalClick + '>' + fmtV(total) + '</td>' +
+                            pctCel(total, rbTot, 'dre-tot-col', totalEstiloPct);
+
+            // A primeira coluna fica "congelada" na horizontal, por isso precisa de um
+            // fundo próprio (senão as células dos meses aparecem por baixo ao rolar).
+            const bgFixo = 'background:' + (linha.bg || '#ffffff') + ';';
 
             tbody.innerHTML += '<tr style="' + rowBg + rowFc + bold + '">' +
-                '<td style="padding:5px 8px;' + bold + '">' + linha.label + '</td>' +
+                '<td style="padding:5px 8px;' + bold + bgFixo + (linha.cor ? 'color:' + linha.cor + ';' : '') + '">' + linha.label + '</td>' +
                 vals.map((v, m) => celula(v, m)).join('') +
                 totalTd +
                 '</tr>';
@@ -11349,13 +12134,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         const click = clicavel
                             ? " onclick=\"abrirDetalheDRECategoriaMes('" + grupoSub + "','" + nomeSubEsc + "'," + m + ",'" + ano + "')\""
                             : '';
-                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;"' + classe + click + '>' + (v > 0 ? fmtV(-v) : '-') + pctSub(v, rbMes[m]) + '</td>';
+                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:#dc3545;"' + classe + click + '>' + (v > 0 ? fmtV(-v) : '-') + '</td>' +
+                               pctCel(v, rbMes[m], 'dre-mes-col', 'color:#bbb;font-size:10.5px;');
                     }).join('');
                     tbody.innerHTML += '<tr style="background:#fafafa;">' +
-                        '<td style="padding:4px 8px 4px 22px;font-size:11px;color:#888;"' + labelClasse + labelClick + '>' +
+                        '<td style="padding:4px 8px 4px 22px;font-size:11px;color:#888;background:#fafafa;"' + labelClasse + labelClick + '>' +
                         '<span style="color:#bbb;margin-right:4px;">\u21b3</span>' + nomeSub + '</td>' +
                         celulasSub +
-                        '<td class="dre-tot-col" style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;"' + labelClick + '>' + fmtV(-totalSub) + pctSub(totalSub, rbTot) + '</td>' +
+                        '<td class="dre-tot-col" style="text-align:right;padding:4px 8px;font-size:11px;font-weight:600;color:#dc3545;"' + labelClick + '>' + fmtV(-totalSub) + '</td>' +
+                        pctCel(totalSub, rbTot, 'dre-tot-col', 'color:#bbb;font-size:10.5px;') +
                         '</tr>';
                 });
             }
@@ -12210,9 +12997,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const mesesExibir = mesSel ? [parseInt(mesSel, 10) - 1] : [0,1,2,3,4,5,6,7,8,9,10,11];
         const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        let headHtml = '<th style="text-align:left;min-width:200px;">Categoria</th><th style="min-width:150px;">Grupo DRE</th>';
-        mesesExibir.forEach(m => headHtml += '<th style="text-align:right;min-width:100px;">' + _MESES_ABREV_ANALISE[m] + '/' + anoSel.slice(2) + '</th>');
-        headHtml += '<th style="text-align:right;min-width:110px;">Total</th>';
+        let headHtml = '<th style="text-align:left;min-width:200px;">Categoria</th><th class="ac-grupo-col" style="min-width:150px;">Grupo DRE</th>';
+        mesesExibir.forEach(m => headHtml += '<th class="ac-mes-col" style="text-align:right;min-width:100px;">' + _MESES_ABREV_ANALISE[m] + '/' + anoSel.slice(2) + '</th>');
+        headHtml += '<th class="ac-tot-col" style="text-align:right;min-width:130px;">Acumulado Ano</th>';
         cabecalho.innerHTML = headHtml;
 
         const contas = (dadosCache.contasAnaliseCategorias || []).filter(c => c.data_competencia && c.data_competencia.startsWith(anoSel));
@@ -12238,19 +13025,75 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             if (totalCategoria === 0) return;
             totalGeral += totalCategoria;
             const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '-';
-            corpoHtml += '<tr><td><b>' + cat.nome + '</b></td><td style="font-size:11px;color:#666;">' + grupoLabel + '</td>';
+            corpoHtml += '<tr><td style="background:#fff;"><b>' + cat.nome + '</b></td>' +
+                         '<td class="ac-grupo-col" style="font-size:11px;color:#666;">' + grupoLabel + '</td>';
             mesesExibir.forEach(m => {
-                corpoHtml += '<td style="text-align:right;">' + (valoresPorMes[m] ? fmt(valoresPorMes[m]) : '<span style="color:#ccc;">-</span>') + '</td>';
+                const v = valoresPorMes[m];
+                const clic = v > 0;
+                corpoHtml += '<td class="ac-mes-col' + (clic ? ' cel-click' : '') + '" style="text-align:right;"' +
+                    (clic ? ' onclick="abrirDetalheAnaliseCat(' + cat.id + ',' + m + ',\'' + anoSel + '\')"' : '') +
+                    '>' + (v ? fmt(v) : '<span style="color:#ccc;">-</span>') + '</td>';
             });
-            corpoHtml += '<td style="text-align:right;font-weight:600;">' + fmt(totalCategoria) + '</td></tr>';
+            corpoHtml += '<td class="ac-tot-col cel-click" style="text-align:right;font-weight:600;" onclick="abrirDetalheAnaliseCat(' + cat.id + ',-1,\'' + anoSel + '\')">' + fmt(totalCategoria) + '</td></tr>';
         });
 
         corpo.innerHTML = corpoHtml || ('<tr><td colspan="' + (mesesExibir.length + 3) + '" style="text-align:center;color:#999;padding:24px;">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>');
 
-        let rodapeHtml = '<tr style="background:#fafafa;font-weight:700;border-top:2px solid #eee;"><td>Total</td><td></td>';
-        mesesExibir.forEach(m => rodapeHtml += '<td style="text-align:right;">' + fmt(totalPorMes[m]) + '</td>');
-        rodapeHtml += '<td style="text-align:right;">' + fmt(totalGeral) + '</td></tr>';
+        let rodapeHtml = '<tr style="background:#fafafa;font-weight:700;border-top:2px solid #eee;"><td>Total</td><td class="ac-grupo-col"></td>';
+        mesesExibir.forEach(m => rodapeHtml += '<td class="ac-mes-col" style="text-align:right;">' + fmt(totalPorMes[m]) + '</td>');
+        rodapeHtml += '<td class="ac-tot-col" style="text-align:right;">' + fmt(totalGeral) + '</td></tr>';
         rodape.innerHTML = rodapeHtml;
+
+        _aplicarVisibilidadeAnaliseCat();
+    }
+
+    // ── Análise de Categorias: ocultar/mostrar colunas ────────────────────────
+    let _acOcultarMeses = false, _acOcultarAcum = false, _acOcultarGrupo = false;
+
+    function _aplicarVisibilidadeAnaliseCat() {
+        const tbl = document.getElementById('tabelaAnaliseCategorias');
+        if (!tbl) return;
+        tbl.querySelectorAll('.ac-mes-col').forEach(el => { el.style.display = _acOcultarMeses ? 'none' : ''; });
+        tbl.querySelectorAll('.ac-tot-col').forEach(el => { el.style.display = _acOcultarAcum ? 'none' : ''; });
+        tbl.querySelectorAll('.ac-grupo-col').forEach(el => { el.style.display = _acOcultarGrupo ? 'none' : ''; });
+        // Com tudo oculto sobra só a coluna "Categoria" — tira a largura mínima
+        // para a tabela não ficar com um vazio enorme à direita.
+        const tudoOculto = _acOcultarMeses && _acOcultarAcum && _acOcultarGrupo;
+        tbl.style.minWidth = tudoOculto ? 'auto' : '900px';
+    }
+
+    function toggleACMeses(cb) { _acOcultarMeses = cb.checked; _sincronizarChkACTudo(); _aplicarVisibilidadeAnaliseCat(); }
+    function toggleACAcum(cb)  { _acOcultarAcum  = cb.checked; _sincronizarChkACTudo(); _aplicarVisibilidadeAnaliseCat(); }
+    function toggleACGrupo(cb) { _acOcultarGrupo = cb.checked; _sincronizarChkACTudo(); _aplicarVisibilidadeAnaliseCat(); }
+
+    // "Ocultar todas as colunas" — inclui o Acumulado Ano, conforme solicitado.
+    function toggleACTudo(cb) {
+        _acOcultarMeses = _acOcultarAcum = _acOcultarGrupo = cb.checked;
+        ['chkACOcultarMeses','chkACOcultarAcum','chkACOcultarGrupo'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.checked = cb.checked;
+        });
+        _aplicarVisibilidadeAnaliseCat();
+    }
+
+    function _sincronizarChkACTudo() {
+        const el = document.getElementById('chkACOcultarTudo');
+        if (el) el.checked = _acOcultarMeses && _acOcultarAcum && _acOcultarGrupo;
+    }
+
+    // Abre os lançamentos por trás de uma célula da Análise de Categorias.
+    function abrirDetalheAnaliseCat(catId, mesIdx, ano) {
+        const cat = (dadosCache.categorias || []).find(c => c.id === catId);
+        const mm = mesIdx >= 0 ? String(mesIdx + 1).padStart(2, '0') : null;
+        const prefixo = String(ano) + (mm ? '-' + mm : '');
+        const itens = (dadosCache.contasAnaliseCategorias || [])
+            .filter(c => c.categoria_id === catId && c.data_competencia && c.data_competencia.startsWith(prefixo))
+            .map(c => _itemLanc(c, 'pagar', c.data_competencia));
+        const periodo = mesIdx >= 0 ? (_MESES_ABREV_ANALISE[mesIdx] + '/' + ano) : ('Acumulado Ano ' + ano);
+        abrirDetalheLanc((cat ? cat.nome : 'Categoria') + ' — ' + periodo, itens, async () => {
+            await carregarAnaliseCategorias();
+            abrirDetalheAnaliseCat(catId, mesIdx, ano);
+        });
     }
 
 
@@ -12903,6 +13746,30 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     </div>
 </div>
 
+<!-- MODAL GENÉRICO DE LANÇAMENTOS (DFC, Fluxo Projetado, Fluxo Diário, Análise de Categorias) -->
+<div class="modal" id="modalDetalheLanc">
+    <div class="modal-content" style="max-width:1150px;">
+        <div class="modal-header">
+            <span id="tituloDetalheLanc">Lançamentos</span>
+            <button class="modal-close" onclick="closeModal('modalDetalheLanc')">&times;</button>
+        </div>
+        <div id="detalheLancResumo" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div class="table-container">
+            <table id="tabelaDetalheLanc">
+                <thead><tr>
+                    <th>Data</th><th>Descrição</th><th>Categoria</th><th>Parte</th>
+                    <th>Tipo</th><th>Status</th><th style="text-align:right;">Valor</th>
+                    <th style="min-width:160px;">Ações</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="form-actions" style="margin-top:12px;">
+            <button class="btn btn-secondary" onclick="closeModal('modalDetalheLanc')">Fechar</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="modalLancamentosBanco">
     <div class="modal-content" style="max-width:1000px;">
         <div class="modal-header">
@@ -12926,7 +13793,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     <div class="modal-content" style="max-width:500px;">
         <div class="modal-header">
             <span id="editLancTituloModal">Editar Lançamento</span>
-            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;closeModal('modalEditarLancamento')">&times;</button>
+            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;closeModal('modalEditarLancamento')">&times;</button>
         </div>
         <form onsubmit="salvarEdicaoLancamento(event)">
             <input type="hidden" id="editLancId">
@@ -12977,7 +13844,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">💾 Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;closeModal('modalEditarLancamento')">Cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;closeModal('modalEditarLancamento')">Cancelar</button>
             </div>
         </form>
     </div>
