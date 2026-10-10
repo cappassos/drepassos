@@ -4583,9 +4583,13 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
                 if (_tentativasFalhas >= 5) {
                     _bloqueadoAte = Date.now() + 60000 * Math.min(_tentativasFalhas - 4, 10);
                 }
-                _mostrarErroLogin(r.status === 429
-                    ? 'Muitas tentativas. Aguarde alguns minutos.'
-                    : 'E-mail ou senha incorretos!');
+                const det = String(dados.error_code || dados.code || '') + ' ' + String(dados.error_description || dados.msg || dados.message || '');
+                let msgErro = 'E-mail ou senha incorretos! (verifique se o usuário foi criado em Authentication → Users no Supabase)';
+                if (r.status === 429) msgErro = 'Muitas tentativas. Aguarde alguns minutos.';
+                else if (/not.confirmed/i.test(det)) msgErro = 'E-mail ainda não confirmado. No Supabase, em Authentication → Users, confirme o usuário (ou recrie marcando "Auto Confirm User").';
+                else if (/provider|disabled/i.test(det)) msgErro = 'Login por e-mail está desativado no Supabase (Authentication → Sign In / Providers → Email).';
+                else if (r.status !== 400) msgErro = 'Erro ' + r.status + ' no login: ' + det.trim();
+                _mostrarErroLogin(msgErro);
                 return;
             }
 
