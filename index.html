@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="theme-color" content="#333333">
     <title>Sistema de Gestão Financeira CAP</title>
-    <!-- SEGURANÇA: só permite que a página converse com o Supabase do sistema e com a CDN das bibliotecas.
-         Mesmo que algum código malicioso rode na página, ele não consegue enviar dados para outros sites. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://obtjczhpcoapaakiybbk.supabase.co https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'self'">
-    <meta name="referrer" content="no-referrer">
-    <meta name="robots" content="noindex, nofollow">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" integrity="sha384-9MhbyIRcBVQiiC7FSd7T38oJNj2Zh+EfxS7/vjhBi4OOT78NlHSnzM31EZRWR1LZ" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" integrity="sha384-y49Zu59jZHJL/PLKgZPv3k2WI9c0Yp3pWB76V8OBVCb0QBKS8l4Ff3YslzHVX76Y" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script>
         // Register plugin globally but only for specific charts (we pass it per-chart)
         // Unregister global to avoid affecting existing charts
@@ -19,13 +14,13 @@
             Chart.unregister(ChartDataLabels);
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js" integrity="sha384-fCAW/rDWORTbQXSiB7mOg0QtQ5c+r0f544y6XoKjuVva0nMBlCpNUjiFeG5iMdS3" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js" integrity="sha384-uLiAv4VcjM5H2Jsqzl8EajEaxPugj1CIzQaCjQ8c5//vC+elhxO5pZfXGxoLQi1W" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
         if (window.pdfjsLib) {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         }
     </script>
     <style>
@@ -1675,21 +1670,21 @@
         <div class="error-message" id="errorMessage"></div>
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="form-group">
-                <label for="username">E-mail</label>
-                <input type="email" id="username" name="username" required placeholder="seu@email.com" autocomplete="username">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" name="username" required placeholder="admin">
             </div>
             <div class="form-group">
                 <label for="password">Senha</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required placeholder="Sua senha" autocomplete="current-password">
+                    <input type="password" id="password" name="password" required placeholder="Sua senha">
                     <span class="toggle-password" onclick="togglePassword()">👁️</span>
                 </div>
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="remember" name="remember">
-                <label for="remember">Lembrar meu e-mail neste navegador</label>
+                <label for="remember">Lembrar-me neste navegador</label>
             </div>
-            <button type="submit" class="btn btn-primary btn-login" id="btnEntrar">ENTRAR</button>
+            <button type="submit" class="btn btn-primary btn-login">ENTRAR</button>
         </form>
     </div>
 </div>
@@ -2277,12 +2272,9 @@
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
-ALTER TABLE transferencias ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON transferencias FROM anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON transferencias TO authenticated;
-GRANT USAGE, SELECT ON SEQUENCE transferencias_id_seq TO authenticated;
-CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
-  USING (public.usuario_autorizado()) WITH CHECK (public.usuario_autorizado());</pre>
+ALTER TABLE transferencias DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON transferencias TO anon;
+GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <div style="margin-top:8px;"><button class="btn btn-secondary btn-small" onclick="carregarTransferencias()">🔄 Já executei o script, recarregar</button></div>
             </div>
         </div>
@@ -4505,153 +4497,32 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
         }
     }
 
-    // ── AUTENTICAÇÃO SEGURA (Supabase Auth) ─────────────────────────────────
-    // A senha NÃO fica mais no código. O login é validado pelo Supabase, que
-    // devolve um token temporário. Só com esse token o banco libera os dados
-    // (Row Level Security). O token fica apenas na memória: fechar ou
-    // recarregar a aba encerra a sessão.
-    const AUTH_URL = SUPABASE_URL + '/auth/v1';
-    const INATIVIDADE_MAX_MS = 20 * 60 * 1000;   // sai sozinho após 20 min parado
-    let _sessao = null;            // { access_token, refresh_token, expires_at }
-    let _timerRenovacao = null;
-    let _timerInatividade = null;
-    let _tentativasFalhas = 0;
-    let _bloqueadoAte = 0;
-
-    function _tokenAtual() {
-        return _sessao ? _sessao.access_token : '';
-    }
-
-    function _guardarSessao(dados) {
-        _sessao = {
-            access_token: dados.access_token,
-            refresh_token: dados.refresh_token,
-            expires_at: Date.now() + (Number(dados.expires_in) || 3600) * 1000
-        };
-        clearTimeout(_timerRenovacao);
-        const espera = Math.max(30000, _sessao.expires_at - Date.now() - 120000);
-        _timerRenovacao = setTimeout(_renovarSessao, espera);
-    }
-
-    async function _renovarSessao() {
-        if (!_sessao) return false;
-        try {
-            const r = await fetch(AUTH_URL + '/token?grant_type=refresh_token', {
-                method: 'POST',
-                headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refresh_token: _sessao.refresh_token })
-            });
-            if (!r.ok) throw new Error('refresh ' + r.status);
-            _guardarSessao(await r.json());
-            return true;
-        } catch (e) {
-            encerrarSessao('Sua sessão expirou. Entre novamente.');
-            return false;
-        }
-    }
-
-    function _mostrarErroLogin(msg) {
-        const el = document.getElementById('errorMessage');
-        el.textContent = msg;
-        el.style.display = 'block';
-    }
-
-    async function handleLogin(event) {
+    function handleLogin(event) {
         event.preventDefault();
-        const email = document.getElementById('username').value.trim();
+        const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const remember = document.getElementById('remember').checked;
-        const btn = document.getElementById('btnEntrar');
 
-        if (Date.now() < _bloqueadoAte) {
-            const seg = Math.ceil((_bloqueadoAte - Date.now()) / 1000);
-            _mostrarErroLogin('Muitas tentativas. Aguarde ' + seg + ' segundos.');
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'ENTRANDO...';
-        try {
-            const r = await fetch(AUTH_URL + '/token?grant_type=password', {
-                method: 'POST',
-                headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password })
-            });
-            const dados = await r.json().catch(() => ({}));
-            if (!r.ok || !dados.access_token) {
-                _tentativasFalhas++;
-                if (_tentativasFalhas >= 5) {
-                    _bloqueadoAte = Date.now() + 60000 * Math.min(_tentativasFalhas - 4, 10);
-                }
-                const det = String(dados.error_code || dados.code || '') + ' ' + String(dados.error_description || dados.msg || dados.message || '');
-                let msgErro = 'E-mail ou senha incorretos! (verifique se o usuário foi criado em Authentication → Users no Supabase)';
-                if (r.status === 429) msgErro = 'Muitas tentativas. Aguarde alguns minutos.';
-                else if (/not.confirmed/i.test(det)) msgErro = 'E-mail ainda não confirmado. No Supabase, em Authentication → Users, confirme o usuário (ou recrie marcando "Auto Confirm User").';
-                else if (/provider|disabled/i.test(det)) msgErro = 'Login por e-mail está desativado no Supabase (Authentication → Sign In / Providers → Email).';
-                else if (r.status !== 400) msgErro = 'Erro ' + r.status + ' no login: ' + det.trim();
-                _mostrarErroLogin(msgErro);
-                return;
+        // Validação simples
+        if (username === 'admin' && password === 'C@ppas_2026') {
+            usuarioAtual = { email: username, nome: 'Administrador' };
+            
+            if (remember) {
+                localStorage.setItem('cap_usuario', JSON.stringify(usuarioAtual));
+                localStorage.setItem('cap_lembrar', 'true');
             }
 
-            _tentativasFalhas = 0;
-            _guardarSessao(dados);
-            document.getElementById('password').value = '';
-            try {
-                if (remember) localStorage.setItem('cap_email_lembrado', email);
-                else localStorage.removeItem('cap_email_lembrado');
-            } catch (e) {}
-
-            const nome = (dados.user && dados.user.user_metadata && dados.user.user_metadata.nome) || email;
-            usuarioAtual = { email: email, nome: nome };
-
-            document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').classList.add('active');
-            document.getElementById('userGreeting').textContent = 'Bem-vindo, ' + usuarioAtual.nome + '!';
+            document.getElementById('userGreeting').textContent = `Bem-vindo, ${usuarioAtual.nome}!`;
             _restaurarEstadoSidebar();
             prepararTabelasCelular();
-            _iniciarMonitorInatividade();
 
             carregarDadosIniciais();
-        } catch (e) {
-            _mostrarErroLogin('Não foi possível conectar ao servidor. Verifique sua internet.');
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'ENTRAR';
+        } else {
+            document.getElementById('errorMessage').textContent = 'Usuário ou senha incorretos!';
+            document.getElementById('errorMessage').style.display = 'block';
         }
-    }
-
-    // Encerra a sessão e RECARREGA a página, apagando da memória e da tela
-    // todos os dados financeiros que estavam carregados.
-    function encerrarSessao(motivo) {
-        const token = _tokenAtual();
-        _sessao = null;
-        usuarioAtual = null;
-        clearTimeout(_timerRenovacao);
-        clearTimeout(_timerInatividade);
-        if (token) {
-            try {
-                fetch(AUTH_URL + '/logout', {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token },
-                    keepalive: true
-                }).catch(() => {});
-            } catch (e) {}
-        }
-        try { if (motivo) sessionStorage.setItem('cap_msg_login', motivo); } catch (e) {}
-        location.reload();
-    }
-
-    function _iniciarMonitorInatividade() {
-        const reiniciar = () => {
-            clearTimeout(_timerInatividade);
-            _timerInatividade = setTimeout(() => {
-                if (_sessao) encerrarSessao('Sessão encerrada por inatividade (20 minutos).');
-            }, INATIVIDADE_MAX_MS);
-        };
-        ['click', 'keydown', 'mousemove', 'touchstart', 'scroll'].forEach(ev =>
-            document.addEventListener(ev, reiniciar, { passive: true, capture: true }));
-        reiniciar();
     }
 
     // ── MENU LATERAL SUSPENSO (mostrar/ocultar) ─────────────────────────────
@@ -4750,36 +4621,27 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
 
     function verificarLogin() {
         // Nunca pular a tela de login — sempre exibir ao abrir o sistema
-        try {
-            // limpa dados de versões antigas do sistema
-            localStorage.removeItem('cap_usuario');
-            localStorage.removeItem('cap_lembrar');
-            const emailSalvo = localStorage.getItem('cap_email_lembrado');
-            if (emailSalvo) {
-                document.getElementById('username').value = emailSalvo;
-                document.getElementById('remember').checked = true;
-            }
-            const msg = sessionStorage.getItem('cap_msg_login');
-            if (msg) { sessionStorage.removeItem('cap_msg_login'); _mostrarErroLogin(msg); }
-        } catch (e) {}
+        localStorage.removeItem('cap_usuario');
+        localStorage.removeItem('cap_lembrar');
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('mainContainer').classList.remove('active');
     }
 
     function handleLogout() {
         if (confirm('Tem certeza que deseja sair?')) {
-            encerrarSessao('');
+            usuarioAtual = null;
+            localStorage.removeItem('cap_usuario');
+            localStorage.removeItem('cap_lembrar');
+            document.getElementById('mainContainer').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginForm').reset();
         }
     }
 
     // REQUISIÇÕES SUPABASE
     let _ultimoErroSupabase = null;
 
-    async function fetchSupabase(tabela, metodo = 'GET', dados = null, filtros = '', _jaRenovou = false) {
-        if (!_sessao) return null;   // sem login, nenhuma consulta ao banco
-        if (Date.now() > _sessao.expires_at - 30000 && !_jaRenovou) {
-            if (!(await _renovarSessao())) return null;
-        }
+    async function fetchSupabase(tabela, metodo = 'GET', dados = null, filtros = '') {
         try {
             const url = filtros
                 ? API_URL + '/' + tabela + '?' + filtros
@@ -4787,7 +4649,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
 
             const headers = {
                 'apikey': SUPABASE_KEY,
-                'Authorization': 'Bearer ' + _tokenAtual(),
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
                 'Content-Type': 'application/json'
             };
 
@@ -4801,12 +4663,6 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
 
             const resposta = await fetch(url, opcoes);
             const status = resposta.status;
-
-            // Token expirado: tenta renovar uma vez e repetir
-            if (status === 401 && !_jaRenovou) {
-                if (await _renovarSessao()) return fetchSupabase(tabela, metodo, dados, filtros, true);
-                return null;
-            }
 
             // 204 No Content (DELETE bem-sucedido)
             if (status === 204) return [];
@@ -4842,7 +4698,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
 
         // Sugestão específica por código
         if (status === 401 || status === 403) {
-            msg += ' ⚠️ Acesso negado. Verifique se o seu e-mail está na tabela usuarios_autorizados do Supabase.';
+            msg += ' ⚠️ Verifique RLS no Supabase: execute "DISABLE ROW LEVEL SECURITY" na tabela ' + tabela + '.';
         } else if (status === 409) {
             msg += ' ⚠️ Registro duplicado.';
         } else if (status === 422) {
@@ -4865,7 +4721,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
     function inicializarPing() {
         // Ping a cada 5 minutos
         setInterval(() => {
-            if (_sessao) fetchSupabase('categorias', 'GET', null, 'limit=1');
+            fetchSupabase('categorias', 'GET', null, 'limit=1');
         }, 5 * 60 * 1000);
     }
 
@@ -8928,7 +8784,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
     async function _conciliaExtrairTextoPDF(arquivo) {
         if (!window.pdfjsLib) throw new Error('Biblioteca de leitura de PDF não carregada.');
         const buffer = await arquivo.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: buffer, isEvalSupported: false, disableAutoFetch: true }).promise;
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
         const linhas = [];
         for (let p = 1; p <= pdf.numPages; p++) {
             const page = await pdf.getPage(p);
@@ -9808,7 +9664,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
         try {
             const resposta = await fetch(API_URL + '/transferencias?order=data.desc,id.desc', {
                 method: 'GET',
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tokenAtual(), 'Content-Type': 'application/json' }
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
             });
             if (!resposta.ok) { window._transferenciasIndisponivel = true; return []; }
             window._transferenciasIndisponivel = false;
@@ -10228,7 +10084,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
         // Teste 1: GET categorias
         try {
             const r = await fetch(API_URL + '/categorias?limit=1', {
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tokenAtual() }
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
             });
             const txt = await r.text();
             if (r.ok) {
@@ -10246,7 +10102,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_KEY,
-                    'Authorization': 'Bearer ' + _tokenAtual(),
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
                     'Content-Type': 'application/json',
                     'Prefer': 'return=representation'
                 },
@@ -10262,7 +10118,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
                     if (id) {
                         await fetch(API_URL + '/categorias?id=eq.' + id, {
                             method: 'DELETE',
-                            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tokenAtual() }
+                            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
                         });
                         resultados.push('✅ DELETE categorias: OK (limpeza do teste)');
                     }
@@ -10270,7 +10126,7 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
             } else {
                 resultados.push('❌ INSERT categorias: ERRO ' + r.status + ' — ' + txt.substring(0,200));
                 if (r.status === 401 || r.status === 403 || txt.includes('permission') || txt.includes('policy')) {
-                    resultados.push('   ⚠️ <strong>Provável causa: seu usuário não está autorizado</strong>. Veja as instruções abaixo.');
+                    resultados.push('   ⚠️ <strong>Provável causa: RLS ativo</strong>. Use o comando SQL abaixo para corrigir.');
                 }
             }
         } catch(e) {
@@ -14005,13 +13861,19 @@ CREATE POLICY acesso_autorizado ON transferencias FOR ALL TO authenticated
             <p style="color:#666;">Executando testes...</p>
         </div>
         <div style="margin-top:16px; padding:12px; background:#fff8e1; border-radius:6px; border-left:3px solid #ffc107;">
-            <strong style="font-size:12px; color:#856404;">🔒 Se aparecer erro 401/403 (acesso negado):</strong>
-            <ul style="font-size:12px; margin:6px 0 0 18px; color:#555; line-height:1.6;">
-                <li>Confirme que o seu e-mail está cadastrado em <b>Authentication → Users</b> no Supabase.</li>
-                <li>Confirme que o mesmo e-mail está na tabela <code>usuarios_autorizados</code>.</li>
-                <li>Se a tabela for nova, rode de novo o script <code>seguranca_supabase.sql</code>.</li>
-                <li><b>Nunca</b> desative o RLS nem dê <code>GRANT</code> ao papel <code>anon</code>: isso deixaria os dados públicos.</li>
-            </ul>
+            <strong style="font-size:12px; color:#856404;">💡 Se RLS está bloqueando INSERT, execute no Supabase SQL Editor:</strong>
+            <pre style="font-size:11px; margin-top:6px; background:#f5f5f5; padding:8px; border-radius:4px; overflow-x:auto;">ALTER TABLE categorias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE subcategorias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE produtos DISABLE ROW LEVEL SECURITY;
+ALTER TABLE fornecedores DISABLE ROW LEVEL SECURITY;
+ALTER TABLE clientes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bancos DISABLE ROW LEVEL SECURITY;
+ALTER TABLE contas_a_receber DISABLE ROW LEVEL SECURITY;
+ALTER TABLE contas_a_pagar DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transferencias DISABLE ROW LEVEL SECURITY;
+
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon;</pre>
         </div>
         <div class="form-actions" style="margin-top:12px;">
             <button class="btn btn-primary" onclick="diagnosticarConexao()">🔄 Testar novamente</button>
