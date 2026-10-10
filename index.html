@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="theme-color" content="#333333">
     <title>Sistema de Gestão Financeira CAP</title>
+    <script>
+        // Tema visual (claro / escuro / laranja) — aplicado antes de desenhar a página
+        (function () {
+            var t = 'claro';
+            try { t = localStorage.getItem('cap_tema') || 'claro'; } catch (e) {}
+            if (['claro', 'escuro', 'laranja'].indexOf(t) < 0) t = 'claro';
+            document.documentElement.setAttribute('data-tema', t);
+        })();
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script>
@@ -1145,23 +1154,53 @@
         #modalDetalheDRE table#tabelaDetalheDRE td:nth-child(2) {
             white-space: normal;
         }
-        #dreDetalheResumo .dre-detalhe-chip {
-            background: #f7f7f8;
-            border-radius: 8px;
-            padding: 10px 18px;
-            min-width: 140px;
+        /* ---- Modal de detalhe da DRE: visual profissional ---- */
+        #modalDetalheDRE .dre-detalhe-modal { max-width: 1180px; border-radius: 14px; }
+        #modalDetalheDRE .dre-detalhe-header { align-items: flex-start; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 16px; }
+        #modalDetalheDRE .dre-detalhe-eyebrow { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+        #modalDetalheDRE #tituloDetalheDRE { font-size: 20px; font-weight: 700; color: #2d2d2d; }
+        .dre-detalhe-resumo { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        #dreDetalheResumo .dre-detalhe-chip { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px 16px; min-width: 0; }
+        #dreDetalheResumo .dre-detalhe-chip.destaque { background: linear-gradient(135deg, #fff4ec, #ffe9da); border-color: #ffd2b5; }
+        #dreDetalheResumo .dre-detalhe-chip-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        #dreDetalheResumo .dre-detalhe-chip-valor { font-size: 19px; font-weight: 700; color: #333; margin-top: 4px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #dreDetalheResumo .dre-detalhe-chip.destaque .dre-detalhe-chip-valor { color: var(--cor-primaria); font-size: 21px; }
+        #dreDetalheResumo .dre-detalhe-chip-sub { font-size: 11px; color: #999; margin-top: 2px; }
+        .dre-detalhe-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .dre-detalhe-busca { position: relative; flex: 1 1 280px; }
+        .dre-detalhe-busca-ico { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.55; pointer-events: none; }
+        .dre-detalhe-busca input, .dre-detalhe-filtros select {
+            width: 100%; height: 38px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: #fff; color: #333;
+            transition: border-color .15s, box-shadow .15s; box-sizing: border-box;
         }
-        #dreDetalheResumo .dre-detalhe-chip-label {
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        #dreDetalheResumo .dre-detalhe-chip-valor {
-            font-size: 19px;
-            font-weight: 700;
-            color: var(--cor-primaria);
-            margin-top: 2px;
+        .dre-detalhe-busca input { padding: 0 12px 0 34px; }
+        .dre-detalhe-filtros select { flex: 0 1 300px; width: auto; min-width: 220px; padding: 0 10px; cursor: pointer; }
+        .dre-detalhe-busca input:focus, .dre-detalhe-filtros select:focus { outline: none; border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(255,122,66,0.15); }
+        .dre-detalhe-btn-link { background: none; border: none; color: var(--cor-primaria); font-size: 13px; font-weight: 600; cursor: pointer; padding: 6px 4px; visibility: hidden; }
+        .dre-detalhe-btn-sec { height: 38px; padding: 0 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #444; font-size: 13px; font-weight: 600; cursor: pointer; margin-left: auto; }
+        .dre-detalhe-btn-sec:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
+        #modalDetalheDRE .dre-detalhe-tabela { border: 1px solid #eee; border-radius: 10px; overflow: auto; max-height: 50vh; }
+        #modalDetalheDRE table#tabelaDetalheDRE { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        #modalDetalheDRE table#tabelaDetalheDRE thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; padding: 11px 12px; cursor: pointer; user-select: none; white-space: nowrap; }
+        #modalDetalheDRE table#tabelaDetalheDRE thead th:last-child { cursor: default; }
+        #modalDetalheDRE thead th .dre-sort { font-size: 10px; opacity: 0.55; margin-left: 3px; }
+        #modalDetalheDRE thead th.ordenado .dre-sort { opacity: 1; }
+        #modalDetalheDRE table#tabelaDetalheDRE tbody td { padding: 10px 12px; border-bottom: 1px solid #f2f2f2; vertical-align: middle; }
+        #modalDetalheDRE table#tabelaDetalheDRE tbody tr:nth-child(even) td { background: #fcfcfc; }
+        #modalDetalheDRE table#tabelaDetalheDRE tbody tr:hover td { background: #fff1e6; }
+        #modalDetalheDRE table#tabelaDetalheDRE tfoot td { position: sticky; bottom: 0; background: #f6f6f7; font-weight: 700; padding: 11px 12px; border-top: 2px solid #e6e6e6; color: #444; font-size: 13px; }
+        #modalDetalheDRE .dre-detalhe-comp { display: inline-block; background: #f1f3f5; color: #555; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 600; }
+        #modalDetalheDRE .dre-detalhe-desc { font-weight: 600; color: #2d2d2d; white-space: normal !important; min-width: 180px; }
+        #modalDetalheDRE .dre-detalhe-cat { display: inline-block; background: #fff1e6; color: #c4561c; border: 1px solid #ffd9c2; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+        #modalDetalheDRE .dre-detalhe-muted { color: #888; }
+        #modalDetalheDRE .dre-detalhe-valor { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: #2d2d2d; white-space: nowrap; }
+        #modalDetalheDRE .dre-detalhe-acoes { text-align: center; white-space: nowrap; }
+        #modalDetalheDRE .dre-detalhe-acoes .btn-small { width: 30px; height: 28px; padding: 0; border-radius: 6px; font-size: 12px; margin: 0 1px; display: inline-flex; align-items: center; justify-content: center; }
+        #modalDetalheDRE .dre-detalhe-vazio { text-align: center; color: #999; padding: 36px 16px !important; font-size: 14px; }
+        @media (max-width: 900px) {
+            .dre-detalhe-resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dre-detalhe-filtros select { flex: 1 1 100%; }
+            .dre-detalhe-btn-sec { margin-left: 0; }
         }
         @media (max-width: 768px) {
             #modalDetalheDRE .table-container {
@@ -1656,6 +1695,372 @@
             .mobile-topbar-titulo { font-size: 14px; }
         }
 
+            /* DRE Mensal: destaca a linha inteira em laranja claro ao passar o mouse */
+        #tabelaDREMensal tbody tr:not(.dre-titulo-consignados):not(.dre-linha-resultado):hover > td {
+            background-color: #ffe5d0 !important;
+            transition: background-color 0.12s ease;
+        }
+        #tabelaDREMensal tbody tr.dre-linha-resultado:hover > td {
+            filter: brightness(1.12);
+        }
+
+
+
+        /* =====================================================================
+           TELAS DE RELATÓRIO (DRE · DFC · Fluxo Projetado) — layout compacto
+           ===================================================================== */
+        .pagina-relatorio .page-header { padding: 4px 0 10px; margin-bottom: 12px; border-bottom-width: 2px; }
+        .pagina-relatorio .page-header h1 { font-size: 21px; letter-spacing: -0.2px; }
+        .pagina-relatorio .page-header .btn { padding: 6px 12px; font-size: 12px; }
+        #dre .page-header .dre-subtitulo { font-size: 12px; }
+
+        /* avisos em uma linha discreta */
+        #dreAviso, #dfcAviso, #fcpAviso { font-size: 12px !important; line-height: 1.4; }
+        #dreAviso > *, #fcpAviso > * { margin-bottom: 0 !important; }
+        #dreAviso, #dfcAviso, #fcpAviso { margin-bottom: 10px !important; }
+        #dreAviso, #dfcAviso, #fcpAviso { padding: 7px 12px !important; box-shadow: none !important; border-radius: 8px !important; }
+
+        /* barra de filtros compacta */
+        .pagina-relatorio .filter-container { padding: 10px 14px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #eee; }
+        .pagina-relatorio .filter-row { display: flex !important; flex-wrap: wrap; gap: 10px 12px !important; align-items: flex-end !important; margin: 0 !important; }
+        .pagina-relatorio .filter-row .form-group { margin: 0 !important; flex: 0 0 auto; }
+        .pagina-relatorio .filter-row .form-group label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #8a8f98; margin-bottom: 4px; }
+        .pagina-relatorio .filter-row select { width: 170px; height: 32px; padding: 0 8px; font-size: 13px; border-radius: 7px; border: 1px solid #dcdfe4; background-color: #fff; }
+        .pagina-relatorio .filter-row .form-group:last-child:has(.btn) { margin-left: auto !important; padding-bottom: 0 !important; }
+        .pagina-relatorio .filter-row .btn { height: 32px; padding: 0 12px; font-size: 12px; border-radius: 7px; }
+
+        /* caixas (KPIs) compactas */
+        .pagina-relatorio .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px; margin-bottom: 14px !important; }
+        .pagina-relatorio .stat-card { padding: 10px 14px; border-radius: 10px; border-left-width: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .pagina-relatorio .stat-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #8a8f98; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pagina-relatorio .stat-value { font-size: 18px !important; line-height: 1.25; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .pagina-relatorio .stat-change { font-size: 11px; margin-top: 2px; color: #9aa0a8; }
+
+        /* cards de tabela com mais destaque e menos espaço perdido */
+        .pagina-relatorio .card { padding: 14px 16px; margin-bottom: 14px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+        .pagina-relatorio .card-title { font-size: 16px; margin-bottom: 10px; }
+
+        /* título não fica mais escondido atrás do botão ☰ de recolher o menu */
+        @media (min-width: 901px) { .page-header { padding-left: 44px !important; } }
+        /* seções ocultas a pedido */
+        #dfc #cardDFCMensal, #dfc #cardDFCAnalise, #dfc #cardDFCGrafico, #fcp #cardFCPGrafico { display: none !important; }
+
+        html[data-tema="escuro"] .pagina-relatorio .filter-container, html[data-tema="escuro"] .pagina-relatorio .stat-card { border-color: #2f343d; }
+        html[data-tema="escuro"] .pagina-relatorio .filter-row .form-group label, html[data-tema="escuro"] .pagina-relatorio .stat-label { color: #8b929c; }
+        @media (max-width: 900px) {
+            .pagina-relatorio .filter-row select { width: 100%; }
+            .pagina-relatorio .filter-row .form-group { flex: 1 1 140px; }
+            .pagina-relatorio .filter-row .form-group:last-child:has(.btn) { margin-left: 0 !important; flex-basis: 100%; }
+            .pagina-relatorio .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        /* =====================================================================
+           TEMAS: claro (padrão) · escuro · laranja
+           ===================================================================== */
+
+        /* ---------- Seletor de tema (no menu lateral) ---------- */
+        .tema-seletor { margin: 14px 15px 0; }
+        .tema-seletor-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; opacity: 0.75; }
+        .tema-opcoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 10px; }
+        .tema-opcao { border: none; border-radius: 7px; padding: 7px 4px; font-size: 11.5px; font-weight: 600; cursor: pointer; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: background .15s, color .15s; }
+        .tema-opcao .tema-ico { font-size: 14px; line-height: 1; }
+
+        /* ================= CLARO (padrão) ================= */
+        html[data-tema="claro"] .sidebar { background: #ffffff; color: #3a3f47; border-right: 1px solid #ececec; box-shadow: 2px 0 12px rgba(0,0,0,0.04); }
+        html[data-tema="claro"] .logo-sidebar { border-bottom-color: #f0f0f0; }
+        html[data-tema="claro"] .logo-sidebar img { filter: none !important; }
+        html[data-tema="claro"] .logo-sidebar p { color: #8a8f98 !important; }
+        html[data-tema="claro"] .menu-section { border-top-color: #f0f0f0; }
+        html[data-tema="claro"] .menu-section-title { color: #a0a5ad; font-weight: 600; letter-spacing: 0.5px; }
+        html[data-tema="claro"] .menu-item { color: #3a3f47; }
+        html[data-tema="claro"] .menu-item:hover { background: #fff4ee; color: #e0601f; border-left-color: var(--cor-primaria); }
+        html[data-tema="claro"] .menu-item.active { background: #ffe9dc; color: #d4561a; border-left-color: var(--cor-primaria); }
+        html[data-tema="claro"] .logout-btn { background: #fff5f6; color: #dc3545; border-color: #f5c2c7; }
+        html[data-tema="claro"] .logout-btn:hover { background: var(--cor-erro); color: #fff; }
+        html[data-tema="claro"] .tema-seletor-titulo { color: #8a8f98; }
+        html[data-tema="claro"] .tema-opcoes { background: #f3f4f6; }
+        html[data-tema="claro"] .tema-opcao { color: #6b7280; }
+        html[data-tema="claro"] .tema-opcao.ativo { background: #fff; color: #d4561a; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        @media (max-width: 900px) {
+            html[data-tema="claro"] .mobile-topbar { background: #ffffff; color: #333; border-bottom: 1px solid #ececec; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+            html[data-tema="claro"] .mobile-menu-btn { background: #fff1e8; color: var(--cor-primaria); }
+            html[data-tema="claro"] .mobile-menu-btn:active { color: #fff; }
+        }
+
+        /* ================= LARANJA (menu laranja, conteúdo claro) ================= */
+        html[data-tema="laranja"] .sidebar { background: linear-gradient(180deg, #FF7A42 0%, #f46a2f 100%); color: #fff; box-shadow: 2px 0 14px rgba(244,106,47,0.25); }
+        html[data-tema="laranja"] .logo-sidebar { border-bottom-color: rgba(255,255,255,0.22); }
+        html[data-tema="laranja"] .logo-sidebar img { background: #fff; border-radius: 14px; padding: 10px 12px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.15)) !important; box-sizing: content-box; }
+        html[data-tema="laranja"] .logo-sidebar p { color: rgba(255,255,255,0.9) !important; }
+        html[data-tema="laranja"] .menu-section { border-top-color: rgba(255,255,255,0.22); }
+        html[data-tema="laranja"] .menu-section-title { color: rgba(255,255,255,0.78); font-weight: 600; letter-spacing: 0.5px; }
+        html[data-tema="laranja"] .menu-item { color: #fff; }
+        html[data-tema="laranja"] .menu-item:hover { background: rgba(255,255,255,0.15); border-left-color: rgba(255,255,255,0.7); }
+        html[data-tema="laranja"] .menu-item.active { background: rgba(255,255,255,0.26); border-left-color: #fff; }
+        html[data-tema="laranja"] .logout-btn { background: rgba(255,255,255,0.16); color: #fff; border-color: rgba(255,255,255,0.4); }
+        html[data-tema="laranja"] .logout-btn:hover { background: #fff; color: #dc3545; border-color: #fff; }
+        html[data-tema="laranja"] .sidebar [style*="color:#666" i] { color: rgba(255,255,255,0.8) !important; }
+        html[data-tema="laranja"] .tema-seletor-titulo { color: rgba(255,255,255,0.85); }
+        html[data-tema="laranja"] .tema-opcoes { background: rgba(0,0,0,0.12); }
+        html[data-tema="laranja"] .tema-opcao { color: rgba(255,255,255,0.88); }
+        html[data-tema="laranja"] .tema-opcao.ativo { background: #fff; color: #e2611f; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+        html[data-tema="laranja"] .sidebar-toggle-btn { background: #fff; color: var(--cor-primaria); border: 1px solid #ffd2b8; }
+        @media (max-width: 900px) {
+            html[data-tema="laranja"] .mobile-topbar { background: linear-gradient(90deg, #FF7A42, #f46a2f); }
+            html[data-tema="laranja"] .mobile-menu-btn { background: rgba(255,255,255,0.2); }
+        }
+
+        /* ================= ESCURO (sistema inteiro) ================= */
+        html[data-tema="escuro"] {
+            color-scheme: dark;
+            --cor-fundo: #15171c;
+            --cor-texto: #e3e5e8;
+            --cor-borda: #353a43;
+            --cor-secundaria: #d0d4da;
+            --escuro-surface: #1e2128;
+            --escuro-surface-2: #252932;
+            --escuro-surface-3: #2c313b;
+            --escuro-muted: #9aa1ab;
+        }
+        html[data-tema="escuro"] body { background: var(--cor-fundo); color: var(--cor-texto); }
+        html[data-tema="escuro"] .sidebar { background: #1a1d23; color: #d6d9de; border-right: 1px solid #262a31; }
+        html[data-tema="escuro"] .logo-sidebar { border-bottom-color: #2a2e36; }
+        html[data-tema="escuro"] .logo-sidebar img { background: #fff; border-radius: 14px; padding: 8px 10px; box-sizing: content-box; filter: none !important; }
+        html[data-tema="escuro"] .menu-section { border-top-color: #2a2e36; }
+        html[data-tema="escuro"] .menu-section-title { color: #7d848f; }
+        html[data-tema="escuro"] .menu-item { color: #d6d9de; }
+        html[data-tema="escuro"] .menu-item:hover { background: rgba(255,122,66,0.12); color: #ffb08c; }
+        html[data-tema="escuro"] .menu-item.active { background: rgba(255,122,66,0.2); color: #ff9a6b; }
+        html[data-tema="escuro"] .tema-seletor-titulo { color: #8b929c; }
+        html[data-tema="escuro"] .tema-opcoes { background: #121418; }
+        html[data-tema="escuro"] .tema-opcao { color: #9aa1ab; }
+        html[data-tema="escuro"] .tema-opcao.ativo { background: #2c313b; color: #ff9a6b; }
+        @media (max-width: 900px) {
+            html[data-tema="escuro"] .mobile-topbar { background: #1a1d23; border-bottom: 1px solid #262a31; }
+        }
+
+        /* superfícies */
+        html[data-tema="escuro"] .card,
+        html[data-tema="escuro"] .stat-card,
+        html[data-tema="escuro"] .filter-container,
+        html[data-tema="escuro"] .table-container,
+        html[data-tema="escuro"] .modal-content,
+        html[data-tema="escuro"] .modal-header,
+        html[data-tema="escuro"] .login-box,
+        html[data-tema="escuro"] #dre .dre-kpi-card,
+        html[data-tema="escuro"] #dre .dre-scroll-wrap,
+        html[data-tema="escuro"] #analise-categorias .ac-scroll-wrap {
+            background: var(--escuro-surface) !important;
+            color: var(--cor-texto);
+            border-color: var(--cor-borda) !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        html[data-tema="escuro"] .login-container { background: linear-gradient(135deg, #3a2318 0%, #15171c 100%); }
+        html[data-tema="escuro"] .page-header { background: var(--cor-fundo); }
+        html[data-tema="escuro"] h2, html[data-tema="escuro"] h3, html[data-tema="escuro"] h4 { color: var(--cor-texto); }
+        html[data-tema="escuro"] .page-header h1 { color: var(--cor-primaria); }
+        html[data-tema="escuro"] #modalDetalheDRE #tituloDetalheDRE, html[data-tema="escuro"] .modal-header { color: var(--cor-texto); }
+        html[data-tema="escuro"] .modal { background: rgba(0,0,0,0.65); }
+        html[data-tema="escuro"] .modal-close { color: #cfd3d9; }
+        html[data-tema="escuro"] hr { border-color: var(--cor-borda); }
+
+        /* formulários */
+        html[data-tema="escuro"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+        html[data-tema="escuro"] select,
+        html[data-tema="escuro"] textarea {
+            background-color: #14171c !important;
+            color: var(--cor-texto) !important;
+            border-color: #3a404a !important;
+        }
+        html[data-tema="escuro"] input::placeholder, html[data-tema="escuro"] textarea::placeholder { color: #6f7680; }
+        html[data-tema="escuro"] label { color: #c9cdd3; }
+        html[data-tema="escuro"] .btn-secondary { background: #3a404a; color: #e3e5e8; }
+
+        /* tabelas */
+        html[data-tema="escuro"] table { color: var(--cor-texto); }
+        html[data-tema="escuro"] th, html[data-tema="escuro"] td { border-color: #2f343d !important; }
+        html[data-tema="escuro"] tbody tr:hover > td { background-color: rgba(255,122,66,0.08); }
+        html[data-tema="escuro"] #dre table#tabelaDRE .dre-linha-secao td { background: var(--escuro-surface-2); color: #b8bdc5 !important; }
+        html[data-tema="escuro"] #tabelaDREMensal tbody tr:not(.dre-titulo-consignados):not(.dre-linha-resultado):hover > td { background-color: #4a2d1f !important; }
+        html[data-tema="escuro"] .dre-titulo-consignados td, html[data-tema="escuro"] .dre-titulo-consignados div { background: #241d33 !important; color: #c8b3f2 !important; }
+        html[data-tema="escuro"] #fluxo-diario table.fd-tabela th { background: var(--escuro-surface-2); color: var(--cor-texto); }
+        html[data-tema="escuro"] #fluxo-diario table.fd-tabela td.fd-dia,
+        html[data-tema="escuro"] #fluxo-diario .fd-analise,
+        html[data-tema="escuro"] .painel-opcoes-tabela,
+        html[data-tema="escuro"] #analise-categorias table#tabelaAnaliseCategorias tfoot td,
+        html[data-tema="escuro"] #analise-categorias table#tabelaAnaliseCategorias tfoot td:first-child { background: var(--escuro-surface-2) !important; color: var(--cor-texto); }
+
+        /* modal de detalhe da DRE */
+        html[data-tema="escuro"] #dreDetalheResumo .dre-detalhe-chip { background: var(--escuro-surface-2); border-color: var(--cor-borda); }
+        html[data-tema="escuro"] #dreDetalheResumo .dre-detalhe-chip.destaque { background: linear-gradient(135deg, #3a2418, #4a2b1b); border-color: #6b3a22; }
+        html[data-tema="escuro"] #dreDetalheResumo .dre-detalhe-chip-valor { color: var(--cor-texto); }
+        html[data-tema="escuro"] #dreDetalheResumo .dre-detalhe-chip.destaque .dre-detalhe-chip-valor { color: #ff9a6b; }
+        html[data-tema="escuro"] .dre-detalhe-btn-sec { background: var(--escuro-surface-2); color: var(--cor-texto); border-color: var(--cor-borda); }
+        html[data-tema="escuro"] #modalDetalheDRE .dre-detalhe-tabela { border-color: var(--cor-borda); }
+        html[data-tema="escuro"] #modalDetalheDRE table#tabelaDetalheDRE tbody tr:nth-child(even) td { background: #22262d; }
+        html[data-tema="escuro"] #modalDetalheDRE table#tabelaDetalheDRE tbody tr:hover td { background: #3a2619; }
+        html[data-tema="escuro"] #modalDetalheDRE table#tabelaDetalheDRE tbody td { border-bottom-color: #2a2e36; }
+        html[data-tema="escuro"] #modalDetalheDRE table#tabelaDetalheDRE tfoot td { background: var(--escuro-surface-3); color: var(--cor-texto); border-top-color: var(--cor-borda); }
+        html[data-tema="escuro"] #modalDetalheDRE .dre-detalhe-comp { background: var(--escuro-surface-3); color: #c9cdd3; }
+        html[data-tema="escuro"] #modalDetalheDRE .dre-detalhe-desc, html[data-tema="escuro"] #modalDetalheDRE .dre-detalhe-valor { color: var(--cor-texto); }
+        html[data-tema="escuro"] #modalDetalheDRE .dre-detalhe-cat { background: rgba(255,122,66,0.14); color: #ffab85; border-color: rgba(255,122,66,0.35); }
+        html[data-tema="escuro"] #detalheLancResumo .det-chip { background: var(--escuro-surface-2); }
+
+        /* componentes com tons claros */
+        html[data-tema="escuro"] .toggle-fixo, html[data-tema="escuro"] .vigencia-wrap { background: rgba(255,122,66,0.08); border-color: #5a3424; }
+        html[data-tema="escuro"] .toggle-fixo:hover { background: rgba(255,122,66,0.14); }
+        html[data-tema="escuro"] .badge-fixo { background: rgba(142,68,173,0.25); }
+        html[data-tema="escuro"] .status-pendente { background: rgba(255,193,7,0.16); color: #ffd666; }
+        html[data-tema="escuro"] .status-pago { background: rgba(40,167,69,0.18); color: #6fdc8c; }
+        html[data-tema="escuro"] .status-atrasado { background: rgba(220,53,69,0.18); color: #ff8a95; }
+        html[data-tema="escuro"] .status-info { background: rgba(23,162,184,0.18); color: #6fd3e3; }
+        html[data-tema="escuro"] .alert-success { background: rgba(40,167,69,0.15); color: #8be0a2; border-color: rgba(40,167,69,0.35); }
+        html[data-tema="escuro"] .alert-error, html[data-tema="escuro"] .error-message { background: rgba(220,53,69,0.15); color: #ff9aa4; border-color: rgba(220,53,69,0.35); }
+
+        /* estilos inline (gerados pelo sistema) — fundos claros viram superfícies escuras */
+        html[data-tema="escuro"] [style*="background:#fff" i],
+        html[data-tema="escuro"] [style*="background: #fff" i],
+        html[data-tema="escuro"] [style*="background:white" i],
+        html[data-tema="escuro"] [style*="background: white" i],
+        html[data-tema="escuro"] [style*="background-color:#fff" i],
+        html[data-tema="escuro"] [style*="background-color: #fff" i],
+        html[data-tema="escuro"] [style*="background-color:white" i],
+        html[data-tema="escuro"] [style*="background-color: white" i],
+        html[data-tema="escuro"] [style*="background:#ffffff" i],
+        html[data-tema="escuro"] [style*="background: #ffffff" i],
+        html[data-tema="escuro"] [style*="background:#fafafa" i],
+        html[data-tema="escuro"] [style*="background: #fafafa" i],
+        html[data-tema="escuro"] [style*="background:#f8f9fa" i],
+        html[data-tema="escuro"] [style*="background: #f8f9fa" i],
+        html[data-tema="escuro"] [style*="background:#f5f5f5" i],
+        html[data-tema="escuro"] [style*="background: #f5f5f5" i],
+        html[data-tema="escuro"] [style*="background:#f0f0f0" i],
+        html[data-tema="escuro"] [style*="background: #f0f0f0" i],
+        html[data-tema="escuro"] [style*="background:#f9f9f9" i],
+        html[data-tema="escuro"] [style*="background: #f9f9f9" i],
+        html[data-tema="escuro"] [style*="background:#f7f7f8" i],
+        html[data-tema="escuro"] [style*="background:#fcfcfc" i],
+        html[data-tema="escuro"] [style*="background:#f3f4f6" i],
+        html[data-tema="escuro"] [style*="background:#f1f3f5" i],
+        html[data-tema="escuro"] [style*="background:#f6f6f7" i],
+        html[data-tema="escuro"] [style*="background:#f4f4f4" i],
+        html[data-tema="escuro"] [style*="background:#eee" i],
+        html[data-tema="escuro"] [style*="background: #eee" i],
+        html[data-tema="escuro"] [style*="background:#f2f2f2" i],
+        html[data-tema="escuro"] [style*="background-color:#f8f9fa" i],
+        html[data-tema="escuro"] [style*="background-color:#f5f5f5" i],
+        html[data-tema="escuro"] [style*="background-color:#fafafa" i],
+        html[data-tema="escuro"] [style*="background: rgb(255, 255, 255)" i],
+        html[data-tema="escuro"] [style*="background-color: rgb(255, 255, 255)" i] {
+            background: var(--escuro-surface) !important;
+            color: var(--cor-texto);
+        }
+        html[data-tema="escuro"] [style*="background:#fff3cd" i],
+        html[data-tema="escuro"] [style*="background: #fff3cd" i],
+        html[data-tema="escuro"] [style*="background-color:#fff3cd" i],
+        html[data-tema="escuro"] [style*="background:#fff8e1" i],
+        html[data-tema="escuro"] [style*="background:#fffde7" i],
+        html[data-tema="escuro"] [style*="background:#fffbea" i],
+        html[data-tema="escuro"] [style*="background-color: #fff3cd" i] {
+            background: #3a3218 !important;
+        }
+        html[data-tema="escuro"] [style*="background:#d4edda" i],
+        html[data-tema="escuro"] [style*="background: #d4edda" i],
+        html[data-tema="escuro"] [style*="background-color:#d4edda" i],
+        html[data-tema="escuro"] [style*="background:#f0fdf4" i],
+        html[data-tema="escuro"] [style*="background:#f8fff9" i],
+        html[data-tema="escuro"] [style*="background:#eef7ee" i],
+        html[data-tema="escuro"] [style*="background:#e8f5e9" i],
+        html[data-tema="escuro"] [style*="background: #e8f5e9" i],
+        html[data-tema="escuro"] [style*="background-color: #d4edda" i] {
+            background: #1c3826 !important;
+        }
+        html[data-tema="escuro"] [style*="background:#f8d7da" i],
+        html[data-tema="escuro"] [style*="background: #f8d7da" i],
+        html[data-tema="escuro"] [style*="background-color:#f8d7da" i],
+        html[data-tema="escuro"] [style*="background:#fde8e8" i],
+        html[data-tema="escuro"] [style*="background:#ffe5e5" i],
+        html[data-tema="escuro"] [style*="background:#fffbfb" i],
+        html[data-tema="escuro"] [style*="background:#fffaf9" i],
+        html[data-tema="escuro"] [style*="background:#ffebee" i],
+        html[data-tema="escuro"] [style*="background: #ffebee" i],
+        html[data-tema="escuro"] [style*="background-color: #f8d7da" i] {
+            background: #3d1f24 !important;
+        }
+        html[data-tema="escuro"] [style*="background:#e3f2fd" i],
+        html[data-tema="escuro"] [style*="background: #e3f2fd" i],
+        html[data-tema="escuro"] [style*="background:#e8f4fd" i],
+        html[data-tema="escuro"] [style*="background: #e8f4fd" i],
+        html[data-tema="escuro"] [style*="background:#d1ecf1" i],
+        html[data-tema="escuro"] [style*="background-color:#d1ecf1" i],
+        html[data-tema="escuro"] [style*="background:#eaf4fc" i] {
+            background: #1b3040 !important;
+        }
+        html[data-tema="escuro"] [style*="background:#f0e8f8" i],
+        html[data-tema="escuro"] [style*="background:#f3e8fd" i],
+        html[data-tema="escuro"] [style*="background:#faf5ff" i],
+        html[data-tema="escuro"] [style*="background:#f3e8ff" i],
+        html[data-tema="escuro"] [style*="background: #f3e8fd" i] {
+            background: #2c2340 !important;
+        }
+        html[data-tema="escuro"] [style*="background:#fff8f4" i],
+        html[data-tema="escuro"] [style*="background:#fff2ea" i],
+        html[data-tema="escuro"] [style*="background:#fff1e6" i],
+        html[data-tema="escuro"] [style*="background:#fff9f5" i],
+        html[data-tema="escuro"] [style*="background:#ffe5d0" i],
+        html[data-tema="escuro"] [style*="background:#fff4ec" i],
+        html[data-tema="escuro"] [style*="background: #fff8f4" i],
+        html[data-tema="escuro"] [style*="background:#ffe9dc" i] {
+            background: #3a261b !important;
+        }
+        html[data-tema="escuro"] [style*="color:#333" i],
+        html[data-tema="escuro"] [style*="color: #333" i],
+        html[data-tema="escuro"] [style*="color:#222" i],
+        html[data-tema="escuro"] [style*="color: #222" i],
+        html[data-tema="escuro"] [style*="color:#2d2d2d" i],
+        html[data-tema="escuro"] [style*="color:#444" i],
+        html[data-tema="escuro"] [style*="color: #444" i],
+        html[data-tema="escuro"] [style*="color:#555" i],
+        html[data-tema="escuro"] [style*="color: #555" i],
+        html[data-tema="escuro"] [style*="color:#000" i],
+        html[data-tema="escuro"] [style*="color: #000" i],
+        html[data-tema="escuro"] [style*="color:#2c3e50" i],
+        html[data-tema="escuro"] [style*="color: #2c3e50" i],
+        html[data-tema="escuro"] [style*="color:#212529" i],
+        html[data-tema="escuro"] [style*="color:#1f2937" i],
+        html[data-tema="escuro"] [style*="color:#374151" i],
+        html[data-tema="escuro"] [style*="color: rgb(51, 51, 51)" i] {
+            color: var(--cor-texto) !important;
+        }
+        html[data-tema="escuro"] [style*="color:#666" i],
+        html[data-tema="escuro"] [style*="color: #666" i],
+        html[data-tema="escuro"] [style*="color:#777" i],
+        html[data-tema="escuro"] [style*="color: #777" i],
+        html[data-tema="escuro"] [style*="color:#888" i],
+        html[data-tema="escuro"] [style*="color: #888" i],
+        html[data-tema="escuro"] [style*="color:#6c757d" i],
+        html[data-tema="escuro"] [style*="color: #6c757d" i],
+        html[data-tema="escuro"] [style*="color:#999" i],
+        html[data-tema="escuro"] [style*="color: #999" i],
+        html[data-tema="escuro"] [style*="color:#aaa" i],
+        html[data-tema="escuro"] [style*="color: #aaa" i],
+        html[data-tema="escuro"] [style*="color:#ccc" i],
+        html[data-tema="escuro"] [style*="color: #ccc" i],
+        html[data-tema="escuro"] [style*="color:#bbb" i],
+        html[data-tema="escuro"] [style*="color:#999;" i],
+        html[data-tema="escuro"] [style*="color:#adb5bd" i] {
+            color: var(--escuro-muted) !important;
+        }
+        html[data-tema="escuro"] [style*="color:#856404" i]:not([style*="background-color:#856404" i]), html[data-tema="escuro"] [style*="color: #856404" i] { color: #ffd666 !important; }
+        html[data-tema="escuro"] [style*="color:#b8860b" i]:not([style*="background-color:#b8860b" i]), html[data-tema="escuro"] [style*="color: #b8860b" i] { color: #f2c14e !important; }
+        html[data-tema="escuro"] [style*="color:#721c24" i]:not([style*="background-color:#721c24" i]), html[data-tema="escuro"] [style*="color: #721c24" i] { color: #ff9aa4 !important; }
+        html[data-tema="escuro"] [style*="color:#155724" i]:not([style*="background-color:#155724" i]), html[data-tema="escuro"] [style*="color: #155724" i] { color: #7fe09a !important; }
+        html[data-tema="escuro"] [style*="color:#0c5460" i]:not([style*="background-color:#0c5460" i]), html[data-tema="escuro"] [style*="color: #0c5460" i] { color: #7fd6e6 !important; }
+        html[data-tema="escuro"] [style*="color:#1565c0" i]:not([style*="background-color:#1565c0" i]), html[data-tema="escuro"] [style*="color: #1565c0" i] { color: #82b8ff !important; }
+        html[data-tema="escuro"] [style*="color:#6f2da8" i]:not([style*="background-color:#6f2da8" i]), html[data-tema="escuro"] [style*="color: #6f2da8" i] { color: #c9a2f2 !important; }
+        html[data-tema="escuro"] [style*="color:#4a2d8a" i]:not([style*="background-color:#4a2d8a" i]), html[data-tema="escuro"] [style*="color: #4a2d8a" i] { color: #c8b3f2 !important; }
+        /* texto branco sobre fundos coloridos continua branco */
+        html[data-tema="escuro"] .dre-linha-resultado td, html[data-tema="escuro"] .dre-linha-final td,
+        html[data-tema="escuro"] thead th { color: #fff !important; }
     </style>
 </head>
 <body>
@@ -1722,9 +2127,9 @@
 
         <div class="menu-section-title">Menu</div>
         
+        <div class="menu-item" onclick="showPage('bancos', this)">🏦 Bancos</div>
         <div class="menu-item active" onclick="showPage('dashboard', this)">📊 Dashboard</div>
         <div class="menu-item" onclick="showPage('calendario', this)">📅 Calendário</div>
-        <div class="menu-item" onclick="showPage('bancos', this)">🏦 Bancos</div>
         <div class="menu-item" onclick="showPage('transferencias', this)">🔄 Transferências</div>
         <div class="menu-item" onclick="showPage('lancar-receber', this)">📥 Lançar Contas a Receber</div>
         <div class="menu-item" onclick="showPage('lancar-pagar', this)">📤 Lançar Contas a Pagar</div>
@@ -1766,6 +2171,14 @@
 
 
               </div><!-- fim sidebar-menu -->
+        <div class="tema-seletor">
+            <div class="tema-seletor-titulo">Aparência</div>
+            <div class="tema-opcoes" role="radiogroup" aria-label="Tema">
+                <button type="button" class="tema-opcao" data-tema-btn="claro" onclick="definirTema('claro')"><span class="tema-ico">☀️</span>Claro</button>
+                <button type="button" class="tema-opcao" data-tema-btn="escuro" onclick="definirTema('escuro')"><span class="tema-ico">🌙</span>Escuro</button>
+                <button type="button" class="tema-opcao" data-tema-btn="laranja" onclick="definirTema('laranja')"><span class="tema-ico">🟧</span>Laranja</button>
+            </div>
+        </div>
         <button class="logout-btn" onclick="handleLogout()">🚪 Sair</button>
         <div style="text-align:center; padding: 6px 0 10px;">
             <span onclick="diagnosticarConexao()" style="font-size:10px; color:#666; cursor:pointer; text-decoration:underline;">🔧 diagnóstico</span>
@@ -3044,7 +3457,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         </div>
 
         <!-- DFC -->
-        <div id="dfc" class="page">
+        <div id="dfc" class="page pagina-relatorio">
             <div class="page-header">
                 <h1>Demonstração de Fluxo de Caixa (DFC)</h1>
                 <button class="btn btn-secondary" onclick="gerarPDFDFC()" style="background:#e67e22;color:white;">📄 PDF</button>
@@ -3071,9 +3484,6 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             <option value="09">Setembro</option><option value="10">Outubro</option>
                             <option value="11">Novembro</option><option value="12">Dezembro</option>
                         </select>
-                    </div>
-                    <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:2px;">
-                        <label style="font-size:12px;color:#666;font-style:italic;">A tabela Jan–Dez abaixo continua mostrando o ano inteiro, mesmo com um mês selecionado.</label>
                     </div>
                 </div>
             </div>
@@ -3135,7 +3545,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" id="cardDFCAnalise">
                 <div class="card-title">Análise de Fluxo de Caixa</div>
                 <div class="table-container">
                     <table id="tabelaDFC">
@@ -3173,7 +3583,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" id="cardDFCGrafico">
                 <div class="card-title">Fluxo de Caixa Acumulado</div>
                 <div class="chart-container">
                     <canvas id="chartDFC"></canvas>
@@ -3279,7 +3689,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         </div>
 
         <!-- FLUXO DE CAIXA PROJETADO -->
-        <div id="fcp" class="page">
+        <div id="fcp" class="page pagina-relatorio">
             <div class="page-header">
                 <h1>🔮 Fluxo de Caixa Projetado</h1>
             </div>
@@ -3341,14 +3751,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
 
             <!-- Gráfico projetado -->
-            <div class="card" style="margin-top:16px;">
+            <div class="card" id="cardFCPGrafico" style="margin-top:16px;">
                 <div class="card-title">Evolução do Saldo Projetado — Mês a Mês</div>
                 <div class="chart-container"><canvas id="chartFCP"></canvas></div>
             </div>
         </div>
 
         <!-- DRE -->
-        <div id="dre" class="page">
+        <div id="dre" class="page pagina-relatorio">
             <div class="page-header">
                 <h1>📊 DRE — Demonstração do Resultado</h1>
                 <span class="dre-subtitulo">Regime de competência · valores por categoria e período selecionados</span>
@@ -3479,10 +3889,6 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <tbody></tbody>
                     </table>
                 </div>
-            </div>
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">Evolução Mensal — Receita x Resultado</div>
-                <div class="chart-container"><canvas id="chartDRE"></canvas></div>
             </div>
         </div>
 
@@ -4419,6 +4825,43 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     };
 
     let charts = {};
+
+    // ===== Tema visual: claro (padrão) · escuro · laranja =====
+    function _aplicarCoresGraficos(tema) {
+        if (typeof Chart === 'undefined') return;
+        const escuro = tema === 'escuro';
+        Chart.defaults.color = escuro ? '#c3c8cf' : '#666';
+        Chart.defaults.borderColor = escuro ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)';
+        try {
+            if (typeof charts === 'object' && charts) {
+                Object.values(charts).forEach(c => {
+                    if (!c || !c.options) return;
+                    try {
+                        Object.values(c.options.scales || {}).forEach(sc => {
+                            if (sc.ticks) sc.ticks.color = Chart.defaults.color;
+                            if (sc.grid && typeof sc.grid.color !== 'function') sc.grid.color = Chart.defaults.borderColor;
+                        });
+                        if (c.options.plugins && c.options.plugins.legend && c.options.plugins.legend.labels) c.options.plugins.legend.labels.color = Chart.defaults.color;
+                        c.update('none');
+                    } catch (e) {}
+                });
+            }
+        } catch (e) {}
+    }
+    function definirTema(tema) {
+        if (['claro', 'escuro', 'laranja'].indexOf(tema) < 0) tema = 'claro';
+        document.documentElement.setAttribute('data-tema', tema);
+        try { localStorage.setItem('cap_tema', tema); } catch (e) {}
+        document.querySelectorAll('[data-tema-btn]').forEach(b => {
+            const ativo = b.getAttribute('data-tema-btn') === tema;
+            b.classList.toggle('ativo', ativo);
+            b.setAttribute('aria-checked', ativo ? 'true' : 'false');
+        });
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', tema === 'escuro' ? '#1a1d23' : (tema === 'laranja' ? '#FF7A42' : '#ffffff'));
+        _aplicarCoresGraficos(tema);
+    }
+    document.addEventListener('DOMContentLoaded', () => definirTema(document.documentElement.getAttribute('data-tema') || 'claro'));
     let editandoId = null;
     let editandoTipo = null;
 
@@ -10440,7 +10883,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (!thead || !tbody) return;
 
         // ---- Montar colunas ----
-        var colunas = visao === 'mensal' ? mesesLabel : ['Total'];
+        var colunas = visao === 'mensal' ? mesesLabel : ['Total do Período'];
 
         // Header
         var thBg    = 'background:#FF7A42;color:white;';
@@ -10451,7 +10894,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         thead.innerHTML = '<tr>'
             + '<th style="' + thFirst + '">Descrição</th>'
             + colunas.map(function(c){ return '<th style="' + thNum + '">' + c + '</th>'; }).join('')
-            + '<th style="' + thNum + '">Total</th>'
+            + '<th style="' + thNum + '">Acumulado do Ano</th>'
             + '</tr>';
 
         tbody.innerHTML = '';
@@ -11572,7 +12015,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             if (cardMensal) cardMensal.style.display = 'none';
         }
 
-        criarGraficoDRE(dreLancs, contasRec, contasPag, anoSel);
+        // Gráfico da DRE removido a pedido
     }
 
     function renderizarDRE(porGrupo, recBruta, recLiq, lucroBruto, ebitda, resultOperacional, resultLiq, custosFixos, indiceMC, pontoEquilibrio) {
@@ -11707,24 +12150,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const grupo = DRE_GRUPOS.find(g => g.id === grupoId);
         if (!grupo) return;
         document.getElementById('tituloDetalheDRE').textContent = grupo.label.trim();
-        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
-        const itens = (_dreDetalheCache[grupoId] || []);
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        itens.forEach(item => {
-            const val = parseFloat(item.valor || 0);
-            tbody.innerHTML += `<tr>
-                <td>${item.competencia || '-'}</td>
-                <td>${item.descricao || '-'}</td>
-                <td>${item.catNome || '-'}</td>
-                <td>${item.parte || '-'}</td>
-                <td>${item.centro || '-'}</td>
-                <td style="text-align:right;font-weight:600;">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                <td>${item.fonte === 'dre' && item.id ? '<button onclick="editarLancDRE(' + item.id + ')" class="btn btn-secondary btn-small">✏️</button> <button onclick="deletarLancDRE(' + item.id + ')" class="btn btn-danger btn-small">🗑️</button>' : '<span style="color:#aaa;font-size:11px;">automático</span>'}</td>
-            </tr>`;
-        });
-        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
-        document.getElementById('modalDetalheDRE').classList.add('active');
+        _dreDetalheUltimoParams = null;
+        _dreDetalheMostrar((_dreDetalheCache[grupoId] || []).slice());
     }
 
     // Abre o modal de detalhe agregando os lançamentos de um ou mais grupos DRE.
@@ -11738,26 +12165,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         const tituloEl = document.getElementById('tituloDetalheDRE');
         if (tituloEl) tituloEl.textContent = titulo || 'Detalhes';
-        _renderResumoDetalheDRE(itens);
         _dreDetalheUltimoParams = { tipo: 'kpi', grupoIds: ids.join(','), titulo };
-
-        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        itens.forEach(item => {
-            const val = parseFloat(item.valor || 0);
-            tbody.innerHTML += '<tr>' +
-                '<td>' + (item.competencia || '-') + '</td>' +
-                '<td>' + (item.descricao || '-') + '</td>' +
-                '<td>' + (item.catNome || '-') + '</td>' +
-                '<td>' + (item.parte || '-') + '</td>' +
-                '<td>' + (item.centro || '-') + '</td>' +
-                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
-                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
-                '</tr>';
-        });
-        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
-        document.getElementById('modalDetalheDRE').classList.add('active');
+        _dreDetalheMostrar(itens);
     }
 
     // Guarda os dados brutos usados para montar a tabela DRE Mensal, para que os cliques
@@ -11803,25 +12212,158 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         await carregarDRE();
         if (!_dreDetalheUltimoParams) return;
         const p = _dreDetalheUltimoParams;
+        _dreDetalheManterFiltros = true;
         if (p.tipo === 'grupo') abrirDetalheDREMes(p.gruposStr, p.mesIdx, p.ano, p.labelLinha);
         else if (p.tipo === 'categoria') abrirDetalheDRECategoriaMes(p.grupoId, p.nomeSub, p.mesIdx, p.ano);
         else if (p.tipo === 'kpi') verDetalheDREGrupos(p.grupoIds, p.titulo);
     }
 
-    // Monta a caixa de resumo (total + quantidade) exibida no topo do modal de detalhe.
-    function _renderResumoDetalheDRE(itens) {
+    // ===== Modal de detalhe da DRE: filtros (descrição / categoria), ordenação e resumo =====
+    let _dreDetalheItens = [];
+    let _dreDetalheOrdem = { col: 'competencia', dir: 1 };
+    let _dreDetalheManterFiltros = false;
+    const _MESES_ABREV = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+    const _dreEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const _dreNorm = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const _dreBRL = v => 'R$ ' + (parseFloat(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const _dreFmtComp = c => {
+        const m = /^(\d{4})-(\d{2})/.exec(c || '');
+        return m ? _MESES_ABREV[parseInt(m[2], 10) - 1] + '/' + m[1] : (c || '-');
+    };
+
+    // Recebe a lista de lançamentos do recorte clicado, monta o filtro de categorias e abre o modal.
+    function _dreDetalheMostrar(itens) {
+        _dreDetalheItens = itens || [];
+        const busca = document.getElementById('dreDetalheBusca');
+        const selCat = document.getElementById('dreDetalheCategoria');
+        const catAnterior = selCat ? selCat.value : '';
+        if (!_dreDetalheManterFiltros) {
+            if (busca) busca.value = '';
+            _dreDetalheOrdem = { col: 'competencia', dir: 1 };
+        }
+        if (selCat) {
+            const cont = {};
+            _dreDetalheItens.forEach(it => { const c = it.catNome || '-'; cont[c] = (cont[c] || 0) + 1; });
+            const nomes = Object.keys(cont).sort((x, y) => x.localeCompare(y, 'pt-BR'));
+            selCat.innerHTML = '<option value="">Todas as categorias (' + nomes.length + ')</option>' +
+                nomes.map(n => '<option value="' + _dreEsc(n) + '">' + _dreEsc(n) + ' (' + cont[n] + ')</option>').join('');
+            selCat.value = (_dreDetalheManterFiltros && nomes.includes(catAnterior)) ? catAnterior : '';
+        }
+        _dreDetalheManterFiltros = false;
+        dreDetalheFiltrar();
+        document.getElementById('modalDetalheDRE').classList.add('active');
+        if (busca && window.innerWidth > 768) setTimeout(() => busca.focus(), 50);
+    }
+
+    function _dreDetalheFiltrados() {
+        const termo = _dreNorm((document.getElementById('dreDetalheBusca') || {}).value);
+        const cat = (document.getElementById('dreDetalheCategoria') || {}).value || '';
+        return _dreDetalheItens.filter(it =>
+            (!cat || (it.catNome || '-') === cat) &&
+            (!termo || _dreNorm(it.descricao).includes(termo) || _dreNorm(it.parte).includes(termo))
+        );
+    }
+
+    function dreDetalheFiltrar() {
+        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
+        if (!tbody) return;
+        const lista = _dreDetalheFiltrados();
+        const { col, dir } = _dreDetalheOrdem;
+        lista.sort((a, b) => {
+            if (col === 'valor') return ((parseFloat(a.valor) || 0) - (parseFloat(b.valor) || 0)) * dir;
+            return String(a[col] || '').localeCompare(String(b[col] || ''), 'pt-BR', { numeric: true }) * dir;
+        });
+
+        // Indicadores de ordenação no cabeçalho
+        document.querySelectorAll('#tabelaDetalheDRE thead th[data-col]').forEach(th => {
+            const ativo = th.dataset.col === col;
+            th.classList.toggle('ordenado', ativo);
+            const seta = th.querySelector('.dre-sort');
+            if (seta) seta.textContent = ativo ? (dir > 0 ? '▲' : '▼') : '↕';
+        });
+
+        if (lista.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="dre-detalhe-vazio">' +
+                (_dreDetalheItens.length ? '🔍 Nenhum lançamento encontrado com esses filtros.' : 'Nenhum lançamento neste período.') + '</td></tr>';
+        } else {
+            tbody.innerHTML = lista.map(item => '<tr>' +
+                '<td><span class="dre-detalhe-comp">' + _dreFmtComp(item.competencia) + '</span></td>' +
+                '<td class="dre-detalhe-desc">' + _dreEsc(item.descricao || '-') + '</td>' +
+                '<td><span class="dre-detalhe-cat">' + _dreEsc(item.catNome || '-') + '</span></td>' +
+                '<td class="dre-detalhe-muted">' + _dreEsc(item.parte || '-') + '</td>' +
+                '<td class="dre-detalhe-muted">' + _dreEsc(item.centro || '-') + '</td>' +
+                '<td class="dre-detalhe-valor">' + _dreBRL(item.valor) + '</td>' +
+                '<td class="dre-detalhe-acoes">' + _acoesDetalheDRE(item) + '</td>' +
+            '</tr>').join('');
+        }
+
+        const tfoot = document.querySelector('#tabelaDetalheDRE tfoot');
+        if (tfoot) {
+            const soma = lista.reduce((s, it) => s + (parseFloat(it.valor) || 0), 0);
+            tfoot.innerHTML = lista.length
+                ? '<tr><td colspan="5">Total ' + (lista.length === _dreDetalheItens.length ? 'geral' : 'filtrado') + ' · ' + lista.length + ' lançamento' + (lista.length > 1 ? 's' : '') + '</td><td class="dre-detalhe-valor">' + _dreBRL(soma) + '</td><td></td></tr>'
+                : '';
+        }
+
+        const temFiltro = lista.length !== _dreDetalheItens.length ||
+            !!((document.getElementById('dreDetalheBusca') || {}).value) || !!((document.getElementById('dreDetalheCategoria') || {}).value);
+        const btnLimpar = document.getElementById('dreDetalheLimpar');
+        if (btnLimpar) btnLimpar.style.visibility = temFiltro ? 'visible' : 'hidden';
+
+        _renderResumoDetalheDRE(lista, _dreDetalheItens);
+    }
+
+    function dreDetalheOrdenar(col) {
+        if (_dreDetalheOrdem.col === col) _dreDetalheOrdem.dir *= -1;
+        else _dreDetalheOrdem = { col, dir: col === 'valor' ? -1 : 1 };
+        dreDetalheFiltrar();
+    }
+
+    function dreDetalheLimparFiltros() {
+        const busca = document.getElementById('dreDetalheBusca');
+        const selCat = document.getElementById('dreDetalheCategoria');
+        if (busca) busca.value = '';
+        if (selCat) selCat.value = '';
+        dreDetalheFiltrar();
+    }
+
+    function dreDetalheExportarCSV() {
+        const lista = _dreDetalheFiltrados();
+        const linhas = [['Competência', 'Descrição', 'Categoria', 'Parte', 'Centro', 'Valor']];
+        lista.forEach(it => linhas.push([it.competencia || '', it.descricao || '', it.catNome || '', it.parte || '', it.centro || '',
+            (parseFloat(it.valor) || 0).toFixed(2).replace('.', ',')]));
+        const csv = '﻿' + linhas.map(l => l.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+        const titulo = (document.getElementById('tituloDetalheDRE') || {}).textContent || 'detalhe-dre';
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        a.download = titulo.replace(/[^\w\-À-ú ]+/g, '').trim().replace(/\s+/g, '_') + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    // Cards de resumo no topo do modal (refletem os filtros aplicados).
+    function _renderResumoDetalheDRE(itens, todos) {
         const el = document.getElementById('dreDetalheResumo');
         if (!el) return;
-        const soma = itens.reduce((s, it) => s + parseFloat(it.valor || 0), 0);
-        el.innerHTML =
-            '<div class="dre-detalhe-chip">' +
-                '<div class="dre-detalhe-chip-label">Total do período</div>' +
-                '<div class="dre-detalhe-chip-valor">R$ ' + soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-            '</div>' +
-            '<div class="dre-detalhe-chip">' +
-                '<div class="dre-detalhe-chip-label">Lançamentos</div>' +
-                '<div class="dre-detalhe-chip-valor" style="color:#333;">' + itens.length + '</div>' +
+        todos = todos || itens;
+        const vals = itens.map(it => parseFloat(it.valor) || 0);
+        const soma = vals.reduce((s, v) => s + v, 0);
+        const somaTodos = todos.reduce((s, it) => s + (parseFloat(it.valor) || 0), 0);
+        const maior = vals.length ? Math.max(...vals) : 0;
+        const media = vals.length ? soma / vals.length : 0;
+        const filtrado = itens.length !== todos.length;
+        const chip = (label, valor, sub, destaque) =>
+            '<div class="dre-detalhe-chip' + (destaque ? ' destaque' : '') + '">' +
+                '<div class="dre-detalhe-chip-label">' + label + '</div>' +
+                '<div class="dre-detalhe-chip-valor">' + valor + '</div>' +
+                (sub ? '<div class="dre-detalhe-chip-sub">' + sub + '</div>' : '') +
             '</div>';
+        el.innerHTML =
+            chip(filtrado ? 'Total filtrado' : 'Total do período', _dreBRL(soma),
+                 filtrado && somaTodos ? (soma / somaTodos * 100).toFixed(1).replace('.', ',') + '% de ' + _dreBRL(somaTodos) : '', true) +
+            chip('Lançamentos', itens.length, filtrado ? 'de ' + todos.length : '') +
+            chip('Ticket médio', _dreBRL(media), '') +
+            chip('Maior lançamento', _dreBRL(maior), '');
     }
 
     // Monta os botões de ação de cada linha do modal de detalhe da DRE, de acordo com a
@@ -11953,8 +12495,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const inv = dados['INVESTIMENTO'][m];
             const or = dados['OUTRAS_RECEITAS'][m];
             const od = dados['OUTRAS_DESPESAS'][m];
-            const res = ro - irpj - emp - inv + or - od;
-            return { rb, ded, rl, cpv, lb, dc, da, ebt, rf, df, ro, irpj, emp, inv, or, od, res };
+            // Geração de Caixa Após as Dívidas = Lajir - IRPJ - Empréstimos - Investimentos
+            const gc = ro - irpj - emp - inv;
+            // Variação do Caixa de Consignados = Venda - Compra de Veículos Consignados
+            const vcc = or - od;
+            const res = gc + vcc;
+            return { rb, ded, rl, cpv, lb, dc, da, ebt, rf, df, ro, irpj, emp, inv, gc, or, od, vcc, res };
         };
 
         const fmtV = v => v !== 0 ? 'R$&nbsp;' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '-';
@@ -12006,7 +12552,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const G_LUCRO_BRUTO = [...G_REC_LIQ, 'CPV'];
         const G_EBITDA = [...G_LUCRO_BRUTO, 'DESP_COMERCIAL', 'DESP_ADMIN'];
         const G_RESULT_OPER = [...G_EBITDA, 'RECEITA_FINANCEIRA', 'DESP_FINANCEIRA'];
-        const G_RESULT_LIQ = [...G_RESULT_OPER, 'IRPJ', 'EMPRESTIMO', 'INVESTIMENTO', 'OUTRAS_RECEITAS', 'OUTRAS_DESPESAS'];
+        const G_GERACAO_CAIXA = [...G_RESULT_OPER, 'IRPJ', 'EMPRESTIMO', 'INVESTIMENTO'];
+        const G_CONSIGNADOS = ['OUTRAS_RECEITAS', 'OUTRAS_DESPESAS'];
 
         const linhas = [
             { label: 'Receita Bruta',             fn: m => calcMes(m).rb,   bg: '', grupos: ['RECEITA_BRUTA'] },
@@ -12016,18 +12563,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             { label: '= Lucro Bruto',             fn: m => calcMes(m).lb,   bg: '#f5f5f5', bold: true, grupos: G_LUCRO_BRUTO },
             { label: '(-) Desp. Comerciais',      fn: m => -calcMes(m).dc,  bg: '', grupos: ['DESP_COMERCIAL'] },
             { label: '(-) Desp. Administrativas', fn: m => -calcMes(m).da,  bg: '', expandir: daSubOrdenado, grupos: ['DESP_ADMIN'] },
-            { label: '= EBITDA',                  fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true, grupos: G_EBITDA },
+            { label: '= EBITDA/Resultado Operacional', fn: m => calcMes(m).ebt,  bg: '#e8f4fd', bold: true, grupos: G_EBITDA },
             { label: '(+) Rec. Financeiras',      fn: m => calcMes(m).rf,   bg: '', grupos: ['RECEITA_FINANCEIRA'] },
             { label: '(-) Desp. Financeiras',     fn: m => -calcMes(m).df,  bg: '', grupos: ['DESP_FINANCEIRA'] },
-            { label: '= Resultado Operacional',   fn: m => calcMes(m).ro,   bg: '#eef7ee', bold: true, grupos: G_RESULT_OPER },
+            { label: '= Lucro antes do IR (Lajir)', fn: m => calcMes(m).ro,   bg: '#eef7ee', bold: true, grupos: G_RESULT_OPER },
             { label: '(-) IRPJ',                  fn: m => -calcMes(m).irpj, bg: '', grupos: ['IRPJ'] },
             { label: '(-) Empr\u00e9stimos',      fn: m => -calcMes(m).emp, bg: '', grupos: ['EMPRESTIMO'] },
             { label: '(-) Investimentos',         fn: m => -calcMes(m).inv, bg: '', grupos: ['INVESTIMENTO'] },
-            { label: '(+) Outras Receitas',       fn: m => calcMes(m).or,   bg: '', grupos: ['OUTRAS_RECEITAS'] },
-            { label: '(-) Outras Despesas',       fn: m => -calcMes(m).od,  bg: '', grupos: ['OUTRAS_DESPESAS'] },
-            // Linha final: cor dinâmica (verde/vermelho) por célula, conforme o resultado
-            // daquele mês/total for positivo ou negativo — em vez da cor fixa de antes.
-            { label: '= Resultado L\u00edquido',  fn: m => calcMes(m).res,  bold: true, corPorSinal: true, grupos: G_RESULT_LIQ },
+            // Cor dinâmica (verde/vermelho) por célula, conforme o valor for positivo ou negativo.
+            { label: '= Geração de Caixa Após as Dívidas', fn: m => calcMes(m).gc, bold: true, corPorSinal: true, grupos: G_GERACAO_CAIXA },
+            // Subtítulo: bloco separado, calculado apenas entre venda e compra de consignados
+            { secao: 'Venda e Compra de Veículos Consignados' },
+            { label: '(+) Venda de Veículos Consignados',  fn: m => calcMes(m).or,  bg: '', grupos: ['OUTRAS_RECEITAS'] },
+            { label: '(-) Compra de Veículos Consignados', fn: m => -calcMes(m).od, bg: '', grupos: ['OUTRAS_DESPESAS'] },
+            { label: '= Variação do Caixa de Consignados', fn: m => calcMes(m).vcc, bold: true, corPorSinal: true, grupos: G_CONSIGNADOS },
         ];
 
         // Escapa aspas simples para uso seguro dentro de atributos onclick="..." construídos com aspas simples.
@@ -12049,6 +12598,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         tbody.innerHTML = '';
         linhas.forEach(linha => {
+            // Linha de subtítulo (sem valores)
+            if (linha.secao) {
+                // Título centralizado do bloco (fica sobre a largura visível da tabela)
+                const nCols = headerRow.children.length;
+                tbody.innerHTML += '<tr class="dre-titulo-consignados"><td colspan="' + nCols + '" style="padding:0;background:#ffffff;border-top:3px solid #7b4fc9;">' +
+                    '<div style="text-align:center;padding:12px 8px 10px;background:linear-gradient(90deg,rgba(123,79,201,0.06),rgba(123,79,201,0.14),rgba(123,79,201,0.06));' +
+                    'font-weight:800;font-size:15px;color:#4a2d8a;letter-spacing:0.6px;text-transform:uppercase;">&#128663; ' + linha.secao + '</div></td></tr>';
+                return;
+            }
             const vals = Array.from({length: 12}, (_, m) => linha.fn(m));
             const total = vals.reduce((s, v) => s + v, 0);
 
@@ -12107,7 +12665,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             // fundo próprio (senão as células dos meses aparecem por baixo ao rolar).
             const bgFixo = 'background:' + (linha.bg || '#ffffff') + ';';
 
-            tbody.innerHTML += '<tr style="' + rowBg + rowFc + bold + '">' +
+            tbody.innerHTML += '<tr' + (linha.corPorSinal ? ' class="dre-linha-resultado"' : '') + ' style="' + rowBg + rowFc + bold + '">' +
                 '<td style="padding:5px 8px;' + bold + bgFixo + (linha.cor ? 'color:' + linha.cor + ';' : '') + '">' + linha.label + '</td>' +
                 vals.map((v, m) => celula(v, m)).join('') +
                 totalTd +
@@ -12216,26 +12774,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const tituloEl = document.getElementById('tituloDetalheDRE');
         if (tituloEl) tituloEl.textContent = nomeSub + ' — ' + periodoTxt;
 
-        _renderResumoDetalheDRE(itens);
         _dreDetalheUltimoParams = { tipo: 'categoria', grupoId, nomeSub, mesIdx, ano };
-
-        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        itens.forEach(item => {
-            const val = parseFloat(item.valor || 0);
-            tbody.innerHTML += '<tr>' +
-                '<td>' + (item.competencia || '-') + '</td>' +
-                '<td>' + (item.descricao || '-') + '</td>' +
-                '<td>' + (item.catNome || '-') + '</td>' +
-                '<td>' + (item.parte || '-') + '</td>' +
-                '<td>' + (item.centro || '-') + '</td>' +
-                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
-                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
-                '</tr>';
-        });
-        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
-        document.getElementById('modalDetalheDRE').classList.add('active');
+        _dreDetalheMostrar(itens);
     }
 
     // Abre o modal de detalhes com os lançamentos que compõem uma célula da tabela
@@ -12305,26 +12845,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const tituloEl = document.getElementById('tituloDetalheDRE');
         if (tituloEl) tituloEl.textContent = labelLinha + ' — ' + periodoTxt;
 
-        _renderResumoDetalheDRE(itens);
         _dreDetalheUltimoParams = { tipo: 'grupo', gruposStr, mesIdx, ano, labelLinha };
-
-        const tbody = document.querySelector('#tabelaDetalheDRE tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        itens.forEach(item => {
-            const val = parseFloat(item.valor || 0);
-            tbody.innerHTML += '<tr>' +
-                '<td>' + (item.competencia || '-') + '</td>' +
-                '<td>' + (item.descricao || '-') + '</td>' +
-                '<td>' + (item.catNome || '-') + '</td>' +
-                '<td>' + (item.parte || '-') + '</td>' +
-                '<td>' + (item.centro || '-') + '</td>' +
-                '<td style="text-align:right;font-weight:600;">R$ ' + val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
-                '<td style="white-space:nowrap;">' + _acoesDetalheDRE(item) + '</td>' +
-                '</tr>';
-        });
-        if (itens.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum lançamento</td></tr>';
-        document.getElementById('modalDetalheDRE').classList.add('active');
+        _dreDetalheMostrar(itens);
     }
 
     function criarGraficoDRE(dreLancs, contasRec, contasPag, anoSel) {
@@ -12333,62 +12855,106 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (charts.dre) { charts.dre.destroy(); }
 
         const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-        const labels = [];
-        const receitasData = [];
-        const resultadosData = [];
+        const cats = (typeof dadosCache !== 'undefined' && dadosCache.categorias) || [];
+        const grupoDe = (catId, padrao) => {
+            const cat = cats.find(x => x.id === catId);
+            return (cat && cat.grupo_dre) ? cat.grupo_dre : padrao;
+        };
 
+        // Meses do gráfico: ano selecionado (Jan–Dez) ou últimos 12 meses
+        const meses = [];
         if (anoSel) {
-            for (let m = 0; m < 12; m++) {
-                const mm = String(m + 1).padStart(2, '0');
-                const pref = anoSel + '-' + mm;
-                labels.push(mNomes[m] + '/' + String(anoSel).slice(2));
-
-                let rb = (dreLancs || []).filter(l => l.grupo === 'RECEITA_BRUTA' && l.competencia && l.competencia.startsWith(pref))
-                                          .reduce((s,l) => s + parseFloat(l.valor||0), 0);
-                rb += contasRec.filter(c => c.data_competencia && c.data_competencia.startsWith(pref))
-                               .reduce((s,c) => s + parseFloat(c.valor||0), 0);
-
-                let costs = (dreLancs || []).filter(l => l.grupo !== 'RECEITA_BRUTA' && l.grupo !== 'RECEITA_FINANCEIRA' && l.grupo !== 'OUTRAS_RECEITAS' && l.competencia && l.competencia.startsWith(pref))
-                                             .reduce((s,l) => s + parseFloat(l.valor||0), 0);
-                costs += contasPag.filter(c => c.data_competencia && c.data_competencia.startsWith(pref))
-                                   .reduce((s,c) => s + parseFloat(c.valor||0), 0);
-
-                receitasData.push(rb);
-                resultadosData.push(rb - costs);
-            }
+            for (let m = 0; m < 12; m++) meses.push({ pref: anoSel + '-' + String(m + 1).padStart(2, '0'), label: mNomes[m] + '/' + String(anoSel).slice(2) });
         } else {
-            // Últimos 12 meses
             for (let i = 11; i >= 0; i--) {
-                const d = new Date(); d.setMonth(d.getMonth() - i);
-                const pref = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-                labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
-                let rb = contasRec.filter(c => (c.data_competencia || c.data_recebimento || '').startsWith(pref))
-                                   .reduce((s,c) => s + parseFloat(c.valor||0), 0);
-                let costs = contasPag.filter(c => (c.data_competencia || c.data_pagamento || '').startsWith(pref))
-                                      .reduce((s,c) => s + parseFloat(c.valor||0), 0);
-                receitasData.push(rb); resultadosData.push(rb - costs);
+                const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+                meses.push({ pref: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), label: mNomes[d.getMonth()] + '/' + String(d.getFullYear()).slice(2) });
             }
         }
+        const idx = {}; meses.forEach((x, i) => { idx[x.pref] = i; });
+
+        // Soma por grupo DRE e mês (mesma lógica da DRE mensal)
+        const dados = {};
+        const add = (g, data, v) => {
+            if (!data) return;
+            const i = idx[String(data).substring(0, 7)];
+            if (i === undefined) return;
+            if (!dados[g]) dados[g] = Array(meses.length).fill(0);
+            dados[g][i] += parseFloat(v || 0);
+        };
+        (dreLancs || []).forEach(l => add(l.grupo, l.competencia, l.valor));
+        (contasRec || []).forEach(c => add(grupoDe(c.categoria_id, 'RECEITA_BRUTA'), c.data_competencia || c.data_recebimento, c.valor));
+        (contasPag || []).forEach(c => add(grupoDe(c.categoria_id, 'DESP_ADMIN'), c.data_competencia || c.data_vencimento || c.data_pagamento, c.valor));
+        const g = id => dados[id] || Array(meses.length).fill(0);
+
+        const labels = meses.map(x => x.label);
+        const receitasData = [], geracaoData = [], vendaConsData = [], compraConsData = [], varConsData = [];
+        for (let i = 0; i < meses.length; i++) {
+            const rb = g('RECEITA_BRUTA')[i];
+            const geracao = rb - g('DEDUCOES')[i] - g('CPV')[i] - g('DESP_COMERCIAL')[i] - g('DESP_ADMIN')[i]
+                          + g('RECEITA_FINANCEIRA')[i] - g('DESP_FINANCEIRA')[i]
+                          - g('IRPJ')[i] - g('EMPRESTIMO')[i] - g('INVESTIMENTO')[i];
+            const venda = g('OUTRAS_RECEITAS')[i];
+            const compra = g('OUTRAS_DESPESAS')[i];
+            receitasData.push(rb);
+            geracaoData.push(geracao);
+            vendaConsData.push(venda);
+            compraConsData.push(-compra);
+            varConsData.push(venda - compra);
+        }
+
+        const fmtCompacto = v => {
+            const a = Math.abs(v), sinal = v < 0 ? '-' : '';
+            if (a >= 1e6) return sinal + 'R$ ' + (a / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi';
+            if (a >= 1e3) return sinal + 'R$ ' + (a / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + ' mil';
+            return sinal + 'R$ ' + a.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+        };
+        const fmtCompleto = v => (v < 0 ? '- ' : '') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const temConsignados = vendaConsData.some(v => v !== 0) || compraConsData.some(v => v !== 0);
+
+        const datasets = [
+            { label: 'Receita Bruta', data: receitasData, backgroundColor: 'rgba(46,160,90,0.75)', hoverBackgroundColor: 'rgba(46,160,90,0.95)',
+              borderRadius: 6, borderSkipped: false, maxBarThickness: 34, order: 3 },
+            { label: 'Venda de Veículos Consignados', data: vendaConsData, backgroundColor: 'rgba(52,120,200,0.75)', hoverBackgroundColor: 'rgba(52,120,200,0.95)',
+              borderRadius: 6, borderSkipped: false, maxBarThickness: 34, order: 3, hidden: !temConsignados },
+            { label: 'Compra de Veículos Consignados', data: compraConsData, backgroundColor: 'rgba(214,69,65,0.70)', hoverBackgroundColor: 'rgba(214,69,65,0.95)',
+              borderRadius: 6, borderSkipped: false, maxBarThickness: 34, order: 3, hidden: !temConsignados },
+            { label: 'Geração de Caixa Após as Dívidas', data: geracaoData, type: 'line', order: 1,
+              borderColor: '#FF7A42', backgroundColor: 'rgba(255,122,66,0.10)', borderWidth: 3, tension: 0.35, cubicInterpolationMode: 'monotone', fill: false,
+              pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#fff', pointBorderColor: '#FF7A42', pointBorderWidth: 2 },
+            { label: 'Variação do Caixa de Consignados', data: varConsData, type: 'line', order: 2,
+              borderColor: '#7b4fc9', borderWidth: 2.5, borderDash: [6, 4], tension: 0.35, cubicInterpolationMode: 'monotone', fill: false,
+              pointRadius: 3.5, pointHoverRadius: 6, pointBackgroundColor: '#fff', pointBorderColor: '#7b4fc9', pointBorderWidth: 2, hidden: !temConsignados }
+        ];
+
+        // Ajusta a altura do gráfico para ficar mais legível
+        const cont = ctx.parentElement;
+        if (cont && cont.classList.contains('chart-container')) cont.style.height = '380px';
 
         charts.dre = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels,
-                datasets: [
-                    { label: 'Receita Bruta', data: receitasData, backgroundColor: 'rgba(40,167,69,0.6)', borderColor: '#28a745', borderWidth: 1, borderRadius: 4 },
-                    { label: 'Resultado Líquido', data: resultadosData, type: 'line', borderColor: '#FF7A42', backgroundColor: 'rgba(255,122,66,0.08)',
-                      borderWidth: 2, pointBackgroundColor: '#FF7A42', pointRadius: 4, tension: 0.3, fill: false }
-                ]
-            },
+            data: { labels, datasets },
             options: {
                 responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                layout: { padding: { top: 8, right: 8 } },
                 plugins: {
-                    legend: { display: true, position: 'top' },
-                    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': R$ ' + Math.abs(ctx.parsed.y).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) }}
+                    legend: { display: true, position: 'bottom',
+                              labels: { usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, padding: 18, color: '#444', font: { size: 12 } } },
+                    tooltip: {
+                        backgroundColor: 'rgba(33,37,41,0.95)', padding: 12, cornerRadius: 8, boxPadding: 4,
+                        titleFont: { size: 13, weight: '700' }, bodyFont: { size: 12 },
+                        callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtCompleto(c.parsed.y) }
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(0) }, grid: { color: 'rgba(0,0,0,0.05)' } },
-                    x: { grid: { display: false } }
+                    y: {
+                        ticks: { callback: v => fmtCompacto(v), color: '#666', font: { size: 11 }, maxTicksLimit: 8 },
+                        grid: { color: c => c.tick && c.tick.value === 0 ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.06)',
+                                lineWidth: c => c.tick && c.tick.value === 0 ? 1.5 : 1, drawBorder: false }
+                    },
+                    x: { grid: { display: false }, ticks: { color: '#555', font: { size: 11, weight: '600' } } }
                 }
             }
         });
@@ -13728,19 +14294,40 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 </div>
 
 <div class="modal" id="modalDetalheDRE">
-    <div class="modal-content" style="max-width:1150px;">
-        <div class="modal-header">
-            <span id="tituloDetalheDRE">Detalhes</span>
+    <div class="modal-content dre-detalhe-modal">
+        <div class="modal-header dre-detalhe-header">
+            <div>
+                <div class="dre-detalhe-eyebrow">Detalhamento da DRE</div>
+                <span id="tituloDetalheDRE">Detalhes</span>
+            </div>
             <button class="modal-close" onclick="closeModal('modalDetalheDRE')">&times;</button>
         </div>
-        <div id="dreDetalheResumo" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
-        <div class="table-container">
+        <div id="dreDetalheResumo" class="dre-detalhe-resumo"></div>
+        <div class="dre-detalhe-filtros">
+            <div class="dre-detalhe-busca">
+                <span class="dre-detalhe-busca-ico">&#128269;</span>
+                <input type="text" id="dreDetalheBusca" placeholder="Filtrar por descrição ou parte..." oninput="dreDetalheFiltrar()" autocomplete="off">
+            </div>
+            <select id="dreDetalheCategoria" onchange="dreDetalheFiltrar()"></select>
+            <button type="button" id="dreDetalheLimpar" class="dre-detalhe-btn-link" onclick="dreDetalheLimparFiltros()">✕ Limpar filtros</button>
+            <button type="button" class="dre-detalhe-btn-sec" onclick="dreDetalheExportarCSV()" title="Exportar a lista filtrada">&#11015; Exportar CSV</button>
+        </div>
+        <div class="table-container dre-detalhe-tabela">
             <table id="tabelaDetalheDRE">
-                <thead><tr><th>Competência</th><th>Descrição</th><th>Categoria</th><th>Parte</th><th>Centro</th><th style="text-align:right;">Valor</th><th style="min-width:150px;">Ações</th></tr></thead>
+                <thead><tr>
+                    <th data-col="competencia" onclick="dreDetalheOrdenar('competencia')">Competência <span class="dre-sort">↕</span></th>
+                    <th data-col="descricao" onclick="dreDetalheOrdenar('descricao')">Descrição <span class="dre-sort">↕</span></th>
+                    <th data-col="catNome" onclick="dreDetalheOrdenar('catNome')">Categoria <span class="dre-sort">↕</span></th>
+                    <th data-col="parte" onclick="dreDetalheOrdenar('parte')">Parte <span class="dre-sort">↕</span></th>
+                    <th data-col="centro" onclick="dreDetalheOrdenar('centro')">Centro <span class="dre-sort">↕</span></th>
+                    <th data-col="valor" onclick="dreDetalheOrdenar('valor')" style="text-align:right;">Valor <span class="dre-sort">↕</span></th>
+                    <th style="text-align:center;min-width:130px;">Ações</th>
+                </tr></thead>
                 <tbody></tbody>
+                <tfoot></tfoot>
             </table>
         </div>
-        <div class="form-actions" style="margin-top:12px;">
+        <div class="form-actions" style="margin-top:14px;">
             <button class="btn btn-secondary" onclick="closeModal('modalDetalheDRE')">Fechar</button>
         </div>
     </div>
