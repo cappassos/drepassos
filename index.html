@@ -716,12 +716,19 @@
         #dashboard .dash-ag-val { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
         #dashboard .dash-ag-flag { grid-column: 3 / 5; font-size: 10px; font-weight: 800; color: var(--d-neg); text-transform: uppercase; letter-spacing: .4px; margin-top: -4px; }
         /* Projeção */
-        #dashboard .dash-proj-resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        #dashboard .dash-proj-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; margin-top: 10px; }
         #dashboard .dash-proj-resumo > div { background: #f7f8fa; border-radius: 8px; padding: 7px 10px; }
-        #dashboard .dash-proj-resumo span { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--d-mut); }
+        #dashboard .dash-proj-resumo > div > span { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--d-mut); }
+        #dashboard .dash-proj-resumo > div > b { white-space: nowrap; }
         #dashboard .dash-proj-resumo b { font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--d-txt); }
         #dashboard .dash-proj-resumo b.txt-neg { color: var(--d-neg); } #dashboard .dash-proj-resumo b.txt-pos { color: var(--d-pos); }
         #dashboard .dash-proj-resumo small { display: block; font-size: 10.5px; color: var(--d-mut); }
+        #dashboard .dash-proj-nota { color: var(--d-sec); font-weight: 400; }
+        #dashboard .dash-proj-legenda { grid-column: 1 / -1; margin: 0; font-size: 10.5px; color: var(--d-mut); }
+        #dashboard .dash-proj-resumo > div.venc { background: #fdf3f2; }
+        #dashboard .dash-proj-alerta.dash-proj-info { color: var(--d-sec); background: #f3f8fd; }
+        html[data-tema="escuro"] #dashboard .dash-proj-resumo > div.venc { background: rgba(192,57,43,0.14); }
+        html[data-tema="escuro"] #dashboard .dash-proj-alerta.dash-proj-info { background: rgba(43,114,196,0.14); }
         #dashboard .dash-proj-alerta { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--d-neg); background: #fdf3f2; border-radius: 8px; padding: 7px 10px; }
         /* Metas */
         #dashboard .dash-metas { display: flex; flex-direction: column; gap: 4px; }
@@ -2650,10 +2657,10 @@
                 </div>
                 <div class="dash-card dash-col-5">
                     <div class="dash-card-head">
-                        <div><div class="dash-card-titulo">🔮 Projeção de caixa — 90 dias</div><div class="dash-card-sub">Saldo atual + a receber − a pagar, por vencimento</div></div>
+                        <div><div class="dash-card-titulo">🗓️ A receber x a pagar — próximos meses</div><div class="dash-card-sub">Contas pendentes pela data de vencimento (visão de caixa, não da DRE)</div></div>
                         <button class="dash-link" onclick="showPage('fcp', null)">Fluxo projetado →</button>
                     </div>
-                    <div class="dash-chart"><canvas id="chartDashProjecao" aria-label="Projeção do saldo de caixa nos próximos 90 dias"></canvas></div>
+                    <div class="dash-chart"><canvas id="chartDashProjecao" aria-label="Contas a receber e a pagar por mês de vencimento"></canvas></div>
                     <div class="dash-proj-resumo" id="dashProjResumo"></div>
                 </div>
             </div>
@@ -7519,59 +7526,60 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
     }
 
+    // A receber x a pagar por mês de vencimento (vencidos + mês atual + 3 próximos).
+    // Gráfico simples de barras: cada mês mostra quanto entra, quanto sai e o saldo.
     function _dashProjecao(caixa, recPend, pagPend, hoje) {
         const ctx = document.getElementById('chartDashProjecao');
         const resumo = document.getElementById('dashProjResumo');
         if (!ctx || typeof Chart === 'undefined') return;
-        const dias = 90;
-        const mov = Array(dias + 1).fill(0);
-        const idxDia = iso => {
-            const d = new Date(iso + 'T12:00:00');
-            return Math.round((d - hoje) / 86400000);
-        };
-        recPend.forEach(c => { const i = Math.max(0, idxDia(c.data_vencimento)); if (i <= dias) mov[i] += _dVal(c); });
-        pagPend.forEach(c => { const i = Math.max(0, idxDia(c.data_vencimento)); if (i <= dias) mov[i] -= _dVal(c); });
-        const labels = [], saldo = [];
-        let s = caixa, minV = Infinity, minI = 0;
-        for (let i = 0; i <= dias; i++) {
-            s += mov[i];
-            const d = new Date(hoje); d.setDate(d.getDate() + i);
-            labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
-            saldo.push(Math.round(s * 100) / 100);
-            if (s < minV) { minV = s; minI = i; }
+        const hojeISO = _dISO(hoje);
+        const grupos = [{ label: 'Vencidos', casa: d => d < hojeISO, rec: 0, pag: 0, nRec: 0, nPag: 0 }];
+        for (let i = 0; i < 4; i++) {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+            const pref = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            grupos.push({ label: _dMesesAbrev[d.getMonth()] + '/' + String(d.getFullYear()).slice(2) + (i === 0 ? '*' : ''),
+                          casa: v => v >= hojeISO && v.startsWith(pref), rec: 0, pag: 0, nRec: 0, nPag: 0 });
         }
+        recPend.forEach(c => { const g = grupos.find(x => x.casa(c.data_vencimento)); if (g) { g.rec += _dVal(c); g.nRec++; } });
+        pagPend.forEach(c => { const g = grupos.find(x => x.casa(c.data_vencimento)); if (g) { g.pag += _dVal(c); g.nPag++; } });
+
         if (charts.dashProj) charts.dashProj.destroy();
         const t = _dashCoresTema();
         charts.dashProj = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets: [{
-                label: 'Saldo projetado', data: saldo, borderWidth: 2, tension: 0.15, pointRadius: 0, pointHoverRadius: 5,
-                borderColor: _DASH_COR.ent,
-                segment: { borderColor: c => (c.p1.parsed.y < 0 ? _DASH_COR.neg : _DASH_COR.ent) },
-                fill: { target: 'origin', above: 'rgba(43,114,196,0.10)', below: 'rgba(192,57,43,0.14)' }
-            }] },
+            type: 'bar',
+            data: {
+                labels: grupos.map(g => g.label),
+                datasets: [
+                    { label: 'A receber', data: grupos.map(g => g.rec), backgroundColor: _DASH_COR.ent, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 34 },
+                    { label: 'A pagar', data: grupos.map(g => g.pag), backgroundColor: grupos.map((g, i) => i === 0 ? '#b8442a' : _DASH_COR.sai), borderRadius: 4, borderSkipped: 'start', maxBarThickness: 34 }
+                ]
+            },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: c => ' Saldo: ' + _dBRL(c.parsed.y) + (mov[c.dataIndex] ? '  (movimento do dia ' + (mov[c.dataIndex] > 0 ? '+' : '−') + _dBRL(Math.abs(mov[c.dataIndex])) + ')' : '') } },
+                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8, color: t.texto, font: { size: 11 } } },
+                    tooltip: { callbacks: {
+                        label: c => ' ' + c.dataset.label + ': ' + _dBRL(c.parsed.y) + ' (' + (c.datasetIndex === 0 ? grupos[c.dataIndex].nRec : grupos[c.dataIndex].nPag) + ' títulos)',
+                        footer: items => { const g = grupos[items[0].dataIndex]; return 'Saldo: ' + _dBRL(g.rec - g.pag); } } },
                     datalabels: { display: false }
                 },
                 scales: {
                     y: { beginAtZero: true, ticks: { callback: v => _dBRLc(v), color: t.texto, font: { size: 10 }, maxTicksLimit: 6 },
-                         grid: { drawBorder: false, color: c => c.tick && c.tick.value === 0 ? 'rgba(120,120,120,0.45)' : t.grade } },
-                    x: { grid: { display: false }, ticks: { color: t.texto, font: { size: 10 }, maxTicksLimit: 7, maxRotation: 0 } }
+                         grid: { drawBorder: false, color: t.grade } },
+                    x: { grid: { display: false }, ticks: { color: t.texto, font: { size: 11, weight: '600' }, maxRotation: 0, autoSkip: false } }
                 }
             }
         });
         if (resumo) {
-            const final = saldo[dias];
-            resumo.innerHTML =
-                '<div><span>Hoje</span><b>' + _dBRL(caixa) + '</b></div>' +
-                '<div><span>Menor saldo</span><b class="' + (minV < 0 ? 'txt-neg' : '') + '">' + _dBRL(minV) + '</b><small>' + labels[minI] + '</small></div>' +
-                '<div><span>Em 90 dias</span><b class="' + (final < 0 ? 'txt-neg' : 'txt-pos') + '">' + _dBRL(final) + '</b></div>' +
-                (minV < 0 ? '<p class="dash-proj-alerta">⚠ O caixa fica negativo a partir de <b>' + labels[saldo.findIndex(v => v < 0)] + '</b>. Antecipe recebimentos ou renegocie vencimentos.</p>' : '');
+            const semRec = grupos.slice(1).every(g => !g.rec);
+            resumo.innerHTML = grupos.map((g, i) => {
+                const sd = g.rec - g.pag;
+                return '<div' + (i === 0 && (g.rec || g.pag) ? ' class="venc"' : '') + '><span>' + g.label + '</span>' +
+                       '<b class="' + (sd < 0 ? 'txt-neg' : sd > 0 ? 'txt-pos' : '') + '">' + _dBRL(sd) + '</b><small>saldo</small></div>';
+            }).join('') +
+            '<p class="dash-proj-legenda">* mês atual: só o que vence de hoje em diante · passe o mouse nas barras para ver o saldo e o nº de títulos</p>' +
+            (semRec ? '<p class="dash-proj-alerta dash-proj-info">ℹ Não há contas a receber lançadas para os próximos meses, por isso só aparecem as saídas. Lance as vendas a prazo em Contas a Receber para enxergar o saldo real de cada mês.</p>' : '');
         }
     }
 
