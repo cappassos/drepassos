@@ -639,6 +639,180 @@
         html[data-tema="escuro"] .est-tabela td.est-mes { color: #d6d9de; }
         @media (max-width: 700px) { .est-input { width: 100px; } .est-var { min-width: 100px; } }
 
+        /* =====================================================================
+           DASHBOARD — layout executivo
+           ===================================================================== */
+        #dashboard { --d-borda: #eceef1; --d-card: #ffffff; --d-txt: #2d2d2d; --d-sec: #6b7280; --d-mut: #9aa0a8;
+                     --d-ent: #2b72c4; --d-sai: #e0603a; --d-pos: #1e7e45; --d-neg: #c0392b; --d-trilha: #f1f2f4; }
+        #dashboard .dash-header { align-items: flex-end; }
+        #dashboard .dash-sub { font-size: 12.5px; color: var(--d-sec); font-weight: 500; margin-top: 2px; }
+        #dashboard .dash-filtros { display: flex; align-items: flex-end; gap: 10px 12px; flex-wrap: wrap; background: var(--d-card); border: 1px solid var(--d-borda); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        #dashboard .dash-filtro { display: flex; flex-direction: column; gap: 4px; }
+        #dashboard .dash-filtro label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--d-mut); }
+        #dashboard .dash-filtro select, #dashboard .dash-filtro input { height: 32px; padding: 0 10px; font-size: 13px; border: 1px solid #dcdfe4; border-radius: 7px; background: #fff; min-width: 150px; }
+        #dashboard .dash-filtro-busca { flex: 1 1 200px; }
+        #dashboard .dash-filtro-busca input { width: 100%; }
+        #dashboard .dash-btn-limpar { height: 32px; border: 1px solid #dcdfe4; background: #fff; border-radius: 7px; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--d-sec); cursor: pointer; }
+        #dashboard .dash-btn-limpar:hover { border-color: var(--cor-primaria); color: #d4561a; }
+        #dashboard .dash-periodo { width: 100%; font-size: 11.5px; color: var(--d-sec); padding-top: 2px; }
+        #dashboard .dash-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+        #dashboard .dash-kpi { background: var(--d-card); border: 1px solid var(--d-borda); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: box-shadow .15s, transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); min-width: 0; }
+        #dashboard .dash-kpi:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform: translateY(-1px); }
+        #dashboard .dash-kpi-topo { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+        #dashboard .dash-kpi-ic { font-size: 14px; }
+        #dashboard .dash-kpi-t { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--d-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #dashboard .dash-kpi-v { font-size: 20px; font-weight: 800; color: var(--d-txt); font-variant-numeric: tabular-nums; letter-spacing: -.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #dashboard .dash-kpi-v.neg { color: var(--d-neg); }
+        #dashboard .dash-kpi-v.pos { color: var(--d-pos); }
+        #dashboard .dash-kpi-s { font-size: 11.5px; color: var(--d-sec); margin-top: 4px; line-height: 1.35; }
+        #dashboard .dash-delta { font-weight: 700; white-space: nowrap; }
+        #dashboard .dash-delta.bom { color: var(--d-pos); }
+        #dashboard .dash-delta.ruim { color: var(--d-neg); }
+        #dashboard .dash-delta.neutro, #dashboard .dash-delta-ref { color: var(--d-mut); font-weight: 500; }
+        #dashboard .dash-alerta-txt { color: var(--d-neg); font-weight: 700; }
+        #dashboard .dash-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+        #dashboard .dash-col-5 { grid-column: span 5; } #dashboard .dash-col-6 { grid-column: span 6; }
+        #dashboard .dash-col-7 { grid-column: span 7; } #dashboard .dash-col-12 { grid-column: span 12; }
+        #dashboard .dash-card { background: var(--d-card); border: 1px solid var(--d-borda); border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); min-width: 0; }
+        #dashboard > .dash-card { margin-bottom: 14px; }
+        #dashboard .dash-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+        #dashboard .dash-card-titulo { font-size: 14.5px; font-weight: 700; color: var(--d-txt); }
+        #dashboard .dash-card-sub { font-size: 11.5px; color: var(--d-mut); margin-top: 2px; }
+        #dashboard .dash-link { border: none; background: transparent; color: #d4561a; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; padding: 2px 4px; border-radius: 6px; }
+        #dashboard .dash-link:hover { background: #fff1e8; }
+        #dashboard .dash-vazio { color: var(--d-mut); font-size: 12.5px; text-align: center; padding: 14px 6px; }
+        #dashboard .dash-chart { position: relative; height: 280px; }
+        #dashboard .txt-ent { color: var(--d-ent); } #dashboard .txt-sai { color: var(--d-sai); }
+        #dashboard .txt-pos { color: var(--d-pos); } #dashboard .txt-neg { color: var(--d-neg); } #dashboard .txt-muted { color: var(--d-mut); }
+        /* Alertas */
+        #dashboard .dash-alertas { display: flex; flex-direction: column; gap: 7px; }
+        #dashboard .dash-alerta { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--d-borda); border-left-width: 4px; background: #fafbfc; }
+        #dashboard .dash-alerta.critico { border-left-color: #c0392b; background: #fdf3f2; }
+        #dashboard .dash-alerta.atencao { border-left-color: #d4a017; background: #fffaeb; }
+        #dashboard .dash-alerta.info { border-left-color: #2b72c4; background: #f3f8fd; }
+        #dashboard .dash-alerta.ok { border-left-color: #1e7e45; background: #f1faf3; }
+        #dashboard .dash-alerta-ic { font-size: 16px; }
+        #dashboard .dash-alerta-txt2 { flex: 1; min-width: 0; font-size: 13px; color: var(--d-txt); }
+        #dashboard .dash-alerta-txt2 small { display: block; font-size: 12px; color: var(--d-sec); margin-top: 1px; line-height: 1.4; }
+        #dashboard .dash-alerta-nivel { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--d-sec); background: rgba(0,0,0,0.05); border-radius: 999px; padding: 1px 7px; margin-right: 6px; vertical-align: 1px; }
+        #dashboard .dash-alerta-btn { border: 1px solid #dcdfe4; background: #fff; border-radius: 7px; font-size: 11.5px; font-weight: 700; color: var(--d-txt); padding: 5px 9px; cursor: pointer; white-space: nowrap; }
+        #dashboard .dash-alerta-btn:hover { border-color: var(--cor-primaria); color: #d4561a; }
+        /* Agenda */
+        #dashboard .dash-agenda-tot { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--d-sec); padding: 8px 10px; background: #f7f8fa; border-radius: 8px; margin-bottom: 8px; }
+        #dashboard .dash-agenda-tot b { font-variant-numeric: tabular-nums; margin-left: 4px; }
+        #dashboard .dash-agenda-lista { max-height: 300px; overflow-y: auto; }
+        #dashboard .dash-ag-atrasos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--d-neg); background: #fdf3f2; border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
+        #dashboard .dash-ag-atrasos button { border: 1px solid #f3c1bb; background: #fff; color: var(--d-neg); border-radius: 999px; font-size: 11.5px; font-weight: 700; padding: 3px 9px; cursor: pointer; }
+        html[data-tema="escuro"] #dashboard .dash-ag-atrasos { background: rgba(192,57,43,0.14); }
+        html[data-tema="escuro"] #dashboard .dash-ag-atrasos button { background: #1b1e24; border-color: #6b2f28; }
+        #dashboard .dash-ag-item { display: grid; grid-template-columns: 46px 74px 1fr auto; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px solid #f2f3f5; font-size: 12.5px; position: relative; }
+        #dashboard .dash-ag-item.atrasado { background: #fdf6f5; }
+        #dashboard .dash-ag-dia { font-weight: 700; color: var(--d-txt); font-variant-numeric: tabular-nums; }
+        #dashboard .dash-ag-tipo { font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 2px 7px; text-align: center; }
+        #dashboard .dash-ag-tipo.rec { background: #e8f1fb; color: #1f5fa8; }
+        #dashboard .dash-ag-tipo.pag { background: #fdeee8; color: #b4482a; }
+        #dashboard .dash-ag-desc { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--d-txt); }
+        #dashboard .dash-ag-desc small { display: block; font-size: 11px; color: var(--d-mut); overflow: hidden; text-overflow: ellipsis; }
+        #dashboard .dash-ag-val { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #dashboard .dash-ag-flag { grid-column: 3 / 5; font-size: 10px; font-weight: 800; color: var(--d-neg); text-transform: uppercase; letter-spacing: .4px; margin-top: -4px; }
+        /* Projeção */
+        #dashboard .dash-proj-resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        #dashboard .dash-proj-resumo > div { background: #f7f8fa; border-radius: 8px; padding: 7px 10px; }
+        #dashboard .dash-proj-resumo span { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--d-mut); }
+        #dashboard .dash-proj-resumo b { font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--d-txt); }
+        #dashboard .dash-proj-resumo b.txt-neg { color: var(--d-neg); } #dashboard .dash-proj-resumo b.txt-pos { color: var(--d-pos); }
+        #dashboard .dash-proj-resumo small { display: block; font-size: 10.5px; color: var(--d-mut); }
+        #dashboard .dash-proj-alerta { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--d-neg); background: #fdf3f2; border-radius: 8px; padding: 7px 10px; }
+        /* Metas */
+        #dashboard .dash-metas { display: flex; flex-direction: column; gap: 4px; }
+        #dashboard .dash-meta { display: grid; grid-template-columns: minmax(130px, 1.2fr) 2fr 82px 82px; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid #f2f3f5; }
+        #dashboard .dash-meta-l b { font-size: 12.5px; color: var(--d-txt); display: block; }
+        #dashboard .dash-meta-l small, #dashboard .dash-meta-v small { font-size: 10.5px; color: var(--d-mut); display: block; }
+        #dashboard .dash-meta-barra { position: relative; height: 10px; background: var(--d-trilha); border-radius: 999px; }
+        #dashboard .dash-meta-barra .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; }
+        #dashboard .dash-meta-barra .fill.ok { background: #2b72c4; }
+        #dashboard .dash-meta-barra .fill.ruim { background: #e0603a; }
+        #dashboard .dash-meta-barra .alvo { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--d-txt); border-radius: 1px; }
+        #dashboard .dash-meta-v { text-align: right; }
+        #dashboard .dash-meta-v b { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--d-txt); }
+        #dashboard .dash-chip { font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 3px 8px; text-align: center; white-space: nowrap; }
+        #dashboard .dash-chip.ok { background: #e6f5ea; color: var(--d-pos); }
+        #dashboard .dash-chip.ruim { background: #fdecea; color: var(--d-neg); }
+        #dashboard .dash-metas-rodape { font-size: 11px; color: var(--d-mut); margin-top: 8px; }
+        /* Categorias */
+        #dashboard .dash-cats { display: flex; flex-direction: column; gap: 3px; }
+        #dashboard .dash-cat { display: grid; grid-template-columns: minmax(110px, 1.1fr) 2fr auto 52px; align-items: center; gap: 10px; padding: 5px 0; font-size: 12.5px; }
+        #dashboard .dash-cat-nome { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--d-txt); }
+        #dashboard .dash-cat-barra { height: 10px; background: var(--d-trilha); border-radius: 999px; overflow: hidden; }
+        #dashboard .dash-cat-barra span { display: block; height: 100%; background: var(--d-sai); border-radius: 0 999px 999px 0; }
+        #dashboard .dash-cat-v { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; color: var(--d-txt); }
+        #dashboard .dash-cat-p { font-size: 11px; color: var(--d-mut); text-align: right; font-variant-numeric: tabular-nums; }
+        /* Aging */
+        #dashboard .dash-aging { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        #dashboard .dash-aging-tit { font-size: 13px; font-weight: 700; color: var(--d-txt); margin-bottom: 6px; display: flex; justify-content: space-between; }
+        #dashboard .dash-aging-tit b { font-variant-numeric: tabular-nums; }
+        #dashboard .dash-aging-linha { display: grid; grid-template-columns: 96px 1fr 120px 56px; align-items: center; gap: 10px; padding: 4px 0; font-size: 12.5px; }
+        #dashboard .dash-aging-l { color: var(--d-sec); }
+        #dashboard .dash-aging-linha.atraso .dash-aging-l { color: var(--d-neg); font-weight: 600; }
+        #dashboard .dash-aging-barra { height: 12px; background: var(--d-trilha); border-radius: 999px; overflow: hidden; }
+        #dashboard .dash-aging-barra span { display: block; height: 100%; border-radius: 0 999px 999px 0; }
+        #dashboard .dash-aging-barra.ent span { background: var(--d-ent); }
+        #dashboard .dash-aging-barra.sai span { background: var(--d-sai); }
+        #dashboard .dash-aging-barra.atr span { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px); }
+        #dashboard .dash-aging-v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--d-txt); }
+        #dashboard .dash-aging-n { font-size: 11px; color: var(--d-mut); text-align: right; }
+        /* Tabelas */
+        #dashboard table.dash-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        #dashboard table.dash-tabela thead { background: transparent; color: inherit; }
+        #dashboard table.dash-tabela th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--d-mut); font-weight: 700; padding: 6px 8px; border-bottom: 2px solid var(--d-borda); background: transparent; }
+        #dashboard table.dash-tabela td { padding: 7px 8px; border-bottom: 1px solid #f2f3f5; vertical-align: middle; color: var(--d-txt); }
+        #dashboard table.dash-tabela .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #dashboard table.dash-tabela td.num small { display: block; font-size: 10.5px; color: var(--d-mut); font-weight: 400; }
+        #dashboard .dash-tab-nome { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+        #dashboard .dash-tab-barra { height: 4px; background: var(--d-trilha); border-radius: 999px; margin-top: 4px; max-width: 260px; overflow: hidden; }
+        #dashboard .dash-tab-barra span { display: block; height: 100%; background: var(--d-mut); border-radius: 999px; }
+        #dashboard #tabelaDevedores .dash-tab-barra span { background: var(--d-ent); }
+        #dashboard #tabelaFornecedoresDash .dash-tab-barra span { background: var(--d-sai); }
+        #dashboard .dash-pmp { display: flex; flex-wrap: wrap; gap: 12px; }
+        #dashboard .dash-pmp > div { box-shadow: none !important; border: 1px solid var(--d-borda); border-radius: 10px !important; padding: 12px 14px !important; }
+        #dashboard .dash-pmp > div > div:nth-child(2) { font-size: 22px !important; }
+        @media (max-width: 1560px) {
+            #dashboard .dash-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 1024px) {
+            #dashboard .dash-col-5, #dashboard .dash-col-6, #dashboard .dash-col-7 { grid-column: span 12; }
+        }
+        @media (max-width: 700px) {
+            #dashboard .dash-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            #dashboard .dash-kpi-v { font-size: 16px; }
+            #dashboard .dash-aging { grid-template-columns: 1fr; }
+            #dashboard .dash-meta { grid-template-columns: 1fr 74px 70px; }
+            #dashboard .dash-meta-barra { grid-column: 1 / -1; grid-row: 2; }
+            #dashboard .dash-aging-linha { grid-template-columns: 80px 1fr 100px; }
+            #dashboard .dash-aging-n { display: none; }
+            #dashboard .dash-cat { grid-template-columns: 1fr auto 46px; }
+            #dashboard .dash-cat-barra { grid-column: 1 / -1; grid-row: 2; }
+            #dashboard .dash-filtro select { min-width: 0; }
+            #dashboard .dash-ag-item { grid-template-columns: 42px 1fr auto; }
+            #dashboard .dash-ag-tipo { display: none; }
+            #dashboard .dash-chart { height: 230px; }
+            #dashboard .dash-alerta { flex-wrap: wrap; }
+            #dashboard .dash-alerta-txt2 { flex-basis: calc(100% - 30px); }
+            #dashboard .dash-alerta-btn { margin-left: 26px; }
+            #dashboard .dash-card { padding: 12px; }
+        }
+        html[data-tema="escuro"] #dashboard { --d-borda: #2f343d; --d-card: #1f2228; --d-txt: #e3e6ea; --d-sec: #aab0b8; --d-mut: #858c96; --d-trilha: #2a2e36; --d-ent: #5b9be0; --d-sai: #f07e5c; --d-pos: #5cc488; --d-neg: #f07b6e; }
+        html[data-tema="escuro"] #dashboard .dash-filtro select, html[data-tema="escuro"] #dashboard .dash-filtro input, html[data-tema="escuro"] #dashboard .dash-btn-limpar, html[data-tema="escuro"] #dashboard .dash-alerta-btn { background: #1b1e24; border-color: #3a3f48; color: #d6d9de; }
+        html[data-tema="escuro"] #dashboard .dash-alerta { background: #22262d; }
+        html[data-tema="escuro"] #dashboard .dash-alerta.critico { background: rgba(192,57,43,0.14); }
+        html[data-tema="escuro"] #dashboard .dash-alerta.atencao { background: rgba(212,160,23,0.12); }
+        html[data-tema="escuro"] #dashboard .dash-alerta.info { background: rgba(43,114,196,0.14); }
+        html[data-tema="escuro"] #dashboard .dash-alerta.ok { background: rgba(30,126,69,0.14); }
+        html[data-tema="escuro"] #dashboard .dash-agenda-tot, html[data-tema="escuro"] #dashboard .dash-proj-resumo > div { background: #262a32; }
+        html[data-tema="escuro"] #dashboard .dash-ag-item, html[data-tema="escuro"] #dashboard .dash-meta, html[data-tema="escuro"] #dashboard table.dash-tabela td { border-bottom-color: #2a2e36; }
+        html[data-tema="escuro"] #dashboard .dash-ag-item.atrasado { background: rgba(192,57,43,0.10); }
+        html[data-tema="escuro"] #dashboard .dash-meta-barra .alvo { background: #e3e6ea; }
+
         /* COMBOBOX PESQUISÁVEL (campo de busca que substitui um <select> nativo) */
         .combo-pesquisavel {
             position: relative;
@@ -2410,139 +2584,138 @@
     <div class="content">
         <!-- DASHBOARD -->
         <div id="dashboard" class="page active">
-            <div class="page-header">
-                <h1>Dashboard</h1>
+            <div class="page-header dash-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <div class="dash-sub" id="dashSubtitulo">Visão geral para tomada de decisão</div>
+                </div>
                 <div class="user-info">
                     <p id="userGreeting">Bem-vindo!</p>
                 </div>
             </div>
 
-            <!-- Filtros do Dashboard -->
-            <div class="filter-container" style="margin-bottom:16px;">
-                <div class="filter-row" style="gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label style="font-size:11px;">Ano</label>
-                        <select id="dashFiltroAno" onchange="atualizarDashboard()" style="padding:6px 10px;font-size:13px;">
-                            <option value="">Todos</option>
-                        </select>
+            <!-- Filtros -->
+            <div class="dash-filtros">
+                <div class="dash-filtro">
+                    <label for="dashFiltroAno">Ano</label>
+                    <select id="dashFiltroAno" onchange="atualizarDashboard()"><option value="">Todos</option></select>
+                </div>
+                <div class="dash-filtro">
+                    <label for="dashFiltroMes">Mês</label>
+                    <select id="dashFiltroMes" onchange="atualizarDashboard()">
+                        <option value="">Ano inteiro</option>
+                        <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+                        <option value="03">Março</option><option value="04">Abril</option>
+                        <option value="05">Maio</option><option value="06">Junho</option>
+                        <option value="07">Julho</option><option value="08">Agosto</option>
+                        <option value="09">Setembro</option><option value="10">Outubro</option>
+                        <option value="11">Novembro</option><option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div class="dash-filtro dash-filtro-busca">
+                    <label for="dashFiltroBusca">Cliente / fornecedor</label>
+                    <input type="text" id="dashFiltroBusca" placeholder="Filtrar listas por nome..." oninput="renderizarDashboard(_dashContasRec, _dashContasPag)">
+                </div>
+                <button onclick="limparFiltrosDash()" class="dash-btn-limpar" type="button">✕ Limpar</button>
+                <div class="dash-periodo" id="dashPeriodoTxt"></div>
+            </div>
+
+            <!-- 1. KPIs -->
+            <div class="dash-kpis" id="dashKpis"></div>
+
+            <!-- 2. Alertas + Agenda -->
+            <div class="dash-grid">
+                <div class="dash-card dash-col-7">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">⚡ Alertas e ações recomendadas</div><div class="dash-card-sub">por C@P Consultoria · situação atual, sem filtro de período</div></div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label style="font-size:11px;">Mês</label>
-                        <select id="dashFiltroMes" onchange="atualizarDashboard()" style="padding:6px 10px;font-size:13px;">
-                            <option value="">Todos</option>
-                            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
-                            <option value="03">Março</option><option value="04">Abril</option>
-                            <option value="05">Maio</option><option value="06">Junho</option>
-                            <option value="07">Julho</option><option value="08">Agosto</option>
-                            <option value="09">Setembro</option><option value="10">Outubro</option>
-                            <option value="11">Novembro</option><option value="12">Dezembro</option>
-                        </select>
+                    <div id="painelConselhosFinanceiros"><p class="dash-vazio">Analisando seus dados financeiros...</p></div>
+                </div>
+                <div class="dash-card dash-col-5">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">📅 Agenda — próximos 7 dias</div><div class="dash-card-sub">Pendentes que vencem de hoje até 7 dias</div></div>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px;">
-                        <label style="font-size:11px;">Pesquisar cliente/fornecedor</label>
-                        <input type="text" id="dashFiltroBusca" placeholder="Nome do cliente ou fornecedor..." oninput="atualizarDashboard()" style="padding:6px 10px;font-size:13px;width:100%;border:1px solid #ddd;border-radius:6px;">
+                    <div id="dashAgenda"></div>
+                </div>
+            </div>
+
+            <!-- 3. Gráficos principais -->
+            <div class="dash-grid">
+                <div class="dash-card dash-col-7">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">📈 Receitas, despesas e resultado — 12 meses</div><div class="dash-card-sub" id="dashSub12m">Regime de competência (mesma base da DRE)</div></div>
+                        <button class="dash-link" onclick="showPage('dre', null)">Ver DRE →</button>
                     </div>
-                    <button onclick="limparFiltrosDash()" class="btn btn-secondary btn-small" style="margin-bottom:0;">✕ Limpar</button>
+                    <div class="dash-chart"><canvas id="chartDash12m" aria-label="Receitas, despesas e resultado nos últimos 12 meses"></canvas></div>
                 </div>
-            </div>
-
-            <!-- Conselhos Financeiros — análise automática baseada nos dados atuais -->
-            <div class="card" style="margin-bottom:16px;border-left:4px solid var(--cor-primaria);">
-                <div class="card-title" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-                    <span style="width:36px;height:36px;border-radius:50%;background:var(--cor-primaria);color:white;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">💡</span>
-                    <div>
-                        <div>Conselhos Financeiros</div>
-                        <div style="font-size:11px;color:#999;font-weight:400;margin-top:1px;">por C@P Consultoria</div>
+                <div class="dash-card dash-col-5">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">🔮 Projeção de caixa — 90 dias</div><div class="dash-card-sub">Saldo atual + a receber − a pagar, por vencimento</div></div>
+                        <button class="dash-link" onclick="showPage('fcp', null)">Fluxo projetado →</button>
                     </div>
-                </div>
-                <div id="painelConselhosFinanceiros">
-                    <p style="color:#999;font-size:13px;">Analisando seus dados financeiros...</p>
-                </div>
-            </div>
-
-            <!-- Gauges DRE — PRIMEIRO após os filtros -->
-            <div class="card" style="margin-bottom:16px;">
-                <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;"><span>🎯 Indicadores DRE — Metas</span><button onclick="abrirModalMetas()" class="btn btn-secondary btn-small" style="font-size:11px;">✏️ Editar Metas</button></div>
-                <div id="dashGaugeAviso" style="display:none;padding:8px 14px;background:#fff3cd;color:#856404;border-radius:6px;font-size:12px;margin-bottom:12px;"></div>
-                <div id="dashGauges" style="display:flex;flex-wrap:nowrap;gap:10px;align-items:stretch;padding:6px 0 10px;width:100%;"></div>
-                <div style="font-size:11px;color:#bbb;text-align:center;margin-top:4px;">
-                    <span id="dashGaugeLegenda">Metas: CPV≤40% · Desp.Adm≤20% · Lucro Bruto≥40% · EBITDA≥20% · Lucro Líq.≥15%</span>
+                    <div class="dash-chart"><canvas id="chartDashProjecao" aria-label="Projeção do saldo de caixa nos próximos 90 dias"></canvas></div>
+                    <div class="dash-proj-resumo" id="dashProjResumo"></div>
                 </div>
             </div>
 
-            <!-- Cards resumo -->
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <div class="stat-label">A Receber</div>
-                    <div class="stat-value" id="totalReceber">R$ 0,00</div>
-                    <div class="stat-change" id="countReceber">0 pendentes</div>
+            <!-- 4. Indicadores x metas + Despesas por categoria -->
+            <div class="dash-grid">
+                <div class="dash-card dash-col-6">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">🎯 Indicadores da DRE x metas</div><div class="dash-card-sub" id="dashSubMetas">% sobre a receita líquida do período</div></div>
+                        <button onclick="abrirModalMetas()" class="dash-link">✏️ Editar metas</button>
+                    </div>
+                    <div id="dashMetas"></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">A Pagar</div>
-                    <div class="stat-value" id="totalPagar">R$ 0,00</div>
-                    <div class="stat-change" id="countPagar">0 pendentes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Recebido (Este Mês)</div>
-                    <div class="stat-value" id="recebidoMes">R$ 0,00</div>
-                    <div class="stat-change" id="countRecebidoMes">0 transações</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Pago (Este Mês)</div>
-                    <div class="stat-value" id="pagoMes">R$ 0,00</div>
-                    <div class="stat-change" id="countPagoMes">0 transações</div>
+                <div class="dash-card dash-col-6">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">💸 Para onde vai o dinheiro</div><div class="dash-card-sub" id="dashSubCats">Maiores categorias de custo e despesa do período</div></div>
+                        <button class="dash-link" onclick="showPage('analise-categorias', null)">Análise →</button>
+                    </div>
+                    <div id="dashCategorias"></div>
                 </div>
             </div>
 
-            <!-- Gráfico de fluxo -->
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">Fluxo de Caixa (Últimos 30 dias)</div>
-                <div class="chart-container">
-                    <canvas id="chartFluxo"></canvas>
+            <!-- 5. Aging -->
+            <div class="dash-grid">
+                <div class="dash-card dash-col-12">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">⏳ Vencimentos por faixa (aging)</div><div class="dash-card-sub">Pendentes de hoje em diante e atrasados por dias de atraso</div></div>
+                    </div>
+                    <div class="dash-aging" id="dashAging"></div>
                 </div>
             </div>
 
-            <!-- Maiores Devedores — tabela -->
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">📋 Maiores Devedores (A Receber Pendente)</div>
-                <div class="table-container">
-                    <table id="tabelaDevedores" style="font-size:13px;">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Cliente</th>
-                                <th style="text-align:right;">Total Pendente</th>
-                                <th style="text-align:right;">Atrasado</th>
-                                <th style="text-align:center;">Contas</th>
-                            </tr>
-                        </thead>
+            <!-- 6. Clientes e fornecedores -->
+            <div class="dash-grid">
+                <div class="dash-card dash-col-6">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">👥 Maiores valores a receber</div><div class="dash-card-sub">Pendentes por cliente · todos os vencimentos</div></div>
+                        <button class="dash-link" onclick="showPage('lancar-receber', null)">Contas a receber →</button>
+                    </div>
+                    <table class="dash-tabela" id="tabelaDevedores">
+                        <thead><tr><th>Cliente</th><th class="num">Pendente</th><th class="num">Atrasado</th><th class="num">Títulos</th></tr></thead>
                         <tbody id="corpoDevedores"></tbody>
                     </table>
                 </div>
-            </div>
-
-            <!-- Maiores Fornecedores — tabela -->
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">📋 Maiores Fornecedores (A Pagar Pendente)</div>
-                <div class="table-container">
-                    <table id="tabelaFornecedoresDash" style="font-size:13px;">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Fornecedor</th>
-                                <th style="text-align:right;">Total Pendente</th>
-                                <th style="text-align:right;">Atrasado</th>
-                                <th style="text-align:center;">Contas</th>
-                            </tr>
-                        </thead>
+                <div class="dash-card dash-col-6">
+                    <div class="dash-card-head">
+                        <div><div class="dash-card-titulo">🏭 Maiores valores a pagar</div><div class="dash-card-sub">Pendentes por fornecedor/categoria · todos os vencimentos</div></div>
+                        <button class="dash-link" onclick="showPage('lancar-pagar', null)">Contas a pagar →</button>
+                    </div>
+                    <table class="dash-tabela" id="tabelaFornecedoresDash">
+                        <thead><tr><th>Fornecedor / categoria</th><th class="num">Pendente</th><th class="num">Atrasado</th><th class="num">Títulos</th></tr></thead>
                         <tbody id="corpoFornecedoresDash"></tbody>
                     </table>
                 </div>
             </div>
-            <!-- PMP x PMR Indicador -->
-            <div class="card" style="margin-top:16px;" id="cardPmpPmr">
-                <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;"><span>⏱️ Prazo Médio de Pagamento x Recebimento</span><span style="font-size:11px;color:#aaa;font-weight:400;">Baseado em contas pagas/recebidas</span></div>
-                <div id="pmpPmrConteudo" style="display:flex;flex-wrap:wrap;gap:16px;padding:8px 0 4px;justify-content:center;"></div>
+
+            <!-- 7. Prazos -->
+            <div class="dash-card" id="cardPmpPmr">
+                <div class="dash-card-head">
+                    <div><div class="dash-card-titulo">⏱️ Pontualidade: recebimentos x pagamentos</div><div class="dash-card-sub">Dias médios entre o vencimento e a baixa efetiva (negativo = antes do vencimento)</div></div>
+                </div>
+                <div id="pmpPmrConteudo" class="dash-pmp"></div>
                 <div id="pmpPmrAlerta" style="margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;"></div>
             </div>
         </div>
@@ -5259,6 +5432,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute('content', tema === 'escuro' ? '#1a1d23' : (tema === 'laranja' ? '#FF7A42' : '#ffffff'));
         _aplicarCoresGraficos(tema);
+        // redesenha os gráficos do dashboard com as cores do tema
+        if (typeof _dashContasRec !== 'undefined' && _dashContasRec.length && typeof renderizarDashboard === 'function') {
+            try { renderizarDashboard(_dashContasRec, _dashContasPag); } catch (e) {}
+        }
     }
     document.addEventListener('DOMContentLoaded', () => definirTema(document.documentElement.getAttribute('data-tema') || 'claro'));
     let editandoId = null;
@@ -7065,227 +7242,494 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         }
     }
 
-    // DASHBOARD
-    let _dashContasRec = [], _dashContasPag = [];
+    // DASHBOARD — visão para tomada de decisão
+    let _dashContasRec = [], _dashContasPag = [], _dashDreLancs = [];
 
     function limparFiltrosDash() {
-        ['dashFiltroAno','dashFiltroMes'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
+        const hoje = new Date();
+        const a = document.getElementById('dashFiltroAno'), m = document.getElementById('dashFiltroMes');
+        if (a) a.value = String(hoje.getFullYear());
+        if (m) m.value = String(hoje.getMonth() + 1).padStart(2, '0');
         const b = document.getElementById('dashFiltroBusca');
         if (b) b.value = '';
         renderizarDashboard(_dashContasRec, _dashContasPag);
     }
 
     async function atualizarDashboard() {
-        const contasReceber = await fetchSupabase('contas_a_receber', 'GET');
-        const contasPagar   = await fetchSupabase('contas_a_pagar',   'GET');
+        const [contasReceber, contasPagar, dreLancs] = await Promise.all([
+            fetchSupabase('contas_a_receber', 'GET'),
+            fetchSupabase('contas_a_pagar', 'GET'),
+            fetchSupabase('lancamentos_dre', 'GET')
+        ]);
         if (!contasReceber || !contasPagar) return;
         _dashContasRec = contasReceber;
         _dashContasPag = contasPagar;
+        _dashDreLancs = dreLancs || [];
+        dadosCache.dreLancs = _dashDreLancs;
         renderizarDashboard(contasReceber, contasPagar);
     }
 
-    function renderizarDashboard(contasReceber, contasPagar) {
-        const anoF  = (document.getElementById('dashFiltroAno')  || {}).value || '';
-        const mesF  = (document.getElementById('dashFiltroMes')  || {}).value || '';
-        const busca = ((document.getElementById('dashFiltroBusca') || {}).value || '').toLowerCase().trim();
+    // ---------- utilitários do dashboard ----------
+    const _dEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const _dBRL = v => { const n = Number(v) || 0; return (n < -0.004 ? '−' : '') + 'R$ ' + Math.abs(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    const _dBRLc = v => {   // compacto para eixos e destaques: R$ 1,2 mi / R$ 350 mil
+        const a = Math.abs(v), s = v < 0 ? '−' : '';
+        if (a >= 1e6) return s + 'R$ ' + (a / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi';
+        if (a >= 1e3) return s + 'R$ ' + (a / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + ' mil';
+        return s + 'R$ ' + a.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+    };
+    const _dPct = v => (isFinite(v) ? v : 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+    const _dISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const _dMesesAbrev = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const _dMesesNome = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const _dVal = c => parseFloat(c.valor || 0) || 0;
 
-        // ── Cards de topo: sempre mostram totais globais (sem filtro de busca) ──
-        const recPend = contasReceber.filter(c => c.status === 'pendente');
-        const pagPend = contasPagar.filter(c => c.status === 'pendente');
-        document.getElementById('totalReceber').textContent = 'R$ ' + recPend.reduce((s,c)=>s+parseFloat(c.valor||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('countReceber').textContent = recPend.length + ' pendentes';
-        document.getElementById('totalPagar').textContent   = 'R$ ' + pagPend.reduce((s,c)=>s+parseFloat(c.valor||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('countPagar').textContent   = pagPend.length + ' pendentes';
-
-        const hoje    = new Date();
-        const mesAtual = String(hoje.getMonth()+1).padStart(2,'0');
-        const anoAtual = String(hoje.getFullYear());
-        const recMes  = contasReceber.filter(c => c.status==='recebido' && c.data_recebimento && c.data_recebimento.startsWith(anoAtual+'-'+mesAtual));
-        const pagMes  = contasPagar.filter(c => c.status==='pago' && c.data_pagamento && c.data_pagamento.startsWith(anoAtual+'-'+mesAtual));
-        document.getElementById('recebidoMes').textContent     = 'R$ ' + recMes.reduce((s,c)=>s+parseFloat(c.valor||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('countRecebidoMes').textContent = recMes.length + ' transações';
-        document.getElementById('pagoMes').textContent          = 'R$ ' + pagMes.reduce((s,c)=>s+parseFloat(c.valor||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('countPagoMes').textContent     = pagMes.length + ' transações';
-
-        // ── Aplicar filtros para tabelas e gauges ──
-        function aplicarFiltrosConta(lista, tipoData, statusAlvo) {
-            return lista.filter(c => {
-                if (c.status !== statusAlvo) return false;
-                const d = c.data_vencimento || '';
-                if (anoF && !d.startsWith(anoF)) return false;
-                if (mesF && !d.includes('-'+mesF+'-')) return false;
-                return true;
-            });
-        }
-
-        const recFiltrado = aplicarFiltrosConta(contasReceber, 'data_vencimento', 'pendente');
-        const pagFiltrado = aplicarFiltrosConta(contasPagar,   'data_vencimento', 'pendente');
-
-        // ── Tabela Maiores Devedores ──
-        const devedoresMap = {};
-        recFiltrado.forEach(c => {
-            const cli  = dadosCache.clientes.find(x => x.id === c.cliente_id);
-            const nome = cli ? cli.nome : 'Desconhecido';
-            if (busca && !nome.toLowerCase().includes(busca)) return;
-            if (!devedoresMap[nome]) devedoresMap[nome] = { total: 0, atrasado: 0, count: 0 };
-            const v = parseFloat(c.valor||0);
-            devedoresMap[nome].total += v;
-            devedoresMap[nome].count++;
-            const venc = new Date(c.data_vencimento + 'T12:00:00');
-            if (venc < hoje) devedoresMap[nome].atrasado += v;
+    // Soma por grupo DRE para um filtro de competência (mesma lógica da tela DRE).
+    function _dashDRE(casaComp) {
+        const g = {};
+        const add = (k, v) => { g[k] = (g[k] || 0) + v; };
+        const cat = id => (dadosCache.categorias || []).find(x => x.id === id);
+        _dashContasRec.forEach(c => {
+            if (!c.data_competencia || !casaComp(c.data_competencia)) return;
+            const ct = cat(c.categoria_id); add((ct && ct.grupo_dre) || 'RECEITA_BRUTA', _dVal(c));
         });
-        const devedoresOrdenados = Object.entries(devedoresMap).sort((a,b) => b[1].total - a[1].total);
-        const tbDev = document.getElementById('corpoDevedores');
-        if (tbDev) {
-            if (devedoresOrdenados.length === 0) {
-                tbDev.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px;">Nenhum devedor encontrado</td></tr>';
-            } else {
-                tbDev.innerHTML = devedoresOrdenados.map(([nome, d], i) => {
-                    const fmtR = v => 'R$&nbsp;' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-                    const bg = i % 2 === 0 ? '' : 'background:#fafafa;';
-                    return `<tr style="${bg}">
-                        <td style="color:#aaa;font-size:12px;">${i+1}</td>
-                        <td style="font-weight:600;">${nome}</td>
-                        <td style="text-align:right;color:#17a2b8;font-weight:600;">${fmtR(d.total)}</td>
-                        <td style="text-align:right;color:${d.atrasado>0?'#dc3545':'#28a745'};font-weight:${d.atrasado>0?'700':'400'};">${d.atrasado>0?fmtR(d.atrasado):'-'}</td>
-                        <td style="text-align:center;"><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:10px;font-size:11px;">${d.count}</span></td>
-                    </tr>`;
-                }).join('');
-            }
-        }
-
-        // ── Tabela Maiores Fornecedores ──
-        const fornMap = {};
-        pagFiltrado.forEach(c => {
-            const forn = dadosCache.fornecedores.find(x => x.id === c.fornecedor_id);
-            const nome = forn ? forn.nome : 'Desconhecido';
-            if (busca && !nome.toLowerCase().includes(busca)) return;
-            if (!fornMap[nome]) fornMap[nome] = { total: 0, atrasado: 0, count: 0 };
-            const v = parseFloat(c.valor||0);
-            fornMap[nome].total += v;
-            fornMap[nome].count++;
-            const venc = new Date(c.data_vencimento + 'T12:00:00');
-            if (venc < hoje) fornMap[nome].atrasado += v;
+        _dashContasPag.forEach(c => {
+            if (!c.data_competencia || !casaComp(c.data_competencia)) return;
+            const ct = cat(c.categoria_id); add((ct && ct.grupo_dre) || 'DESP_ADMIN', _dVal(c));
         });
-        const fornOrdenados = Object.entries(fornMap).sort((a,b) => b[1].total - a[1].total);
-        const tbForn = document.getElementById('corpoFornecedoresDash');
-        if (tbForn) {
-            if (fornOrdenados.length === 0) {
-                tbForn.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px;">Nenhum fornecedor encontrado</td></tr>';
-            } else {
-                tbForn.innerHTML = fornOrdenados.map(([nome, d], i) => {
-                    const fmtR = v => 'R$&nbsp;' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-                    const bg = i % 2 === 0 ? '' : 'background:#fafafa;';
-                    return `<tr style="${bg}">
-                        <td style="color:#aaa;font-size:12px;">${i+1}</td>
-                        <td style="font-weight:600;">${nome}</td>
-                        <td style="text-align:right;color:#dc3545;font-weight:600;">${fmtR(d.total)}</td>
-                        <td style="text-align:right;color:${d.atrasado>0?'#dc3545':'#28a745'};font-weight:${d.atrasado>0?'700':'400'};">${d.atrasado>0?fmtR(d.atrasado):'-'}</td>
-                        <td style="text-align:center;"><span style="background:#fde8e8;color:#721c24;padding:2px 8px;border-radius:10px;font-size:11px;">${d.count}</span></td>
-                    </tr>`;
-                }).join('');
-            }
-        }
-
-        // ── Gauges DRE (baseados em data_competencia, filtro de ano/mes) ──
-        criarGaugesDRE(contasReceber, contasPagar, anoF, mesF);
-
-        // ── PMP x PMR ──
-        calcularPmpPmr(contasReceber, contasPagar);
-
-        // ── Grafico fluxo (sempre ultimos 30 dias) ──
-        criarGraficoFluxo(contasReceber, contasPagar);
-
-        // ── Conselhos financeiros (C@P Consultoria) ──
-        gerarConselhosFinanceiros(contasReceber, contasPagar);
+        _dashDreLancs.forEach(l => { if (l.competencia && casaComp(l.competencia)) add(l.grupo, _dVal(l)); });
+        const v = k => g[k] || 0;
+        const rb = v('RECEITA_BRUTA'), ded = v('DEDUCOES'), rl = rb - ded;
+        const cpv = v('CPV') + v('VAR_ESTOQUE');
+        const lb = rl - cpv, dc = v('DESP_COMERCIAL'), da = v('DESP_ADMIN');
+        const ebitda = lb - dc - da;
+        const rf = v('RECEITA_FINANCEIRA'), df = v('DESP_FINANCEIRA');
+        const ro = ebitda + rf - df;
+        const irpj = v('IRPJ'), emp = v('EMPRESTIMO'), inv = v('INVESTIMENTO'), or = v('OUTRAS_RECEITAS'), od = v('OUTRAS_DESPESAS');
+        const res = ro - irpj - emp - inv + or - od;
+        const receitas = rb + rf + or;
+        return { g, rb, ded, rl, cpv, lb, dc, da, ebitda, rf, df, ro, irpj, emp, inv, or, od, res, receitas, despesas: receitas - res };
     }
 
-    // ── CONSELHOS FINANCEIROS (C@P Consultoria) ─────────────────────────────
-    // Analisa os lançamentos pendentes (sem aplicar os filtros de Ano/Mês do
-    // dashboard, para refletir sempre a situação real e atual) e gera
-    // recomendações objetivas, priorizando alertas críticos.
-    function gerarConselhosFinanceiros(contasReceber, contasPagar) {
+    function renderizarDashboard(contasReceber, contasPagar) {
+        contasReceber = contasReceber || []; contasPagar = contasPagar || [];
+        const anoF = (document.getElementById('dashFiltroAno') || {}).value || '';
+        const mesF = (document.getElementById('dashFiltroMes') || {}).value || '';
+        const busca = ((document.getElementById('dashFiltroBusca') || {}).value || '').toLowerCase().trim();
+        const hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+        const hojeISO = _dISO(hoje);
+
+        // ---- Período selecionado e período de comparação ----
+        let casaPer, casaAnt, nomePer, nomeAnt;
+        if (anoF && mesF) {
+            const pref = anoF + '-' + mesF;
+            const d = new Date(+anoF, +mesF - 2, 1);
+            const prefAnt = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            casaPer = s => s.startsWith(pref); casaAnt = s => s.startsWith(prefAnt);
+            nomePer = _dMesesNome[+mesF - 1] + '/' + anoF; nomeAnt = _dMesesAbrev[d.getMonth()] + '/' + d.getFullYear();
+        } else if (anoF) {
+            casaPer = s => s.startsWith(anoF); casaAnt = s => s.startsWith(String(+anoF - 1));
+            nomePer = 'Ano ' + anoF; nomeAnt = String(+anoF - 1);
+        } else if (mesF) {
+            casaPer = s => s.substring(5, 7) === mesF; casaAnt = null;
+            nomePer = _dMesesNome[+mesF - 1] + ' (todos os anos)'; nomeAnt = '';
+        } else {
+            casaPer = () => true; casaAnt = null; nomePer = 'Todo o período'; nomeAnt = '';
+        }
+        const per = _dashDRE(casaPer);
+        const ant = casaAnt ? _dashDRE(casaAnt) : null;
+        const elPer = document.getElementById('dashPeriodoTxt');
+        if (elPer) elPer.innerHTML = 'Período: <b>' + nomePer + '</b>' + (nomeAnt ? ' · comparado com ' + nomeAnt : '');
+        const sub = document.getElementById('dashSubtitulo');
+        if (sub) sub.textContent = 'Visão geral em ' + hoje.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) + ' · para tomada de decisão';
+
+        // ---- Caixa, pendências e projeção ----
+        const bancos = dadosCache.bancos || [];
+        const saldos = _calcularSaldosBancos(bancos, contasReceber, contasPagar, dadosCache.transferencias || []);
+        const caixa = bancos.filter(b => b.ativo !== false).reduce((s, b) => s + (saldos[b.id] || 0), 0);
+        const recPend = contasReceber.filter(c => c.status === 'pendente' && c.data_vencimento);
+        const pagPend = contasPagar.filter(c => c.status === 'pendente' && c.data_vencimento);
+        const soma = arr => arr.reduce((s, c) => s + _dVal(c), 0);
+        const recAtr = recPend.filter(c => c.data_vencimento < hojeISO), pagAtr = pagPend.filter(c => c.data_vencimento < hojeISO);
+        const em30 = new Date(hoje); em30.setDate(em30.getDate() + 30); const em30ISO = _dISO(em30);
+        const rec30 = soma(recPend.filter(c => c.data_vencimento <= em30ISO));
+        const pag30 = soma(pagPend.filter(c => c.data_vencimento <= em30ISO));
+        const proj30 = caixa + rec30 - pag30;
+
+        // ---- KPIs ----
+        const delta = (atual, anterior, maiorMelhor) => {
+            if (!ant || anterior === null || anterior === undefined) return '';
+            if (Math.abs(anterior) < 0.01) return '<span class="dash-delta neutro">sem base em ' + nomeAnt + '</span>';
+            const p = (atual - anterior) / Math.abs(anterior) * 100;
+            const bom = maiorMelhor ? p >= 0 : p <= 0;
+            return '<span class="dash-delta ' + (bom ? 'bom' : 'ruim') + '">' + (p >= 0 ? '▲ ' : '▼ ') + _dPct(Math.abs(p)) + '</span> <span class="dash-delta-ref">vs ' + nomeAnt + '</span>';
+        };
+        const margem = per.rl > 0 ? per.res / per.rl * 100 : 0;
+        const kpis = [
+            { t: 'Saldo em caixa', v: _dBRL(caixa), cls: caixa < 0 ? 'neg' : '', s: bancos.filter(b => b.ativo !== false).length + ' conta(s) bancária(s)', ic: '🏦', go: "showPage('bancos', null)" },
+            { t: 'Projeção de caixa em 30 dias', v: _dBRL(proj30), cls: proj30 < 0 ? 'neg' : 'pos',
+              s: '+ ' + _dBRLc(rec30) + ' a receber · − ' + _dBRLc(pag30) + ' a pagar', ic: '🔮', go: "showPage('fcp', null)" },
+            { t: 'A receber (pendente)', v: _dBRL(soma(recPend)), s: recAtr.length ? '<span class="dash-alerta-txt">⚠ ' + _dBRLc(soma(recAtr)) + ' atrasado (' + recAtr.length + ')</span>' : recPend.length + ' título(s) · nenhum atrasado', ic: '📥', go: "showPage('lancar-receber', null)" },
+            { t: 'A pagar (pendente)', v: _dBRL(soma(pagPend)), s: pagAtr.length ? '<span class="dash-alerta-txt">⚠ ' + _dBRLc(soma(pagAtr)) + ' atrasado (' + pagAtr.length + ')</span>' : pagPend.length + ' título(s) · nenhum atrasado', ic: '📤', go: "showPage('lancar-pagar', null)" },
+            { t: 'Faturamento · ' + nomePer, v: _dBRL(per.rb), s: delta(per.rb, ant && ant.rb, true) || 'Receita bruta por competência', ic: '💰', go: "showPage('dre', null)" },
+            { t: 'Resultado líquido · ' + nomePer, v: _dBRL(per.res), cls: per.res < 0 ? 'neg' : 'pos', s: 'Margem ' + _dPct(margem) + ' ' + (delta(per.res, ant && ant.res, true) ? '· ' + delta(per.res, ant && ant.res, true) : ''), ic: per.res < 0 ? '📉' : '🏆', go: "showPage('dre', null)" },
+        ];
+        document.getElementById('dashKpis').innerHTML = kpis.map(k =>
+            '<div class="dash-kpi" onclick="' + k.go + '" title="Abrir detalhes">' +
+                '<div class="dash-kpi-topo"><span class="dash-kpi-ic">' + k.ic + '</span><span class="dash-kpi-t">' + k.t + '</span></div>' +
+                '<div class="dash-kpi-v ' + (k.cls || '') + '">' + k.v + '</div>' +
+                '<div class="dash-kpi-s">' + k.s + '</div>' +
+            '</div>').join('');
+
+        // ---- Agenda 7 dias ----
+        const em7 = new Date(hoje); em7.setDate(em7.getDate() + 7); const em7ISO = _dISO(em7);
+        const nomeCli = c => ((dadosCache.clientes || []).find(x => x.id === c.cliente_id) || {}).nome || '';
+        const nomeForn = c => ((dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id) || {}).nome ||
+                               ((dadosCache.categorias || []).find(x => x.id === c.categoria_id) || {}).nome || '';
+        const noPrazo = c => c.data_vencimento >= hojeISO && c.data_vencimento <= em7ISO;
+        const agenda = [
+            ...recPend.filter(noPrazo).map(c => ({ c, tipo: 'rec', nome: nomeCli(c) })),
+            ...pagPend.filter(noPrazo).map(c => ({ c, tipo: 'pag', nome: nomeForn(c) }))
+        ].filter(x => !busca || (x.nome || '').toLowerCase().includes(busca) || (x.c.descricao || '').toLowerCase().includes(busca))
+         .sort((a, b) => a.c.data_vencimento.localeCompare(b.c.data_vencimento));
+        const totAgRec = agenda.filter(x => x.tipo === 'rec').reduce((s, x) => s + _dVal(x.c), 0);
+        const totAgPag = agenda.filter(x => x.tipo === 'pag').reduce((s, x) => s + _dVal(x.c), 0);
+        const elAg = document.getElementById('dashAgenda');
+        if (elAg) {
+            const linhaAtr = (recAtr.length || pagAtr.length)
+                ? '<div class="dash-ag-atrasos">⚠ Já vencidos: ' +
+                    (pagAtr.length ? '<button onclick="showPage(\'lancar-pagar\', null)">' + pagAtr.length + ' a pagar · ' + _dBRL(soma(pagAtr)) + '</button>' : '') +
+                    (recAtr.length ? '<button onclick="showPage(\'lancar-receber\', null)">' + recAtr.length + ' a receber · ' + _dBRL(soma(recAtr)) + '</button>' : '') + '</div>'
+                : '';
+            if (!agenda.length) elAg.innerHTML = linhaAtr + '<p class="dash-vazio">✅ Nada vencendo nos próximos 7 dias.</p>';
+            else {
+                elAg.innerHTML = linhaAtr +
+                    '<div class="dash-agenda-tot"><span>Entradas <b class="txt-ent">' + _dBRL(totAgRec) + '</b></span><span>Saídas <b class="txt-sai">' + _dBRL(totAgPag) + '</b></span><span>Saldo <b class="' + (totAgRec - totAgPag < 0 ? 'txt-neg' : 'txt-pos') + '">' + _dBRL(totAgRec - totAgPag) + '</b></span></div>' +
+                    '<div class="dash-agenda-lista">' + agenda.slice(0, 40).map(x => {
+                        const atras = x.c.data_vencimento < hojeISO;
+                        const dt = new Date(x.c.data_vencimento + 'T12:00:00');
+                        const diaTxt = x.c.data_vencimento === hojeISO ? 'Hoje' : dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        return '<div class="dash-ag-item' + (atras ? ' atrasado' : '') + '">' +
+                            '<span class="dash-ag-dia">' + diaTxt + '</span>' +
+                            '<span class="dash-ag-tipo ' + x.tipo + '">' + (x.tipo === 'rec' ? '↓ Receber' : '↑ Pagar') + '</span>' +
+                            '<span class="dash-ag-desc" title="' + _dEsc(x.c.descricao) + '">' + _dEsc(x.c.descricao || '-') + (x.nome ? '<small>' + _dEsc(x.nome) + '</small>' : '') + '</span>' +
+                            '<span class="dash-ag-val ' + (x.tipo === 'rec' ? 'txt-ent' : 'txt-sai') + '">' + _dBRL(_dVal(x.c)) + '</span>' +
+                            (atras ? '<span class="dash-ag-flag">atrasado</span>' : '') +
+                        '</div>';
+                    }).join('') + '</div>' +
+                    (agenda.length > 40 ? '<div class="dash-vazio">+ ' + (agenda.length - 40) + ' lançamento(s)</div>' : '');
+            }
+        }
+
+        // ---- Gráfico 12 meses ----
+        const base = (anoF && mesF) ? new Date(+anoF, +mesF - 1, 1) : (anoF ? new Date(+anoF, 11, 1) : new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+        const meses = [];
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+            const pref = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            const r = _dashDRE(s => s.startsWith(pref));
+            meses.push({ label: _dMesesAbrev[d.getMonth()] + '/' + String(d.getFullYear()).slice(2), rec: r.receitas, desp: r.despesas, res: r.res });
+        }
+        const sub12 = document.getElementById('dashSub12m');
+        if (sub12) sub12.textContent = 'Competência · ' + meses[0].label + ' a ' + meses[11].label + ' · mesma base da DRE';
+        _dashGrafico12m(meses);
+
+        // ---- Projeção 90 dias ----
+        _dashProjecao(caixa, recPend, pagPend, hoje);
+
+        // ---- Indicadores x metas ----
+        _dashMetas(per, nomePer);
+
+        // ---- Categorias de despesa ----
+        _dashCategorias(casaPer, per, nomePer);
+
+        // ---- Aging ----
+        _dashAging(recPend, pagPend, hojeISO);
+
+        // ---- Tabelas de clientes e fornecedores ----
+        const agrupar = (lista, nomeFn) => {
+            const m = {};
+            lista.forEach(c => {
+                const nome = nomeFn(c) || 'Sem identificação';
+                if (busca && !nome.toLowerCase().includes(busca)) return;
+                if (!m[nome]) m[nome] = { total: 0, atrasado: 0, count: 0 };
+                m[nome].total += _dVal(c); m[nome].count++;
+                if (c.data_vencimento < hojeISO) m[nome].atrasado += _dVal(c);
+            });
+            return Object.entries(m).sort((a, b) => b[1].total - a[1].total);
+        };
+        const tabela = (id, linhas, totalGeral) => {
+            const tb = document.getElementById(id);
+            if (!tb) return;
+            if (!linhas.length) { tb.innerHTML = '<tr><td colspan="4" class="dash-vazio">Nenhum valor pendente' + (busca ? ' para "' + _dEsc(busca) + '"' : '') + '.</td></tr>'; return; }
+            const max = linhas[0][1].total || 1;
+            tb.innerHTML = linhas.slice(0, 10).map(([nome, d]) =>
+                '<tr><td><div class="dash-tab-nome">' + _dEsc(nome) + '</div><div class="dash-tab-barra"><span style="width:' + (d.total / max * 100).toFixed(1) + '%"></span></div></td>' +
+                '<td class="num">' + _dBRL(d.total) + '<small>' + (totalGeral > 0 ? _dPct(d.total / totalGeral * 100) + ' do total' : '') + '</small></td>' +
+                '<td class="num ' + (d.atrasado > 0 ? 'txt-neg' : 'txt-muted') + '">' + (d.atrasado > 0 ? _dBRL(d.atrasado) : '—') + '</td>' +
+                '<td class="num">' + d.count + '</td></tr>').join('') +
+                (linhas.length > 10 ? '<tr><td colspan="4" class="dash-vazio">+ ' + (linhas.length - 10) + ' outro(s)</td></tr>' : '');
+        };
+        tabela('corpoDevedores', agrupar(recPend, nomeCli), soma(recPend));
+        tabela('corpoFornecedoresDash', agrupar(pagPend, nomeForn), soma(pagPend));
+
+        // ---- Pontualidade e alertas ----
+        calcularPmpPmr(contasReceber, contasPagar);
+        gerarConselhosFinanceiros(contasReceber, contasPagar, { caixa, proj30, per, ant, nomePer, nomeAnt });
+    }
+
+    // Cores dos gráficos: entradas (azul) x saídas (laranja) — par seguro para daltonismo;
+    // linha de saldo/resultado em tinta neutra.
+    const _DASH_COR = { ent: '#2b72c4', sai: '#e0603a', linha: '#343a46', neg: '#c0392b', pos: '#1e7e45' };
+    function _dashCoresTema() {
+        const escuro = document.documentElement.getAttribute('data-tema') === 'escuro';
+        return { linha: escuro ? '#d6d9de' : _DASH_COR.linha, grade: escuro ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)', texto: escuro ? '#aab0b8' : '#6b7280' };
+    }
+
+    function _dashGrafico12m(meses) {
+        const ctx = document.getElementById('chartDash12m');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (charts.dash12m) charts.dash12m.destroy();
+        const t = _dashCoresTema();
+        charts.dash12m = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: meses.map(m => m.label),
+                datasets: [
+                    { type: 'bar', label: 'Receitas', data: meses.map(m => m.rec), backgroundColor: _DASH_COR.ent, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 22, order: 2 },
+                    { type: 'bar', label: 'Custos e despesas', data: meses.map(m => m.desp), backgroundColor: _DASH_COR.sai, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 22, order: 2 },
+                    { type: 'line', label: 'Resultado', data: meses.map(m => m.res), borderColor: t.linha, backgroundColor: t.linha, borderWidth: 2, tension: 0.3,
+                      pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: meses.map(m => m.res < 0 ? _DASH_COR.neg : _DASH_COR.pos), pointBorderColor: '#fff', pointBorderWidth: 2, order: 1 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8, color: t.texto, font: { size: 11 } } },
+                    tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + _dBRL(c.parsed.y) } },
+                    datalabels: { display: false }
+                },
+                scales: {
+                    y: { ticks: { callback: v => _dBRLc(v), color: t.texto, font: { size: 10 }, maxTicksLimit: 6 },
+                         grid: { drawBorder: false, color: c => c.tick && c.tick.value === 0 ? 'rgba(120,120,120,0.45)' : t.grade } },
+                    x: { grid: { display: false }, ticks: { color: t.texto, font: { size: 10 } } }
+                }
+            }
+        });
+    }
+
+    function _dashProjecao(caixa, recPend, pagPend, hoje) {
+        const ctx = document.getElementById('chartDashProjecao');
+        const resumo = document.getElementById('dashProjResumo');
+        if (!ctx || typeof Chart === 'undefined') return;
+        const dias = 90;
+        const mov = Array(dias + 1).fill(0);
+        const idxDia = iso => {
+            const d = new Date(iso + 'T12:00:00');
+            return Math.round((d - hoje) / 86400000);
+        };
+        recPend.forEach(c => { const i = Math.max(0, idxDia(c.data_vencimento)); if (i <= dias) mov[i] += _dVal(c); });
+        pagPend.forEach(c => { const i = Math.max(0, idxDia(c.data_vencimento)); if (i <= dias) mov[i] -= _dVal(c); });
+        const labels = [], saldo = [];
+        let s = caixa, minV = Infinity, minI = 0;
+        for (let i = 0; i <= dias; i++) {
+            s += mov[i];
+            const d = new Date(hoje); d.setDate(d.getDate() + i);
+            labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+            saldo.push(Math.round(s * 100) / 100);
+            if (s < minV) { minV = s; minI = i; }
+        }
+        if (charts.dashProj) charts.dashProj.destroy();
+        const t = _dashCoresTema();
+        charts.dashProj = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets: [{
+                label: 'Saldo projetado', data: saldo, borderWidth: 2, tension: 0.15, pointRadius: 0, pointHoverRadius: 5,
+                borderColor: _DASH_COR.ent,
+                segment: { borderColor: c => (c.p1.parsed.y < 0 ? _DASH_COR.neg : _DASH_COR.ent) },
+                fill: { target: 'origin', above: 'rgba(43,114,196,0.10)', below: 'rgba(192,57,43,0.14)' }
+            }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: c => ' Saldo: ' + _dBRL(c.parsed.y) + (mov[c.dataIndex] ? '  (movimento do dia ' + (mov[c.dataIndex] > 0 ? '+' : '−') + _dBRL(Math.abs(mov[c.dataIndex])) + ')' : '') } },
+                    datalabels: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: v => _dBRLc(v), color: t.texto, font: { size: 10 }, maxTicksLimit: 6 },
+                         grid: { drawBorder: false, color: c => c.tick && c.tick.value === 0 ? 'rgba(120,120,120,0.45)' : t.grade } },
+                    x: { grid: { display: false }, ticks: { color: t.texto, font: { size: 10 }, maxTicksLimit: 7, maxRotation: 0 } }
+                }
+            }
+        });
+        if (resumo) {
+            const final = saldo[dias];
+            resumo.innerHTML =
+                '<div><span>Hoje</span><b>' + _dBRL(caixa) + '</b></div>' +
+                '<div><span>Menor saldo</span><b class="' + (minV < 0 ? 'txt-neg' : '') + '">' + _dBRL(minV) + '</b><small>' + labels[minI] + '</small></div>' +
+                '<div><span>Em 90 dias</span><b class="' + (final < 0 ? 'txt-neg' : 'txt-pos') + '">' + _dBRL(final) + '</b></div>' +
+                (minV < 0 ? '<p class="dash-proj-alerta">⚠ O caixa fica negativo a partir de <b>' + labels[saldo.findIndex(v => v < 0)] + '</b>. Antecipe recebimentos ou renegocie vencimentos.</p>' : '');
+        }
+    }
+
+    function _dashMetas(per, nomePer) {
+        const el = document.getElementById('dashMetas');
+        if (!el) return;
+        const subM = document.getElementById('dashSubMetas');
+        if (subM) subM.textContent = '% sobre a receita líquida · ' + nomePer;
+        if (per.rl <= 0) { el.innerHTML = '<p class="dash-vazio">Sem receita no período para calcular os indicadores.</p>'; return; }
+        const mg = metasGauges || METAS_PADRAO;
+        const p = v => v / per.rl * 100;
+        const itens = [
+            { l: 'Margem bruta', v: p(per.lb), meta: mg.lucroBruto, maior: true, ajuda: 'Lucro bruto / receita líquida' },
+            { l: 'CPV / custo', v: p(per.cpv), meta: mg.cpv, maior: false, ajuda: 'Inclui variação de estoque' },
+            { l: 'Despesas administrativas', v: p(per.da), meta: mg.despAdm, maior: false, ajuda: '' },
+            { l: 'Margem EBITDA', v: p(per.ebitda), meta: mg.ebitda, maior: true, ajuda: 'Antes do resultado financeiro' },
+            { l: 'Margem líquida', v: p(per.res), meta: mg.lucroLiq, maior: true, ajuda: 'Resultado líquido / receita líquida' },
+        ];
+        const escala = Math.max(100, ...itens.map(i => Math.abs(i.v)), ...itens.map(i => i.meta));
+        el.innerHTML = '<div class="dash-metas">' + itens.map(i => {
+            const ok = i.maior ? i.v >= i.meta : i.v <= i.meta;
+            const w = Math.min(100, Math.max(0, i.v) / escala * 100);
+            const wm = Math.min(100, i.meta / escala * 100);
+            return '<div class="dash-meta">' +
+                '<div class="dash-meta-l"><b>' + i.l + '</b><small>' + (i.ajuda || '&nbsp;') + '</small></div>' +
+                '<div class="dash-meta-barra" title="Meta ' + (i.maior ? '≥ ' : '≤ ') + i.meta + '%"><span class="fill ' + (ok ? 'ok' : 'ruim') + '" style="width:' + w.toFixed(1) + '%"></span><span class="alvo" style="left:' + wm.toFixed(1) + '%"></span></div>' +
+                '<div class="dash-meta-v"><b class="' + (i.v < 0 ? 'txt-neg' : '') + '">' + _dPct(i.v) + '</b><small>meta ' + (i.maior ? '≥ ' : '≤ ') + i.meta + '%</small></div>' +
+                '<span class="dash-chip ' + (ok ? 'ok' : 'ruim') + '">' + (ok ? '✓ na meta' : '⚠ fora') + '</span>' +
+            '</div>';
+        }).join('') + '</div>' +
+        '<div class="dash-metas-rodape">Receita líquida do período: <b>' + _dBRL(per.rl) + '</b> · ▏marca a meta</div>';
+    }
+
+    function _dashCategorias(casaPer, per, nomePer) {
+        const el = document.getElementById('dashCategorias');
+        if (!el) return;
+        const subC = document.getElementById('dashSubCats');
+        if (subC) subC.textContent = 'Maiores categorias de custo e despesa · ' + nomePer;
+        const m = {};
+        _dashContasPag.forEach(c => {
+            if (!c.data_competencia || !casaPer(c.data_competencia)) return;
+            const ct = (dadosCache.categorias || []).find(x => x.id === c.categoria_id);
+            const nome = ct ? ct.nome : 'Sem categoria';
+            m[nome] = (m[nome] || 0) + _dVal(c);
+        });
+        _dashDreLancs.forEach(l => {
+            if (!l.competencia || !casaPer(l.competencia)) return;
+            if (['RECEITA_BRUTA', 'RECEITA_FINANCEIRA', 'OUTRAS_RECEITAS'].includes(l.grupo)) return;
+            const nome = l.grupo === 'VAR_ESTOQUE' ? 'Variação de estoque' : (((dadosCache.categorias || []).find(x => x.id === l.categoria_id) || {}).nome || 'Lançamentos DRE');
+            m[nome] = (m[nome] || 0) + _dVal(l);
+        });
+        const lista = Object.entries(m).filter(([, v]) => Math.abs(v) > 0.004).sort((a, b) => b[1] - a[1]);
+        if (!lista.length) { el.innerHTML = '<p class="dash-vazio">Nenhuma despesa no período.</p>'; return; }
+        const total = lista.reduce((s, [, v]) => s + v, 0);
+        const top = lista.slice(0, 8);
+        const outros = lista.slice(8).reduce((s, [, v]) => s + v, 0);
+        if (outros) top.push(['Outras (' + (lista.length - 8) + ')', outros]);
+        const max = Math.max(...top.map(([, v]) => v));
+        el.innerHTML = '<div class="dash-cats">' + top.map(([nome, v]) =>
+            '<div class="dash-cat">' +
+                '<span class="dash-cat-nome" title="' + _dEsc(nome) + '">' + _dEsc(nome) + '</span>' +
+                '<span class="dash-cat-barra"><span style="width:' + (Math.max(0, v) / max * 100).toFixed(1) + '%"></span></span>' +
+                '<span class="dash-cat-v">' + _dBRL(v) + '</span>' +
+                '<span class="dash-cat-p" title="% da receita bruta">' + (per.rb > 0 ? _dPct(v / per.rb * 100) : '—') + '</span>' +
+            '</div>').join('') + '</div>' +
+            '<div class="dash-metas-rodape">Total: <b>' + _dBRL(total) + '</b> · última coluna = % da receita bruta (' + _dBRL(per.rb) + ')</div>';
+    }
+
+    function _dashAging(recPend, pagPend, hojeISO) {
+        const el = document.getElementById('dashAging');
+        if (!el) return;
+        const hoje = new Date(hojeISO + 'T12:00:00');
+        const faixas = [
+            { l: 'A vencer', f: d => d <= 0 }, { l: '1–30 dias', f: d => d >= 1 && d <= 30 },
+            { l: '31–60 dias', f: d => d >= 31 && d <= 60 }, { l: '61–90 dias', f: d => d >= 61 && d <= 90 }, { l: '+90 dias', f: d => d > 90 }
+        ];
+        const calc = lista => faixas.map(fx => {
+            const it = lista.filter(c => fx.f(Math.round((hoje - new Date(c.data_vencimento + 'T12:00:00')) / 86400000)));
+            return { l: fx.l, v: it.reduce((s, c) => s + _dVal(c), 0), n: it.length };
+        });
+        const bloco = (titulo, dados, cls) => {
+            const tot = dados.reduce((s, d) => s + d.v, 0);
+            const max = Math.max(1, ...dados.map(d => d.v));
+            return '<div class="dash-aging-bloco"><div class="dash-aging-tit">' + titulo + ' <b>' + _dBRL(tot) + '</b></div>' +
+                dados.map((d, i) => '<div class="dash-aging-linha' + (i > 0 && d.v > 0 ? ' atraso' : '') + '">' +
+                    '<span class="dash-aging-l">' + (i > 0 ? '⚠ ' : '') + d.l + '</span>' +
+                    '<span class="dash-aging-barra ' + cls + (i > 0 ? ' atr' : '') + '"><span style="width:' + (d.v / max * 100).toFixed(1) + '%"></span></span>' +
+                    '<span class="dash-aging-v">' + (d.v ? _dBRL(d.v) : '—') + '</span>' +
+                    '<span class="dash-aging-n">' + (d.n ? d.n + ' tít.' : '') + '</span></div>').join('') + '</div>';
+        };
+        el.innerHTML = bloco('📥 A receber', calc(recPend), 'ent') + bloco('📤 A pagar', calc(pagPend), 'sai');
+    }
+
+    // ── ALERTAS E AÇÕES (C@P Consultoria) ─────────────────────────────────────
+    // Analisa a situação atual (pendências sem filtro de período) e, quando
+    // disponível, o resultado do período selecionado. Ordena por gravidade.
+    function gerarConselhosFinanceiros(contasReceber, contasPagar, ctx) {
         const container = document.getElementById('painelConselhosFinanceiros');
         if (!container) return;
-
-        const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-        const recPend = contasReceber.filter(c => c.status === 'pendente');
-        const pagPend = contasPagar.filter(c => c.status === 'pendente');
-
-        const totalReceber = recPend.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-        const totalPagar = pagPend.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-        const saldoProjetado = totalReceber - totalPagar;
-
-        const dataValida = c => c.data_vencimento && !isNaN(new Date(c.data_vencimento + 'T12:00:00').getTime());
-        const receberAtrasado = recPend.filter(c => dataValida(c) && new Date(c.data_vencimento + 'T12:00:00') < hoje);
-        const pagarAtrasado = pagPend.filter(c => dataValida(c) && new Date(c.data_vencimento + 'T12:00:00') < hoje);
-        const valReceberAtrasado = receberAtrasado.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-        const valPagarAtrasado = pagarAtrasado.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-
-        // Vencendo nos próximos 7 dias
-        const em7dias = new Date(hoje); em7dias.setDate(em7dias.getDate() + 7);
-        const pagarProximos7 = pagPend.filter(c => dataValida(c) && new Date(c.data_vencimento + 'T12:00:00') >= hoje && new Date(c.data_vencimento + 'T12:00:00') <= em7dias);
-        const valPagarProximos7 = pagarProximos7.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-
-        // Concentração: maior cliente devedor como % do total a receber
-        const porCliente = {};
-        recPend.forEach(c => {
-            const cli = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
-            const nome = cli ? cli.nome : 'Desconhecido';
-            porCliente[nome] = (porCliente[nome] || 0) + parseFloat(c.valor || 0);
-        });
-        const maiorCliente = Object.entries(porCliente).sort((a, b) => b[1] - a[1])[0];
-        const concentracaoCliente = (maiorCliente && totalReceber > 0) ? (maiorCliente[1] / totalReceber * 100) : 0;
-
+        ctx = ctx || {};
+        const hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+        const hojeISO = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+        const val = c => parseFloat(c.valor || 0) || 0;
+        const soma = arr => arr.reduce((s, c) => s + val(c), 0);
         const fmtV = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const conselhos = [];
+        const recPend = contasReceber.filter(c => c.status === 'pendente' && c.data_vencimento);
+        const pagPend = contasPagar.filter(c => c.status === 'pendente' && c.data_vencimento);
+        const recAtr = recPend.filter(c => c.data_vencimento < hojeISO);
+        const pagAtr = pagPend.filter(c => c.data_vencimento < hojeISO);
+        const em7 = new Date(hoje); em7.setDate(em7.getDate() + 7);
+        const em7ISO = em7.getFullYear() + '-' + String(em7.getMonth() + 1).padStart(2, '0') + '-' + String(em7.getDate()).padStart(2, '0');
+        const pag7 = pagPend.filter(c => c.data_vencimento >= hojeISO && c.data_vencimento <= em7ISO);
+        const totalRec = soma(recPend);
 
-        if (pagarAtrasado.length > 0) {
-            conselhos.push({ icone: '🔴', texto: 'Você tem ' + pagarAtrasado.length + ' conta(s) a pagar em atraso, somando ' + fmtV(valPagarAtrasado) + '. Priorize a quitação delas — atrasos costumam gerar juros e multas que corroem sua margem.' });
+        const itens = [];   // { nivel: 'critico'|'atencao'|'info'|'ok', titulo, texto, acao, go }
+        if (ctx.caixa !== undefined && ctx.caixa < 0) {
+            itens.push({ nivel: 'critico', titulo: 'Caixa negativo hoje', texto: 'O saldo somado das contas está em −' + fmtV(ctx.caixa) + '.', acao: 'Ver bancos', go: "showPage('bancos', null)" });
         }
-        if (receberAtrasado.length > 0) {
-            conselhos.push({ icone: '📞', texto: 'Você tem ' + fmtV(valReceberAtrasado) + ' em atraso a receber (' + receberAtrasado.length + ' título(s)). Entre em contato com os clientes o quanto antes — quanto mais recente a cobrança, maior a chance de recuperação.' });
+        if (ctx.proj30 !== undefined && ctx.proj30 < 0) {
+            itens.push({ nivel: 'critico', titulo: 'Falta de caixa nos próximos 30 dias', texto: 'Com o que vence até lá, o saldo projetado fica em −' + fmtV(ctx.proj30) + '. Antecipe recebíveis, renegocie prazos ou adie despesas não essenciais.', acao: 'Fluxo projetado', go: "showPage('fcp', null)" });
         }
-        if (saldoProjetado < 0) {
-            conselhos.push({ icone: '⚠️', texto: 'Seu saldo projetado está negativo em ' + fmtV(saldoProjetado) + ' (as contas a pagar pendentes superam as a receber). Vale revisar prazos com fornecedores ou antecipar recebíveis para equilibrar o caixa.' });
-        } else if (totalReceber > 0 || totalPagar > 0) {
-            conselhos.push({ icone: '✅', texto: 'Seu saldo projetado está positivo em ' + fmtV(saldoProjetado) + '. Aproveite para reforçar a reserva de emergência ou negociar descontos por pagamento à vista com fornecedores.' });
+        if (pagAtr.length) {
+            itens.push({ nivel: 'critico', titulo: pagAtr.length + ' conta(s) a pagar em atraso', texto: fmtV(soma(pagAtr)) + ' vencidos. Atrasos geram juros e multas — priorize ou renegocie.', acao: 'Contas a pagar', go: "showPage('lancar-pagar', null)" });
         }
-        if (pagarProximos7.length > 0) {
-            conselhos.push({ icone: '📅', texto: fmtV(valPagarProximos7) + ' em contas a pagar vencem nos próximos 7 dias (' + pagarProximos7.length + ' lançamento(s)). Confirme se o caixa disponível cobre esses compromissos.' });
+        if (recAtr.length) {
+            itens.push({ nivel: 'atencao', titulo: fmtV(soma(recAtr)) + ' a receber em atraso', texto: recAtr.length + ' título(s) vencidos. Quanto antes a cobrança, maior a chance de recuperar.', acao: 'Cobrar', go: "showPage('lancar-receber', null)" });
         }
-        if (maiorCliente && concentracaoCliente >= 40) {
-            conselhos.push({ icone: '🎯', texto: 'O cliente "' + maiorCliente[0] + '" representa ' + concentracaoCliente.toFixed(0) + '% do seu total a receber. Alta concentração aumenta o risco — considere diversificar sua carteira de clientes.' });
+        if (ctx.per && ctx.per.rb > 0 && ctx.per.res < 0) {
+            itens.push({ nivel: 'atencao', titulo: 'Prejuízo em ' + ctx.nomePer, texto: 'O resultado líquido está em −' + fmtV(ctx.per.res) + '. Revise custos e despesas na DRE.', acao: 'Abrir DRE', go: "showPage('dre', null)" });
+        }
+        if (ctx.per && ctx.ant && ctx.ant.rb > 0) {
+            const varFat = (ctx.per.rb - ctx.ant.rb) / ctx.ant.rb * 100;
+            if (varFat <= -15) itens.push({ nivel: 'atencao', titulo: 'Faturamento caiu ' + Math.abs(varFat).toFixed(0) + '%', texto: ctx.nomePer + ' contra ' + ctx.nomeAnt + ' (' + fmtV(ctx.per.rb) + ' x ' + fmtV(ctx.ant.rb) + ').', acao: 'Ver DRE', go: "showPage('dre', null)" });
+            else if (varFat >= 15) itens.push({ nivel: 'ok', titulo: 'Faturamento cresceu ' + varFat.toFixed(0) + '%', texto: ctx.nomePer + ' contra ' + ctx.nomeAnt + '. Confira se a margem acompanhou o crescimento.' });
+        }
+        if (pag7.length) {
+            itens.push({ nivel: 'info', titulo: fmtV(soma(pag7)) + ' a pagar em 7 dias', texto: pag7.length + ' lançamento(s). Confirme se o caixa cobre esses compromissos.', acao: 'Agenda', go: "document.getElementById('dashAgenda').scrollIntoView({behavior:'smooth',block:'center'})" });
+        }
+        const porCli = {};
+        recPend.forEach(c => { const n = ((dadosCache.clientes || []).find(x => x.id === c.cliente_id) || {}).nome || 'Sem cliente'; porCli[n] = (porCli[n] || 0) + val(c); });
+        const maior = Object.entries(porCli).sort((a, b) => b[1] - a[1])[0];
+        if (maior && totalRec > 0 && maior[1] / totalRec >= 0.4 && Object.keys(porCli).length > 1) {
+            itens.push({ nivel: 'info', titulo: 'Concentração em um cliente', texto: '"' + maior[0] + '" responde por ' + (maior[1] / totalRec * 100).toFixed(0) + '% do total a receber. Alta dependência aumenta o risco.' });
+        }
+        if (!itens.some(i => i.nivel === 'critico' || i.nivel === 'atencao')) {
+            itens.push({ nivel: 'ok', titulo: 'Nenhum ponto crítico', texto: 'Sem atrasos relevantes e caixa projetado positivo. Bom momento para reforçar a reserva ou negociar descontos à vista.' });
         }
 
-        // Completa com dicas gerais de boas práticas quando não há alertas suficientes
-        const dicasGerais = [
-            'Revise mensalmente seu DRE para acompanhar a evolução da margem líquida, não só o faturamento.',
-            'Mantenha uma reserva de caixa equivalente a pelo menos 1 a 3 meses de despesas fixas.',
-            'Negocie prazos de pagamento a fornecedores alinhados aos prazos de recebimento dos seus clientes.',
-            'Use a tela de Contas Fixas para visualizar com clareza seu comprometimento mensal recorrente.',
-            'Consulte o Fluxo de Caixa Projetado regularmente para antecipar meses mais apertados e se planejar.'
-        ];
-        let i = 0;
-        while (conselhos.length < 3 && i < dicasGerais.length) {
-            conselhos.push({ icone: '💡', texto: dicasGerais[i] });
-            i++;
-        }
-
-        const dataHoraFmt = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-        let html = '<div style="font-size:11px;color:#999;margin-bottom:10px;">Análise gerada em ' + dataHoraFmt + ', com base nos seus lançamentos pendentes.</div>';
-        html += '<div style="display:flex;flex-direction:column;gap:9px;">';
-        conselhos.slice(0, 5).forEach(c => {
-            html += '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#fff9f5;border:1px solid #ffe0cc;border-radius:8px;">' +
-                '<span style="font-size:17px;line-height:1.3;">' + c.icone + '</span>' +
-                '<span style="font-size:13px;color:#444;line-height:1.5;">' + c.texto + '</span>' +
-                '</div>';
-        });
-        html += '</div>';
-        container.innerHTML = html;
+        const ordem = { critico: 0, atencao: 1, info: 2, ok: 3 };
+        const rotulo = { critico: 'Crítico', atencao: 'Atenção', info: 'Info', ok: 'OK' };
+        const icone = { critico: '⛔', atencao: '⚠️', info: 'ℹ️', ok: '✅' };
+        itens.sort((a, b) => ordem[a.nivel] - ordem[b.nivel]);
+        container.innerHTML = '<div class="dash-alertas">' + itens.slice(0, 6).map(i =>
+            '<div class="dash-alerta ' + i.nivel + '">' +
+                '<span class="dash-alerta-ic" aria-hidden="true">' + icone[i.nivel] + '</span>' +
+                '<div class="dash-alerta-txt2"><div><span class="dash-alerta-nivel">' + rotulo[i.nivel] + '</span><b>' + i.titulo + '</b></div><small>' + i.texto + '</small></div>' +
+                (i.acao && i.go ? '<button class="dash-alerta-btn" onclick="' + i.go + '">' + i.acao + ' →</button>' : '') +
+            '</div>').join('') + '</div>';
     }
 
     // ── GAUGES DRE ────────────────────────────────────────────────────────────
