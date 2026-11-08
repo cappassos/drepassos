@@ -2569,6 +2569,184 @@
         html[data-tema="escuro"] .dre-linha-resultado td, html[data-tema="escuro"] .dre-linha-final td,
         html[data-tema="escuro"] thead th { color: #fff !important; }
     </style>
+    <style id="melhorias-nov26">
+        /* ===================== DFC — acumulado do ano + tabela ===================== */
+        #dfc .dfc-acum { display:flex; justify-content:space-between; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed #e3e5e9; font-size:11.5px; color:#8a8f98; white-space:nowrap; }
+        #dfc .dfc-acum b { font-variant-numeric: tabular-nums; font-size:12.5px; }
+        #dfc .dfc-cat-periodo { font-size:12px; font-weight:500; color:#8a8f98; margin-left:6px; }
+        #dfc .dfc-cat-wrap { overflow:auto; margin-top:8px; max-height:calc(100vh - 300px); border:1px solid #eceef1; border-radius:8px; }
+        #dfc table.dfc-tab { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; font-variant-numeric:tabular-nums; }
+        #dfc table.dfc-tab th { position:sticky; top:0; z-index:3; background:#343a46; color:#fff; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:9px 10px; text-align:right; white-space:nowrap; border-bottom:2px solid var(--cor-primaria); }
+        #dfc table.dfc-tab th.dfc-col-desc { text-align:left; left:0; z-index:4; min-width:240px; }
+        #dfc table.dfc-tab th.dfc-col-sel { background:var(--cor-primaria); }
+        #dfc table.dfc-tab th.dfc-col-acum { background:#21262f; }
+        #dfc table.dfc-tab td { padding:6px 10px; text-align:right; white-space:nowrap; border-bottom:1px solid #f0f1f3; color:#2d2d2d; }
+        #dfc table.dfc-tab td.dfc-col-desc { text-align:left; position:sticky; left:0; z-index:2; background:#fff; border-right:1px solid #eceef1; font-weight:600; }
+        #dfc table.dfc-tab td.dfc-col-sel { background:#fff6f0; }
+        #dfc table.dfc-tab td.dfc-col-acum { background:#f6f7f9; font-weight:700; border-left:2px solid #e3e5e9; }
+        #dfc table.dfc-tab td.dfc-col-pct { color:#8a8f98; font-size:12px; }
+        #dfc table.dfc-tab td.dfc-vazio { color:#c8ccd2; }
+        #dfc table.dfc-tab tr.dfc-ent:not(.dfc-r-secao) td:not(.dfc-col-desc):not(.dfc-vazio):not(.dfc-col-pct) { color:#1e7e45; }
+        #dfc table.dfc-tab tr.dfc-sai:not(.dfc-r-secao) td:not(.dfc-col-desc):not(.dfc-vazio):not(.dfc-col-pct) { color:#c0392b; }
+        #dfc table.dfc-tab tr.dfc-r-secao td { font-weight:800; font-size:12px; letter-spacing:.4px; padding:10px; text-align:left; }
+        #dfc table.dfc-tab tr.dfc-r-secao.dfc-ent td { background:#eef9f2; color:#1e7e45; border-top:2px solid #28a745; }
+        #dfc table.dfc-tab tr.dfc-r-secao.dfc-sai td { background:#fdf1f1; color:#c0392b; border-top:2px solid #dc3545; }
+        #dfc table.dfc-tab tr.dfc-r-sub td { font-size:12px; padding-top:4px; padding-bottom:4px; background:#fcfcfd; }
+        #dfc table.dfc-tab tr.dfc-r-sub td.dfc-col-desc { padding-left:28px; font-weight:500; color:#7a808a; background:#fcfcfd; }
+        #dfc table.dfc-tab tr.dfc-r-sub td:not(.dfc-col-desc):not(.dfc-vazio) { color:#d35f53 !important; }
+        #dfc table.dfc-tab .dfc-seta { color:#c8ccd2; margin-right:6px; }
+        #dfc table.dfc-tab tr.dfc-r-cat td.dfc-col-desc { padding-left:18px; }
+        #dfc table.dfc-tab tr.dfc-r-total td { font-weight:800; border-top:1px solid #d9dde3; border-bottom:1px solid #d9dde3; }
+        #dfc table.dfc-tab tr.dfc-r-total.dfc-ent td { background:#e3f5e9; }
+        #dfc table.dfc-tab tr.dfc-r-total.dfc-sai td { background:#fbe7e7; }
+        #dfc table.dfc-tab tfoot td { position:sticky; z-index:2; font-weight:800; font-size:13.5px; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq td { bottom:34px; background:#343a46; color:#fff; padding:9px 10px; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq:last-child td { bottom:0; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-pos { color:#8ce6aa; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-neg { color:#ffa096; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-col-desc { background:#343a46; color:#fff; z-index:3; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-saldo td { bottom:0; background:#f1f3f6; font-size:12.5px; border-top:1px solid #d9dde3; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-saldo td.dfc-col-desc { background:#f1f3f6; z-index:3; color:#4b5260; }
+        #dfc table.dfc-tab tfoot td.dfc-pos { color:#1e7e45; }
+        #dfc table.dfc-tab tfoot td.dfc-neg { color:#c0392b; }
+        #dfc table.dfc-tab td.cel-click { cursor:pointer; }
+        #dfc table.dfc-tab td.cel-click:hover { background:#ffe9dc !important; text-decoration:underline; }
+        html[data-tema="escuro"] #dfc .dfc-cat-wrap { border-color:#2f343d; }
+        html[data-tema="escuro"] #dfc table.dfc-tab td { color:#d6d9de; border-bottom-color:#2a2e36; }
+        html[data-tema="escuro"] #dfc table.dfc-tab td.dfc-col-desc, html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-sub td { background:#1b1e24; border-right-color:#2f343d; }
+        html[data-tema="escuro"] #dfc table.dfc-tab td.dfc-col-sel { background:#2b221d; }
+        html[data-tema="escuro"] #dfc table.dfc-tab td.dfc-col-acum { background:#22262d; border-left-color:#363b45; }
+        html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-secao.dfc-ent td, html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-total.dfc-ent td { background:#17281e; }
+        html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-secao.dfc-sai td, html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-total.dfc-sai td { background:#2c1a1a; }
+        html[data-tema="escuro"] #dfc table.dfc-tab tfoot tr.dfc-r-saldo td { background:#262a32; }
+        html[data-tema="escuro"] #dfc .dfc-acum { border-top-color:#363b45; }
+
+        /* ===================== DRE — tela cheia e fonte maior ===================== */
+        #dre #cardDREMensal { padding:14px 16px; }
+        #dre .dre-scroll-wrap { width:100% !important; max-width:100% !important; max-height:calc(100vh - 235px) !important; min-height:420px; }
+        #dre table#tabelaDREMensal, #dre table#tabelaDREMensal.dre-compacto { width:100%; font-size:14px; }
+        #dre table#tabelaDREMensal thead th { font-size:12px; padding:10px 10px; }
+        #dre table#tabelaDREMensal thead th:first-child, #dre table#tabelaDREMensal td:first-child { min-width:270px; max-width:380px; }
+        #dre table#tabelaDREMensal td { padding:7px 10px; min-width:74px; }
+        #dre table#tabelaDREMensal td.dre-pct-col, #dre table#tabelaDREMensal th.dre-pct-col { font-size:12px !important; min-width:44px; }
+        #dre table#tabelaDREMensal tr.dre-cat > td, #dre table#tabelaDREMensal tr.dre-estoque > td { font-size:13px; }
+        #dre table#tabelaDREMensal tr.dre-cat > td:first-child { padding-left:30px; }
+        #dre .dre-secao-titulo { font-size:12.5px; }
+        /* Modo compacto: só aperta o espaçamento — a letra continua legível */
+        #dre table#tabelaDREMensal.dre-compacto { font-size:13.5px; }
+        #dre table#tabelaDREMensal.dre-compacto thead th { padding:8px 8px; font-size:11.5px; }
+        #dre table#tabelaDREMensal.dre-compacto td { padding:5px 7px; min-width:64px; }
+        #dre table#tabelaDREMensal.dre-compacto td:first-child { min-width:250px; }
+        #dre table#tabelaDREMensal.dre-compacto td.dre-pct-col { font-size:11.5px !important; min-width:40px; }
+        #dre table#tabelaDREMensal.dre-compacto tr.dre-cat > td { font-size:12.5px; padding-top:3px; padding-bottom:3px; }
+        #dre .dre-mes-chip { font-size:12.5px; padding:4px 12px; }
+        #dre .dre-switch { font-size:13px; }
+        @media (min-width: 901px) {
+            .content:has(#dre.page.active) { padding:18px 20px; }
+        }
+
+        /* ===================== Boas-vindas / pendências ===================== */
+        #bvOverlay { position:fixed; inset:0; z-index:1500; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(20,22,28,.55); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+        #bvOverlay.ativo { display:flex; animation:bvFade .25s ease; }
+        @keyframes bvFade { from { opacity:0; } to { opacity:1; } }
+        @keyframes bvSobe { from { transform:translateY(18px); opacity:0; } to { transform:none; opacity:1; } }
+        .bv-caixa { width:min(1080px, 100%); max-height:calc(100vh - 40px); display:flex; flex-direction:column; background:#f6f7f9; border-radius:18px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.35); animation:bvSobe .35s cubic-bezier(.2,.8,.2,1); }
+        .bv-topo { position:relative; padding:26px 30px 22px; color:#fff; background:linear-gradient(120deg, #2b303b 0%, #3a2f2a 55%, #FF7A42 140%); overflow:hidden; }
+        .bv-topo::after { content:''; position:absolute; right:-60px; top:-80px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle, rgba(255,122,66,.45), rgba(255,122,66,0) 70%); }
+        .bv-saudacao { font-size:13px; letter-spacing:.6px; text-transform:uppercase; opacity:.75; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .bv-nome { font-size:30px; font-weight:800; margin:4px 0 2px; letter-spacing:-.4px; }
+        .bv-data { font-size:13.5px; opacity:.8; }
+        .bv-fechar { position:absolute; right:16px; top:14px; z-index:2; width:34px; height:34px; border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:18px; cursor:pointer; }
+        .bv-fechar:hover { background:rgba(255,255,255,.28); }
+        .bv-kpis { position:relative; z-index:1; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:18px; }
+        .bv-kpi { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px 14px; }
+        .bv-kpi-rot { font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; opacity:.75; font-weight:700; }
+        .bv-kpi-val { font-size:19px; font-weight:800; margin-top:3px; font-variant-numeric:tabular-nums; }
+        .bv-kpi-sub { font-size:11.5px; opacity:.75; margin-top:1px; }
+        .bv-kpi.alerta .bv-kpi-val { color:#ffb3a7; }
+        .bv-kpi.ok .bv-kpi-val { color:#9de8b8; }
+        .bv-corpo { display:grid; grid-template-columns:1fr 1fr; align-items:stretch; gap:16px; padding:18px 22px; overflow:auto; min-height:0; flex:1 1 auto; }
+        .bv-col { background:#fff; border:1px solid #eceef1; border-radius:14px; display:flex; flex-direction:column; }
+        .bv-col-topo { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid #f0f1f3; }
+        .bv-col-tit { font-size:15px; font-weight:800; color:#2d3139; display:flex; align-items:center; gap:8px; }
+        .bv-col-tit .bv-ico { width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; }
+        .bv-col.pagar .bv-ico { background:#fdecea; }
+        .bv-col.receber .bv-ico { background:#e6f6ec; }
+        .bv-col-total { font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; }
+        .bv-col.pagar .bv-col-total { color:#c0392b; }
+        .bv-col.receber .bv-col-total { color:#1e7e45; }
+        .bv-grupo { padding:6px 10px 4px; }
+        .bv-grupo-tit { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; padding:8px 6px 6px; }
+        .bv-grupo-tit .bv-tag { padding:2px 9px; border-radius:999px; font-size:10.5px; }
+        .bv-grupo.vencidas .bv-grupo-tit { color:#c0392b; } .bv-grupo.vencidas .bv-tag { background:#fdecea; }
+        .bv-grupo.hoje .bv-grupo-tit { color:#d35400; } .bv-grupo.hoje .bv-tag { background:#fff1e6; }
+        .bv-grupo.proximas .bv-grupo-tit { color:#2c6cb0; } .bv-grupo.proximas .bv-tag { background:#e8f1fb; }
+        .bv-item { display:grid; grid-template-columns:52px 1fr auto auto; align-items:center; gap:10px; padding:8px 6px; border-radius:10px; }
+        .bv-item:hover { background:#f7f8fa; }
+        .bv-dia { text-align:center; border-radius:9px; padding:4px 0; background:#f3f4f6; line-height:1.1; }
+        .bv-dia b { display:block; font-size:16px; color:#2d3139; }
+        .bv-dia span { font-size:10px; text-transform:uppercase; color:#8a8f98; font-weight:700; }
+        .bv-grupo.vencidas .bv-dia { background:#fdecea; } .bv-grupo.vencidas .bv-dia b { color:#c0392b; }
+        .bv-grupo.hoje .bv-dia { background:#fff1e6; } .bv-grupo.hoje .bv-dia b { color:#d35400; }
+        .bv-info { min-width:0; }
+        .bv-info-nome { font-size:13.5px; font-weight:700; color:#2d3139; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .bv-info-desc { font-size:12px; color:#8a8f98; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .bv-atraso { font-size:10.5px; font-weight:700; color:#c0392b; margin-left:4px; }
+        .bv-valor { font-size:14px; font-weight:800; font-variant-numeric:tabular-nums; color:#2d3139; white-space:nowrap; }
+        .bv-acao { border:1px solid #dcdfe4; background:#fff; color:#4b5260; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; }
+        .bv-col.pagar .bv-acao:hover { background:#c0392b; border-color:#c0392b; color:#fff; }
+        .bv-col.receber .bv-acao:hover { background:#1e8449; border-color:#1e8449; color:#fff; }
+        .bv-mais { font-size:12px; color:#8a8f98; padding:4px 8px 8px 68px; }
+        .bv-vazio { padding:30px 16px; text-align:center; color:#8a8f98; font-size:13.5px; }
+        .bv-vazio b { display:block; font-size:28px; margin-bottom:6px; }
+        .bv-col-rodape { margin-top:auto; padding:10px 16px; border-top:1px solid #f0f1f3; text-align:right; }
+        .bv-link { border:none; background:none; color:var(--cor-primaria); font-weight:700; font-size:13px; cursor:pointer; }
+        .bv-rodape { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 22px 16px; border-top:1px solid #e9ebee; background:#fff; }
+        .bv-rodape-txt { font-size:12px; color:#8a8f98; }
+        .bv-entrar { border:none; border-radius:10px; padding:10px 22px; font-size:14px; font-weight:800; color:#fff; background:linear-gradient(135deg, #FF7A42, #e95f22); cursor:pointer; box-shadow:0 6px 16px rgba(255,122,66,.35); }
+        .bv-entrar:hover { filter:brightness(1.05); }
+        .bv-btn-pendencias { margin-left:8px; }
+        @media (max-width: 900px) {
+            .bv-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); }
+            .bv-corpo { grid-template-columns:1fr; padding:14px; }
+            .bv-nome { font-size:24px; }
+            .bv-item { grid-template-columns:44px 1fr auto; }
+            .bv-item .bv-acao { grid-column:2 / 4; justify-self:start; }
+        }
+        html[data-tema="escuro"] .bv-caixa { background:#15171c; }
+        html[data-tema="escuro"] .bv-col, html[data-tema="escuro"] .bv-rodape { background:#1e2128; border-color:#2f343d; }
+        html[data-tema="escuro"] .bv-col-topo, html[data-tema="escuro"] .bv-col-rodape { border-color:#2a2e36; }
+        html[data-tema="escuro"] .bv-col-tit, html[data-tema="escuro"] .bv-info-nome, html[data-tema="escuro"] .bv-valor, html[data-tema="escuro"] .bv-dia b { color:#e3e5e8; }
+        html[data-tema="escuro"] .bv-item:hover { background:#252932; }
+        html[data-tema="escuro"] .bv-dia { background:#2c313b; }
+        html[data-tema="escuro"] .bv-acao { background:#252932; border-color:#3a3f48; color:#c3c8cf; }
+
+        /* ===================== Backup — pasta e horário ===================== */
+        .bk-grid { display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px; }
+        .bk-linha { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+        .bk-pasta { flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px dashed #cfd3d9; border-radius:10px; background:#fafbfc; font-size:13.5px; }
+        .bk-pasta.ok { border-style:solid; border-color:#b7e1c3; background:#f1faf4; }
+        .bk-pasta b { color:#2d3139; }
+        .bk-rot { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#8a8f98; margin:4px 0 6px; }
+        .bk-horarios { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+        .bk-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 12px; border-radius:999px; background:#fff1e8; border:1px solid #ffb48f; color:#c4501a; font-weight:800; font-size:13px; }
+        .bk-chip button { border:none; background:rgba(196,80,26,.12); color:#c4501a; width:20px; height:20px; border-radius:50%; cursor:pointer; font-size:12px; line-height:1; }
+        .bk-status { display:flex; flex-direction:column; gap:10px; }
+        .bk-st { display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:8px 0; border-bottom:1px solid #f0f1f3; }
+        .bk-st span { color:#8a8f98; }
+        .bk-st b { color:#2d3139; text-align:right; }
+        .bk-aviso { font-size:12.5px; line-height:1.5; padding:10px 12px; border-radius:8px; background:#fff8e6; border:1px solid #ffe2a1; color:#7a5a00; }
+        .bk-aviso.erro { background:#fdecea; border-color:#f5c2c7; color:#842029; }
+        #bkBanner { position:fixed; right:18px; bottom:18px; z-index:1400; max-width:360px; display:none; background:#2b303b; color:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 12px 30px rgba(0,0,0,.3); font-size:13px; line-height:1.45; }
+        #bkBanner.ativo { display:block; animation:bvSobe .3s ease; }
+        #bkBanner .bk-ban-acoes { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+        #bkBanner button { border:none; border-radius:8px; padding:7px 12px; font-weight:700; cursor:pointer; font-size:12.5px; }
+        @media (max-width: 900px) { .bk-grid { grid-template-columns:1fr; } }
+        html[data-tema="escuro"] .bk-pasta { background:#1b1e24; border-color:#3a3f48; }
+        html[data-tema="escuro"] .bk-pasta.ok { background:#17281e; border-color:#2c5a3b; }
+        html[data-tema="escuro"] .bk-pasta b, html[data-tema="escuro"] .bk-st b { color:#e3e5e8; }
+        html[data-tema="escuro"] .bk-st { border-color:#2a2e36; }
+    </style>
 </head>
 <body>
 
@@ -2702,8 +2880,9 @@
                     <h1>Dashboard</h1>
                     <div class="dash-sub" id="dashSubtitulo">Visão geral para tomada de decisão</div>
                 </div>
-                <div class="user-info">
+                <div class="user-info" style="display:flex;align-items:center;gap:8px;">
                     <p id="userGreeting">Bem-vindo!</p>
+                    <button class="btn btn-secondary btn-small bv-btn-pendencias" onclick="mostrarBoasVindas(true)" title="Ver pagamentos e recebimentos pendentes">🔔 Pendências</button>
                 </div>
             </div>
 
@@ -3008,23 +3187,76 @@
             </div>
             <div class="alert alert-success" id="alertBackup"></div>
 
+            <div class="bk-grid">
+                <div class="card" style="margin:0;">
+                    <div class="card-title">⚙️ Configurar backup automático</div>
+
+                    <div class="bk-rot">Pasta de destino</div>
+                    <div class="bk-linha">
+                        <div class="bk-pasta" id="bkPastaBox">📁 <span id="bkPastaNome">Nenhuma pasta escolhida — os backups vão para <b>Downloads</b></span></div>
+                        <button class="btn btn-primary btn-small" onclick="bkEscolherPasta()">Escolher pasta…</button>
+                        <button class="btn btn-secondary btn-small" id="bkBtnRemoverPasta" onclick="bkRemoverPasta()" style="display:none;">Remover</button>
+                    </div>
+                    <div class="bk-aviso" id="bkAvisoNavegador" style="display:none;margin-bottom:12px;"></div>
+
+                    <div class="bk-rot">Horários do backup</div>
+                    <div class="bk-linha">
+                        <div class="bk-horarios" id="bkHorarios"></div>
+                        <input type="time" id="bkNovoHorario" value="18:00" style="width:120px;height:34px;">
+                        <button class="btn btn-secondary btn-small" onclick="bkAdicionarHorario()">+ Adicionar horário</button>
+                    </div>
+
+                    <div class="bk-rot">Opções</div>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:8px;cursor:pointer;">
+                        <input type="checkbox" id="bkAoAbrir" onchange="bkSalvarOpcoes()"> Fazer também um backup ao abrir o sistema (1 vez por dia)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;">
+                        Manter na pasta os backups dos últimos
+                        <select id="bkRetencao" onchange="bkSalvarOpcoes()" style="width:auto;height:30px;padding:0 6px;">
+                            <option value="0">todos (não apagar)</option>
+                            <option value="7">7 dias</option>
+                            <option value="15">15 dias</option>
+                            <option value="30">30 dias</option>
+                            <option value="60">60 dias</option>
+                            <option value="90">90 dias</option>
+                        </select>
+                    </label>
+                    <div style="font-size:12px;color:#8a8f98;margin-top:12px;line-height:1.5;">
+                        O backup agendado roda enquanto o sistema estiver aberto no navegador. Se o sistema estiver fechado
+                        no horário, o backup é feito assim que você entrar de novo.
+                    </div>
+                </div>
+
+                <div class="card" style="margin:0;">
+                    <div class="card-title">📊 Situação</div>
+                    <div class="bk-status">
+                        <div class="bk-st"><span>Destino</span><b id="bkStDestino">Downloads</b></div>
+                        <div class="bk-st"><span>Próximo backup</span><b id="bkStProximo">—</b></div>
+                        <div class="bk-st"><span>Último backup</span><b id="bkStUltimo">—</b></div>
+                        <div class="bk-st"><span>Permissão da pasta</span><b id="bkStPermissao">—</b></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="bkTestarPasta()">🧪 Testar gravação na pasta</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-title">ℹ️ Como funciona</div>
                 <div style="font-size:13px;color:#555;line-height:1.6;">
-                    Todo dia, ao abrir o sistema pela primeira vez, um backup completo (categorias, subcategorias,
-                    produtos, fornecedores, clientes, bancos, transferências, contas a receber/pagar e lançamentos de DRE)
-                    é gerado automaticamente e baixado como um arquivo <b>.json</b> pelo navegador — sem precisar fazer nada.
-                    Você também pode gerar um backup manual a qualquer momento pelo botão acima.<br><br>
-                    Os arquivos ficam na pasta de <b>Downloads</b> do navegador que você está usando. Vale a pena, de vez
-                    em quando, mover esses arquivos para o Google Drive ou outro local seguro — o sistema mantém aqui
-                    apenas o <b>registro</b> dos últimos 30 dias de backups (data e quantidade de registros), não os arquivos em si.
+                    O backup é um arquivo <b>.json</b> com todas as tabelas do sistema (categorias, subcategorias,
+                    produtos, fornecedores, clientes, bancos, transferências, contas a receber/pagar e lançamentos de DRE).
+                    Com uma pasta escolhida, o arquivo é gravado direto nela (ex.: uma pasta do Google Drive ou OneDrive
+                    sincronizada no computador). Sem pasta, ele vai para <b>Downloads</b>.<br>
+                    A escolha de pasta funciona no <b>Google Chrome</b> e no <b>Microsoft Edge</b>. Se o navegador pedir,
+                    clique em <b>“Permitir em todas as visitas”</b> para o backup agendado não precisar de confirmação.
                 </div>
             </div>
 
             <div class="table-container">
                 <table id="tabelaBackupLog">
                     <thead><tr>
-                        <th>Data/Hora</th><th>Tipo</th><th>Arquivo</th><th>Registros</th>
+                        <th>Data/Hora</th><th>Tipo</th><th>Destino</th><th>Arquivo</th><th>Registros</th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
@@ -3882,17 +4114,20 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <div class="stat-card" style="border-left-color:#28a745;">
                     <div class="stat-label">💰 Total Entradas</div>
                     <div class="stat-value" id="dfcCardEntradas" style="color:#28a745; font-size:22px;">R$ 0,00</div>
-                    <div class="stat-change">Recebimentos confirmados</div>
+                    <div class="stat-change" id="dfcCardEntradasLabel">Recebimentos confirmados</div>
+                    <div class="dfc-acum" id="dfcCardEntradasAcum"></div>
                 </div>
                 <div class="stat-card" style="border-left-color:#dc3545;">
                     <div class="stat-label">📤 Total Saídas</div>
                     <div class="stat-value" id="dfcCardSaidas" style="color:#dc3545; font-size:22px;">R$ 0,00</div>
-                    <div class="stat-change">Pagamentos confirmados</div>
+                    <div class="stat-change" id="dfcCardSaidasLabel">Pagamentos confirmados</div>
+                    <div class="dfc-acum" id="dfcCardSaidasAcum"></div>
                 </div>
                 <div class="stat-card" id="dfcCardLiquidoBox">
                     <div class="stat-label">📊 Fluxo Líquido</div>
                     <div class="stat-value" id="dfcCardLiquido" style="font-size:22px;">R$ 0,00</div>
                     <div class="stat-change" id="dfcCardLiquidoLabel">Resultado do período</div>
+                    <div class="dfc-acum" id="dfcCardLiquidoAcum"></div>
                 </div>
                 <div class="stat-card" style="border-left-color:#17a2b8;">
                     <div class="stat-label">⏳ A Receber (pendente)</div>
@@ -3982,17 +4217,17 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             <!-- DFC POR CATEGORIA -->
             <div class="card" id="cardDFCCategoria" style="margin-top:16px;display:none;">
                 <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-                    <span>&#128202; DFC Detalhado por Categoria</span>
+                    <span>&#128202; DFC Detalhado por Categoria <span class="dfc-cat-periodo" id="dfcCatPeriodo"></span> <span class="dfc-cat-periodo">· valores em R$</span></span>
                     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <select id="dfcCatVisao" onchange="renderizarDFCCategoria()" style="padding:5px 10px;font-size:12px;border:1px solid #ddd;border-radius:6px;">
-                            <option value="mensal">Mensal (Jan a Dez)</option>
-                            <option value="total">Total do periodo</option>
+                            <option value="mensal">Mensal + acumulado do ano</option>
+                            <option value="total">Mês x acumulado do ano</option>
                         </select>
                         <button onclick="exportarDFCCatXLSX()" class="btn btn-secondary btn-small" style="font-size:11px;background:#27ae60;color:white;">&#128190; Excel</button>
                     </div>
                 </div>
-                <div style="overflow-x:auto;margin-top:8px;">
-                    <table id="tabelaDFCCategoria" style="font-size:12px;border-collapse:collapse;width:100%;min-width:600px;">
+                <div class="dfc-cat-wrap">
+                    <table id="tabelaDFCCategoria" class="dfc-tab">
                         <thead id="dfcCatHead"></thead>
                         <tbody id="dfcCatBody"></tbody>
                         <tfoot id="dfcCatFoot"></tfoot>
@@ -5888,6 +6123,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         await carregarContasPagar();
         await atualizarDashboard();
         inicializarFiltrosCalendario();
+        try { mostrarBoasVindas(false); } catch (e) { console.error('Boas-vindas:', e); }
         verificarBackupAutomatico();
     }
 
@@ -11958,6 +12194,41 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         document.getElementById('dfcCardPendentesPagar').textContent     = fmtBRL(totalPendPag);
         document.getElementById('dfcCardPendentesPagarCount').textContent = pendentes_pagar.length + ' contas';
 
+        // ── Acumulado do ano (jan até o mês selecionado) ──────────────────────
+        const mesIdxSel = (anoSel && mesSel) ? parseInt(mesSel, 10) - 1 : -1;
+        const mAbrev = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+        let recebidosYTD = recebidosAno, pagosYTD = pagosAno;
+        if (mesIdxSel >= 0) {
+            const limite = anoSel + '-' + mesSel + '-31';
+            recebidosYTD = recebidosAno.filter(c => c.data_recebimento && c.data_recebimento <= limite);
+            pagosYTD     = pagosAno.filter(c => c.data_pagamento && c.data_pagamento <= limite);
+        }
+        const entYTD = recebidosYTD.reduce((s,c) => s + parseFloat(c.valor||0), 0);
+        const saiYTD = pagosYTD.reduce((s,c) => s + parseFloat(c.valor||0), 0);
+        const liqYTD = entYTD - saiYTD;
+        const rotAcum = mesIdxSel >= 0 ? ('Acumulado jan–' + mAbrev[mesIdxSel] + '/' + String(anoSel).slice(2)) : '';
+        const setAcum = (id, valor, cor) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (mesIdxSel < 0) { el.style.display = 'none'; return; }
+            el.style.display = '';
+            el.innerHTML = '<span>' + rotAcum + '</span><b style="color:' + cor + ';">' + valor + '</b>';
+        };
+        setAcum('dfcCardEntradasAcum', fmtBRL(entYTD), '#28a745');
+        setAcum('dfcCardSaidasAcum',   fmtBRL(saiYTD), '#dc3545');
+        setAcum('dfcCardLiquidoAcum',  fmtValSig(liqYTD), liqYTD >= 0 ? '#28a745' : '#dc3545');
+        const lblE = document.getElementById('dfcCardEntradasLabel');
+        const lblS = document.getElementById('dfcCardSaidasLabel');
+        if (lblE) lblE.textContent = 'Recebido — ' + rotuloPeriodo;
+        if (lblS) lblS.textContent = 'Pago — ' + rotuloPeriodo;
+        window._dfcResumo = {
+            rotuloPeriodo, rotAcum, mesIdxSel,
+            ent: totalReceber, sai: totalPagar, liq: fluxoLiquido,
+            entYTD, saiYTD, liqYTD,
+            pendRec: totalPendRec, pendRecQtd: pendentes_receber.length,
+            pendPag: totalPendPag, pendPagQtd: pendentes_pagar.length
+        };
+
         // Tabela mensal Jan-Dez (só se ano selecionado) — usa a versão SEM filtro de mês,
         // ela sempre mostra o ano inteiro, independente do mês escolhido acima.
         const cardMensal = document.getElementById('cardDFCMensal');
@@ -11972,224 +12243,156 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         // Grafico (ultimos 12 meses ou ano selecionado)
         criarGraficoDFC(contasReceber, contasPagar, anoSel);
 
-        // DFC por Categoria
-        window._dfcRecebidos = recebidos;
-        window._dfcPagos     = pagos;
+        // DFC por Categoria — usa o acumulado do ano (jan até o mês escolhido);
+        // as colunas por mês e a coluna do mês selecionado saem desse mesmo conjunto.
+        window._dfcRecebidos = recebidosYTD;
+        window._dfcPagos     = pagosYTD;
         window._dfcAnoSel    = anoSel;
+        window._dfcMesIdxSel = mesIdxSel;
+        window._dfcRecAnoTodo = recebidosAno;
+        window._dfcPagAnoTodo = pagosAno;
         renderizarDFCCategoria();
     }
 
     // ================================================================
     // DFC POR CATEGORIA
     // ================================================================
-    function renderizarDFCCategoria() {
+    // Monta o modelo do "DFC Detalhado por Categoria" — usado pela tela e pelo PDF.
+    // Colunas: meses (jan até o mês escolhido) ou só o mês escolhido, e sempre o
+    // ACUMULADO DO ANO no final.
+    function _dfcModeloCategorias() {
         var recebidos = window._dfcRecebidos || [];
         var pagos     = window._dfcPagos     || [];
         var anoSel    = window._dfcAnoSel    || '';
+        var mesSel    = (typeof window._dfcMesIdxSel === 'number') ? window._dfcMesIdxSel : -1;
         var visao     = (document.getElementById('dfcCatVisao') || {}).value || 'mensal';
+        var aa        = anoSel ? '/' + String(anoSel).slice(2) : '';
+        var mesesLabel = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map(function(m){ return m + aa; });
+        var ultimo = mesSel >= 0 ? mesSel : 11;
+        var todosMeses = []; for (var i = 0; i <= ultimo; i++) todosMeses.push(i);
 
-        var card = document.getElementById('cardDFCCategoria');
-        if (card) card.style.display = '';
+        var cols = [];
+        if (visao === 'mensal') {
+            todosMeses.forEach(function(m){ cols.push({ label: mesesLabel[m], meses: [m], mes: m, destaque: m === mesSel }); });
+        } else if (mesSel >= 0) {
+            cols.push({ label: mesesLabel[mesSel], meses: [mesSel], mes: mesSel, destaque: true });
+        }
+        var rotAcum = !anoSel ? 'Total' : (mesSel >= 0 ? 'Acum. Jan–' + mesesLabel[mesSel] : 'Acumulado ' + anoSel);
+        cols.push({ label: rotAcum, meses: todosMeses, mes: -1, acum: true });
+        var temPct = visao === 'total';
 
-        var mesesLabel = anoSel
-            ? ['Jan/' + String(anoSel).slice(2),'Fev/' + String(anoSel).slice(2),'Mar/' + String(anoSel).slice(2),
-               'Abr/' + String(anoSel).slice(2),'Mai/' + String(anoSel).slice(2),'Jun/' + String(anoSel).slice(2),
-               'Jul/' + String(anoSel).slice(2),'Ago/' + String(anoSel).slice(2),'Set/' + String(anoSel).slice(2),
-               'Out/' + String(anoSel).slice(2),'Nov/' + String(anoSel).slice(2),'Dez/' + String(anoSel).slice(2)]
-            : ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-        var nums       = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        var novo = function(){ return { total: 0, meses: [0,0,0,0,0,0,0,0,0,0,0,0] }; };
+        var somaM = function(d, v, data) {
+            d.total += v;
+            if (data) { var k = parseInt(data.substring(5,7),10)-1; if (k>=0 && k<12) d.meses[k] += v; }
+        };
 
-        // ---- Agrupar ENTRADAS por categoria de recebimento ----
-        // Contas a receber nao tem categoria_id na maioria dos sistemas,
-        // mas vamos agrupar por "Receitas" com sub por cliente se nao houver categoria
-        var entradasCat = {};
+        var entCat = {}, entTot = novo();
         recebidos.forEach(function(c) {
             var cat = dadosCache.categorias.find(function(x){ return x.id === c.categoria_id; });
             var nome = cat ? cat.nome : 'Receitas de Clientes';
-            if (!entradasCat[nome]) entradasCat[nome] = { total: 0, meses: [0,0,0,0,0,0,0,0,0,0,0,0] };
+            if (!entCat[nome]) entCat[nome] = novo();
             var v = parseFloat(c.valor) || 0;
-            entradasCat[nome].total += v;
-            var mm = c.data_recebimento ? c.data_recebimento.substring(5,7) : null;
-            if (mm) { var i = parseInt(mm,10)-1; if(i>=0&&i<12) entradasCat[nome].meses[i]+=v; }
+            somaM(entCat[nome], v, c.data_recebimento); somaM(entTot, v, c.data_recebimento);
         });
-
-        // ---- Agrupar SAIDAS: nivel 1 = prefixo, nivel 2 = nome completo ----
-        var saidasCat = {};    // { prefixo: { total, meses[], subs: { nomeCompleto: { total, meses[] } } } }
+        var saiCat = {}, saiTot = novo();
         pagos.forEach(function(c) {
             var cat  = dadosCache.categorias.find(function(x){ return x.id === c.categoria_id; });
             var nome = cat ? cat.nome : 'Sem Categoria';
             var pref = getCatPrefixo(nome);
             var v    = parseFloat(c.valor) || 0;
-            var mm   = c.data_pagamento ? c.data_pagamento.substring(5,7) : null;
-            var mi   = mm ? parseInt(mm,10)-1 : -1;
-
-            if (!saidasCat[pref]) saidasCat[pref] = { total:0, meses:[0,0,0,0,0,0,0,0,0,0,0,0], subs:{} };
-            saidasCat[pref].total += v;
-            if (mi>=0&&mi<12) saidasCat[pref].meses[mi] += v;
-
-            // Subcategoria só quando o nome completo difere do prefixo
+            if (!saiCat[pref]) { saiCat[pref] = novo(); saiCat[pref].subs = {}; }
+            somaM(saiCat[pref], v, c.data_pagamento); somaM(saiTot, v, c.data_pagamento);
             if (nome !== pref) {
-                if (!saidasCat[pref].subs[nome]) saidasCat[pref].subs[nome] = { total:0, meses:[0,0,0,0,0,0,0,0,0,0,0,0] };
-                saidasCat[pref].subs[nome].total += v;
-                if (mi>=0&&mi<12) saidasCat[pref].subs[nome].meses[mi] += v;
+                if (!saiCat[pref].subs[nome]) saiCat[pref].subs[nome] = novo();
+                somaM(saiCat[pref].subs[nome], v, c.data_pagamento);
             }
         });
 
-        var totalEntradas = recebidos.reduce(function(s,c){ return s+parseFloat(c.valor||0); }, 0);
-        var totalSaidas   = pagos.reduce(function(s,c){ return s+parseFloat(c.valor||0); }, 0);
-        var fluxoLiq      = totalEntradas - totalSaidas;
+        var valsDe = function(d) { return cols.map(function(col){ return col.meses.reduce(function(s, m){ return s + d.meses[m]; }, 0); }); };
+        var linhas = [];
+        linhas.push({ tipo: 'secao', label: '(+) ENTRADAS DE CAIXA', lado: 'ent' });
+        Object.keys(entCat).sort(function(a,b){ return entCat[b].total - entCat[a].total; }).forEach(function(n){
+            linhas.push({ tipo: 'cat', label: n, vals: valsDe(entCat[n]), lado: 'ent', clique: { tipo: 'ent', nome: n } });
+        });
+        linhas.push({ tipo: 'total', label: '(=) TOTAL ENTRADAS', vals: valsDe(entTot), lado: 'ent' });
+        linhas.push({ tipo: 'secao', label: '(-) SAÍDAS DE CAIXA', lado: 'sai' });
+        Object.keys(saiCat).sort(function(a,b){ return saiCat[b].total - saiCat[a].total; }).forEach(function(p){
+            linhas.push({ tipo: 'cat', label: p, vals: valsDe(saiCat[p]), lado: 'sai', clique: { tipo: 'sai-pref', nome: p } });
+            var subs = saiCat[p].subs;
+            Object.keys(subs).sort(function(a,b){ return subs[b].total - subs[a].total; }).forEach(function(s){
+                linhas.push({ tipo: 'sub', label: s, vals: valsDe(subs[s]), lado: 'sai', clique: { tipo: 'sai-sub', nome: s } });
+            });
+        });
+        linhas.push({ tipo: 'total', label: '(=) TOTAL SAÍDAS', vals: valsDe(saiTot), lado: 'sai' });
+        var entV = valsDe(entTot), saiV = valsDe(saiTot);
+        var liqV = entV.map(function(e, i){ return e - saiV[i]; });
+        linhas.push({ tipo: 'liq', label: '(=) FLUXO LÍQUIDO', vals: liqV, temMov: entV.map(function(e,i){ return e > 0 || saiV[i] > 0; }) });
+        if (visao === 'mensal' && cols.length > 2) {
+            var run = 0, comecou = false, temMovS = [];
+            var saldoV = cols.map(function(col, i){
+                if (col.acum) { temMovS.push(true); return run; }
+                if (entV[i] > 0 || saiV[i] > 0) comecou = true;
+                temMovS.push(comecou); run += liqV[i]; return run;
+            });
+            linhas.push({ tipo: 'saldo', label: 'Saldo acumulado no ano', vals: saldoV, temMov: temMovS });
+        }
+        var acumIdx = cols.length - 1;
+        return { cols: cols, linhas: linhas, temPct: temPct, acumIdx: acumIdx,
+                 baseEnt: entV[acumIdx], baseSai: saiV[acumIdx], visao: visao, anoSel: anoSel, mesSel: mesSel,
+                 rotAcum: rotAcum };
+    }
 
+    function renderizarDFCCategoria() {
+        var card = document.getElementById('cardDFCCategoria');
+        if (card) card.style.display = '';
         var thead = document.getElementById('dfcCatHead');
         var tbody = document.getElementById('dfcCatBody');
         var tfoot = document.getElementById('dfcCatFoot');
         if (!thead || !tbody) return;
+        var M = _dfcModeloCategorias();
+        var per = document.getElementById('dfcCatPeriodo');
+        if (per) per.textContent = M.anoSel ? '· ' + (M.mesSel >= 0 ? 'mês selecionado em destaque + acumulado do ano' : 'ano ' + M.anoSel) : '· todos os anos';
 
-        // ---- Montar colunas ----
-        var colunas = visao === 'mensal' ? mesesLabel : ['Total do Período'];
-
-        // Header
-        var thBg    = 'background:#FF7A42;color:white;';
-        var thStyle = 'padding:8px 10px;font-size:11px;white-space:nowrap;border-bottom:2px solid #e06020;font-weight:600;';
-        var thFirst = thStyle + thBg + 'text-align:left;min-width:200px;position:sticky;left:0;z-index:2;';
-        var thNum   = thStyle + thBg + 'text-align:right;min-width:90px;';
-
-        thead.innerHTML = '<tr>'
-            + '<th style="' + thFirst + '">Descrição</th>'
-            + colunas.map(function(c){ return '<th style="' + thNum + '">' + c + '</th>'; }).join('')
-            + '<th style="' + thNum + '">Acumulado do Ano</th>'
+        var fmtN = function(v){ return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+        var escQ = function(s){ return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;'); };
+        var thCls = function(c){ return (c.acum ? 'dfc-col-acum' : '') + (c.destaque ? ' dfc-col-sel' : ''); };
+        thead.innerHTML = '<tr><th class="dfc-col-desc">Descrição</th>'
+            + M.cols.map(function(c){ return '<th class="' + thCls(c) + '">' + c.label + '</th>'; }).join('')
+            + (M.temPct ? '<th class="dfc-col-pct">% do acum.</th>' : '')
             + '</tr>';
 
-        tbody.innerHTML = '';
-
-        function fmtC(v, cor) {
-            if (!v || v === 0) return '<span style="color:#ccc;">\u2014</span>';
-            return '<span style="color:' + cor + ';font-weight:600;">' + fmtValFull(v) + '</span>';
-        }
-
-        function addSectionHeader(label, cor, bgCor) {
-            var cols = visao === 'mensal' ? 12 : 1;
-            tbody.innerHTML += '<tr style="background:' + bgCor + ';border-top:3px solid ' + cor + ';">'
-                + '<td style="font-weight:800;font-size:12px;padding:9px 10px;color:' + cor + ';position:sticky;left:0;background:' + bgCor + ';letter-spacing:0.3px;">' + label + '</td>'
-                + Array(cols+1).fill('<td style="border-bottom:1px solid ' + cor + '20;"></td>').join('')
-                + '</tr>';
-        }
-
-        // Clique em qualquer número abre os lançamentos daquela categoria/mês.
-        var escQ = function(s){ return String(s).replace(/'/g, "\\'"); };
-        function clkCat(tipo, nome, mesIdx, temValor) {
-            if (!temValor) return '';
-            return ' class="cel-click" onclick="abrirDetalheDFCCat(\'' + tipo + '\',\'' + escQ(nome) + '\',' + mesIdx + ')"';
-        }
-
-        function addCatRow(nome, data, cor, bgEven, bgOdd, idx, tipoClique) {
-            var bg = idx%2===0 ? bgEven : bgOdd;
-            var cells = visao === 'mensal'
-                ? data.meses.map(function(v, m){
-                    return '<td style="text-align:right;padding:5px 8px;color:' + (v>0?cor:'#ccc') + ';font-weight:' + (v>0?'600':'400') + ';"'
-                        + clkCat(tipoClique, nome, m, v>0) + '>'
-                        + (v>0 ? fmtValFull(v) : '—') + '</td>';
-                  }).join('')
-                : '<td style="text-align:right;padding:5px 8px;color:' + (data.total>0?cor:'#ccc') + ';font-weight:600;"'
-                    + clkCat(tipoClique, nome, -1, data.total>0) + '>'
-                    + (data.total>0 ? fmtValFull(data.total) : '—') + '</td>';
-            tbody.innerHTML += '<tr style="background:' + bg + ';">'
-                + '<td style="padding:6px 10px 6px 22px;font-size:12px;font-weight:500;color:#333;position:sticky;left:0;background:' + bg + ';">'
-                + nome + '</td>'
-                + cells
-                + '<td style="text-align:right;padding:5px 10px;font-weight:700;color:' + cor + ';"'
-                + clkCat(tipoClique, nome, -1, data.total>0) + '>'
-                + fmtValFull(data.total) + '</td>'
-                + '</tr>';
-        }
-
-        function addSubtotal(label, valor, cor, bgCor, tipo) {
-            tbody.innerHTML += '<tr style="background:' + bgCor + ';border-top:2px solid ' + cor + ';">'
-                + '<td style="font-weight:800;padding:8px 10px;font-size:12px;color:' + cor + ';position:sticky;left:0;background:' + bgCor + ';">' + label + '</td>'
-                + (visao === 'mensal'
-                    ? getSubtotalMeses(tipo, entradasCat, saidasCat, cor)
-                    : '<td style="text-align:right;padding:7px 8px;font-weight:700;color:' + cor + ';">' + fmtValFull(valor) + '</td>')
-                + '<td style="text-align:right;padding:8px 10px;font-weight:800;color:' + cor + ';">' + fmtValFull(valor) + '</td>'
-                + '</tr>';
-        }
-
-        function getSubtotalMeses(tipo, entCat, saiCat, cor) {
-            var meses12 = [0,0,0,0,0,0,0,0,0,0,0,0];
-            if (tipo === 'ent') {
-                Object.values(entCat).forEach(function(d){ d.meses.forEach(function(v,i){ meses12[i]+=v; }); });
-            } else {
-                // saiCat now has { total, meses, subs } structure
-                Object.values(saiCat).forEach(function(d){ d.meses.forEach(function(v,i){ meses12[i]+=v; }); });
+        var html = '', foot = '';
+        var nCols = M.cols.length + 1 + (M.temPct ? 1 : 0);
+        M.linhas.forEach(function(l) {
+            if (l.tipo === 'secao') {
+                html += '<tr class="dfc-r-secao dfc-' + l.lado + '"><td colspan="' + nCols + '">' + l.label + '</td></tr>';
+                return;
             }
-            return meses12.map(function(v){
-                return '<td style="text-align:right;padding:7px 8px;font-weight:700;color:' + (v>0?cor:'#ccc') + ';">'
-                    + (v>0 ? fmtValFull(v) : '\u2014') + '</td>';
+            var cls = 'dfc-r-' + l.tipo + (l.lado ? ' dfc-' + l.lado : '');
+            var cells = l.vals.map(function(v, i) {
+                var col = M.cols[i];
+                var c = thCls(col);
+                if (l.tipo === 'liq' || l.tipo === 'saldo') {
+                    var vazio = !col.acum && l.temMov && !l.temMov[i];
+                    return '<td class="' + c + (vazio ? ' dfc-vazio' : (v >= 0 ? ' dfc-pos' : ' dfc-neg')) + '">' + (vazio ? '—' : fmtN(v)) + '</td>';
+                }
+                if (!v) return '<td class="' + c + ' dfc-vazio">—</td>';
+                var clk = l.clique ? ' onclick="abrirDetalheDFCCat(\'' + l.clique.tipo + '\',\'' + escQ(l.clique.nome) + '\',' + col.mes + ')"' : '';
+                return '<td class="' + c + (l.clique ? ' cel-click' : '') + '"' + clk + '>' + fmtN(v) + '</td>';
             }).join('');
-        }
-
-        // ---- ENTRADAS ----
-        addSectionHeader('(+) ENTRADAS DE CAIXA', '#28a745', '#f0fff4');
-        var entKeys = Object.keys(entradasCat).sort(function(a,b){ return entradasCat[b].total - entradasCat[a].total; });
-        entKeys.forEach(function(nome, idx) {
-            addCatRow(nome, entradasCat[nome], '#28a745', 'white', '#f8fff8', idx, 'ent');
+            if (M.temPct) {
+                var base = l.lado === 'sai' ? M.baseSai : M.baseEnt;
+                var va = l.vals[M.acumIdx];
+                var pct = (l.lado && base > 0 && va) ? (va / base * 100).toFixed(1).replace('.', ',') + '%' : '';
+                cells += '<td class="dfc-col-pct">' + pct + '</td>';
+            }
+            var label = l.tipo === 'sub' ? '<span class="dfc-seta">↳</span>' + l.label : l.label;
+            var tr = '<tr class="' + cls + '"><td class="dfc-col-desc">' + label + '</td>' + cells + '</tr>';
+            if (l.tipo === 'liq' || l.tipo === 'saldo') foot += tr; else html += tr;
         });
-        addSubtotal('(=) TOTAL ENTRADAS', totalEntradas, '#28a745', '#e8f8ee', 'ent');
-
-        // ---- SAIDAS ----
-        addSectionHeader('(-) SAIDAS DE CAIXA', '#dc3545', '#fff5f5');
-        var saiKeys = Object.keys(saidasCat).sort(function(a,b){ return saidasCat[b].total - saidasCat[a].total; });
-        saiKeys.forEach(function(pref, idx) {
-            addCatRow(pref, saidasCat[pref], '#dc3545', 'white', '#fff8f8', idx, 'sai-pref');
-            // Subcategorias abertas abaixo do prefixo
-            var subs = saidasCat[pref].subs || {};
-            var subKeys = Object.keys(subs).sort(function(a,b){ return subs[b].total - subs[a].total; });
-            subKeys.forEach(function(subNome) {
-                var d = subs[subNome];
-                var cells = visao === 'mensal'
-                    ? d.meses.map(function(v, m){
-                        return '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (v>0?'#dc3545':'#ccc') + ';"'
-                            + clkCat('sai-sub', subNome, m, v>0) + '>'
-                            + (v>0 ? fmtValFull(v) : '—') + '</td>';
-                      }).join('')
-                    : '<td style="text-align:right;padding:4px 8px;font-size:11px;color:' + (d.total>0?'#dc3545':'#ccc') + ';"'
-                        + clkCat('sai-sub', subNome, -1, d.total>0) + '>'
-                        + (d.total>0 ? fmtValFull(d.total) : '—') + '</td>';
-                tbody.innerHTML += '<tr style="background:#fffbfb;">'
-                    + '<td style="padding:4px 10px 4px 30px;font-size:11px;color:#999;position:sticky;left:0;background:#fffbfb;">'
-                    + '<span style="color:#ddd;margin-right:5px;">↳</span>' + subNome + '</td>'
-                    + cells
-                    + '<td style="text-align:right;padding:4px 10px;font-size:11px;font-weight:600;color:#dc3545;"'
-                    + clkCat('sai-sub', subNome, -1, d.total>0) + '>'
-                    + fmtValFull(d.total) + '</td>'
-                    + '</tr>';
-            });
-        });
-        addSubtotal('(=) TOTAL SAIDAS', totalSaidas, '#dc3545', '#fde8e8', 'sai');
-
-        // ---- FLUXO LIQUIDO (footer) ----
-        var fluxoCor = fluxoLiq >= 0 ? '#28a745' : '#dc3545';
-        var fluxoBg  = fluxoLiq >= 0 ? '#d4edda' : '#fde8e8';
-
-        var fluxoMeses = '';
-        if (visao === 'mensal') {
-            var entM = [0,0,0,0,0,0,0,0,0,0,0,0];
-            var saiM = [0,0,0,0,0,0,0,0,0,0,0,0];
-            Object.values(entradasCat).forEach(function(d){ d.meses.forEach(function(v,i){ entM[i]+=v; }); });
-            Object.values(saidasCat).forEach(function(d){ d.meses.forEach(function(v,i){ saiM[i]+=v; }); });
-            fluxoMeses = entM.map(function(e,i){
-                var liq = e - saiM[i];
-                var c   = liq >= 0 ? '#28a745' : '#dc3545';
-                return '<td style="text-align:right;padding:8px 8px;font-weight:700;color:' + c + ';">'
-                    + (e>0||saiM[i]>0 ? fmtValFull(liq) : '<span style="color:#ccc;">\u2014</span>') + '</td>';
-            }).join('');
-        } else {
-            fluxoMeses = '<td style="text-align:right;padding:8px;font-weight:700;color:' + fluxoCor + ';">' + fmtValFull(fluxoLiq) + '</td>';
-        }
-
-        tfoot.innerHTML = '<tr style="background:' + fluxoBg + ';border-top:3px solid ' + fluxoCor + ';">'
-            + '<td style="font-weight:800;font-size:13px;padding:9px 10px;color:' + fluxoCor + ';position:sticky;left:0;background:' + fluxoBg + ';">(=) FLUXO LIQUIDO</td>'
-            + fluxoMeses
-            + '<td style="text-align:right;padding:9px 10px;font-weight:800;font-size:13px;color:' + fluxoCor + ';">' + fmtValFull(fluxoLiq) + '</td>'
-            + '</tr>';
+        tbody.innerHTML = html;
+        if (tfoot) tfoot.innerHTML = foot;
     }
 
     // ── DFC: abrir lançamentos ao clicar num número ──────────────────────────
@@ -16362,143 +16565,221 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // ================================================================
     // PDF — DFC
     // ================================================================
+    // ================================================================
+    // PDF DA DFC — paisagem, com cards de resumo (mês + acumulado do ano),
+    // resumo mensal e o DFC detalhado por categoria.
+    // ================================================================
+    function _pdfTxt(t) {
+        // Helvetica do jsPDF desenha Latin-1 (acentos OK); troca só o que ela não tem.
+        return String(t == null ? '' : t)
+            .replace(/[–—]/g, '-').replace(/↳/g, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
+            .replace(/[^\x00-\xFF]/g, '').trim();
+    }
+
     function gerarPDFDFC() {
+        if (!window.jspdf || !window.jspdf.jsPDF) { alert('Biblioteca de PDF não carregada.'); return; }
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
         const pageW = doc.internal.pageSize.getWidth();
         const pageH = doc.internal.pageSize.getHeight();
+        const mg = 10;
+        const R = window._dfcResumo || {};
+        const anoSel = window._dfcAnoSel || '';
+        const fmt = v => fmtBRL(v);
+        const fmtS = v => fmtValSig(v);
+        const LAR = [255, 122, 66], VERDE = [30, 132, 73], VERM = [192, 57, 43], CINZA = [110, 116, 125], ESC = [52, 58, 70];
 
-        const hoje = new Date().toLocaleDateString('pt-BR');
+        // ---- Título ----
+        let y = PDF_TOPO + 4;
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...ESC);
+        doc.text(_pdfTxt('Demonstração de Fluxo de Caixa (DFC)'), mg, y);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...CINZA);
+        const sub = 'Período: ' + (R.rotuloPeriodo || 'Todo o período') + (R.rotAcum ? '   |   ' + R.rotAcum : '') + '   |   Regime de caixa (valores efetivamente recebidos e pagos)';
+        doc.text(_pdfTxt(sub), mg, y + 5.5);
+        y += 10;
 
-        // Título
-        const titElem = document.getElementById('tituloDFCMensal');
-        const anoSel = document.getElementById('filtroAnoDFC') ? document.getElementById('filtroAnoDFC').value : '';
-        const titulo = anoSel ? (titElem ? titElem.textContent.trim() : 'DFC Mensal') : 'Demonstração de Fluxo de Caixa';
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        // remove emojis/símbolos que a fonte do PDF não desenha (saíam como "Ø=ÜÅ")
-        doc.text(titulo.replace(/[–—]/g, '-').replace(/[^\x00-\xFF]/g, '').trim(), pageW / 2, PDF_TOPO + 5, { align: 'center' });
-
-        let y = PDF_TOPO + 12;
-        const margem = 12;
-        const altLinha = 7;
-
-        // ---- Seção 1: Análise de Fluxo (tabelaDFC) ----
-        const col1 = 90; const col2 = 45; const col3 = 35;
-        doc.setFillColor(80, 80, 80);
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont(undefined, 'bold');
-        doc.rect(margem, y, col1, altLinha, 'F');
-        doc.text('Descrição', margem + 2, y + 5);
-        doc.rect(margem + col1, y, col2, altLinha, 'F');
-        doc.text('Valor', margem + col1 + col2 / 2, y + 5, { align: 'center' });
-        doc.rect(margem + col1 + col2, y, col3, altLinha, 'F');
-        doc.text('% Mudança', margem + col1 + col2 + col3 / 2, y + 5, { align: 'center' });
-        y += altLinha;
-
-        const linhasDFC = document.querySelectorAll('#tabelaDFC tbody tr');
-        doc.setFont(undefined, 'normal');
-        linhasDFC.forEach((tr, idx) => {
-            const tds = tr.querySelectorAll('td');
-            if (tds.length === 0) return;
-            const isBold = tr.style.fontWeight === '600' || tr.style.fontWeight === 'bold';
-            const bgSec = tr.style.backgroundColor && (tr.style.backgroundColor.includes('240') || tr.style.backgroundColor.includes('f0f0f0'));
-            const bgPri = tr.style.backgroundColor && tr.style.backgroundColor.includes('255, 122, 66');
-
-            if (bgPri) {
-                doc.setFillColor(255, 122, 66); doc.setTextColor(255, 255, 255);
-            } else if (bgSec) {
-                doc.setFillColor(230, 230, 230); doc.setTextColor(0, 0, 0);
-            } else {
-                doc.setFillColor(idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 248, idx % 2 === 0 ? 255 : 248);
-                doc.setTextColor(0, 0, 0);
+        // ---- Cards ----
+        const cards = [
+            { t: 'Total de entradas', v: fmt(R.ent || 0), cor: VERDE, a: R.rotAcum ? fmt(R.entYTD) : '' },
+            { t: 'Total de saídas', v: fmt(R.sai || 0), cor: VERM, a: R.rotAcum ? fmt(R.saiYTD) : '' },
+            { t: 'Fluxo líquido', v: fmtS(R.liq || 0), cor: (R.liq || 0) >= 0 ? VERDE : VERM, a: R.rotAcum ? fmtS(R.liqYTD) : '', aCor: (R.liqYTD || 0) >= 0 ? VERDE : VERM },
+            { t: 'A receber (pendente)', v: fmt(R.pendRec || 0), cor: [23, 162, 184], a: (R.pendRecQtd || 0) + ' conta(s)', nota: true },
+            { t: 'A pagar (pendente)', v: fmt(R.pendPag || 0), cor: [200, 140, 10], a: (R.pendPagQtd || 0) + ' conta(s)', nota: true }
+        ];
+        const gap = 4, cw = (pageW - 2 * mg - gap * (cards.length - 1)) / cards.length, ch = 21;
+        cards.forEach((c, i) => {
+            const x = mg + i * (cw + gap);
+            doc.setFillColor(248, 249, 251); doc.setDrawColor(228, 231, 236); doc.setLineWidth(0.2);
+            doc.roundedRect(x, y, cw, ch, 2, 2, 'FD');
+            doc.setFillColor(...c.cor); doc.rect(x, y + 1.5, 1.2, ch - 3, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...CINZA);
+            doc.text(_pdfTxt(c.t.toUpperCase()), x + 4, y + 5);
+            doc.setFontSize(12.5); doc.setTextColor(...c.cor);
+            doc.text(_pdfTxt(c.v), x + 4, y + 11.5);
+            if (c.a) {
+                doc.setDrawColor(228, 231, 236); doc.line(x + 4, y + 14, x + cw - 3, y + 14);
+                doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...CINZA);
+                if (c.nota) {
+                    doc.text(_pdfTxt(c.a), x + 4, y + 18);
+                } else {
+                    doc.text(_pdfTxt(R.rotAcum), x + 4, y + 18);
+                    doc.setFont('helvetica', 'bold'); doc.setTextColor(...(c.aCor || c.cor));
+                    doc.text(_pdfTxt(c.a), x + cw - 3, y + 18, { align: 'right' });
+                }
             }
-
-            doc.rect(margem, y, col1 + col2 + col3, altLinha, 'FD');
-            doc.setFontSize(8);
-            doc.setFont(undefined, isBold ? 'bold' : 'normal');
-
-            const colspan = tds[0].getAttribute('colspan');
-            if (colspan && parseInt(colspan) > 1) {
-                doc.text(normalizarTexto(tds[0].innerText.trim()), margem + 2, y + 4.8);
-            } else {
-                doc.text(normalizarTexto(tds[0] ? tds[0].innerText.trim() : ''), margem + 2, y + 4.8);
-                if (tds[1]) doc.text(normalizarTexto(tds[1].innerText.trim()), margem + col1 + col2 - 2, y + 4.8, { align: 'right' });
-                if (tds[2]) doc.text(normalizarTexto(tds[2].innerText.trim()), margem + col1 + col2 + col3 - 2, y + 4.8, { align: 'right' });
-            }
-            doc.setTextColor(0, 0, 0);
-            y += altLinha;
         });
+        y += ch + 7;
 
-        // ---- Seção 2: DFC Mensal (se visível) ----
-        const cardMensal = document.getElementById('cardDFCMensal');
-        if (cardMensal && getComputedStyle(cardMensal).display !== 'none') {
-            y += 8;
-            if (y + 10 > pageH - 15) { doc.addPage(); y = PDF_TOPO + 1; }
+        const tituloSecao = (t) => {
+            if (y > pageH - 30) { doc.addPage(); y = PDF_TOPO + 4; }
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...ESC);
+            doc.text(_pdfTxt(t), mg, y);
+            doc.setDrawColor(...LAR); doc.setLineWidth(0.6); doc.line(mg, y + 1.5, mg + 18, y + 1.5);
+            y += 4;
+        };
 
-            const titMensal = document.getElementById('tituloDFCMensal');
-            doc.setFont(undefined, 'bold');
-            doc.setFontSize(10);
-            doc.setTextColor(0, 0, 0);
-            doc.text(normalizarTexto(titMensal ? titMensal.textContent.trim() : 'DFC Mensal'), margem, y + 5);
-            y += 9;
-
-            const cM = [35, 38, 38, 38, 38]; // Mês, Entradas, Saídas, Fluxo, Acumulado
-            const hMensal = ['Mês', 'Entradas', 'Saídas', 'Fluxo Líquido', 'Acumulado'];
-            doc.setFillColor(80, 80, 80);
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(7.5);
-            doc.setFont(undefined, 'bold');
-            let xh = margem;
-            hMensal.forEach((h, i) => {
-                doc.rect(xh, y, cM[i], altLinha, 'F');
-                doc.text(normalizarTexto(h), xh + cM[i] / 2, y + 4.8, { align: 'center' });
-                xh += cM[i];
-            });
-            y += altLinha;
-
-            const linhasMensal = document.querySelectorAll('#tabelaDFCMensal tbody tr');
-            const linhasFoot = document.querySelectorAll('#tabelaDFCMensal tfoot tr');
-            doc.setFont(undefined, 'normal');
-
-            const processarLinhaMensal = (tr, isBold) => {
-                if (y + altLinha > pageH - 15) { doc.addPage(); y = PDF_TOPO + 1; }
-                const tds = tr.querySelectorAll('td');
-                doc.setTextColor(0, 0, 0);
-                let xc = margem;
-                cM.forEach((w, i) => {
-                    // a cor do texto do jsPDF troca a cor de preenchimento: redefinir antes de cada célula
-                    doc.setFillColor(isBold ? 240 : 255, isBold ? 240 : 255, isBold ? 240 : 255);
-                    doc.rect(xc, y, w, altLinha, 'FD');
-                    if (tds[i]) {
-                        doc.setFontSize(7.5);
-                        doc.setFont(undefined, isBold ? 'bold' : 'normal');
-                        const t = normalizarTexto(tds[i].innerText.trim());
-                        doc.text(t, xc + w / 2, y + 4.8, { align: 'center' });
+        // ---- Resumo mensal (só com ano selecionado) ----
+        if (anoSel) {
+            const rec = window._dfcRecAnoTodo || [], pag = window._dfcPagAnoTodo || [];
+            const ent = Array(12).fill(0), sai = Array(12).fill(0);
+            rec.forEach(c => { const k = parseInt((c.data_recebimento || '').substring(5, 7), 10) - 1; if (k >= 0 && k < 12) ent[k] += parseFloat(c.valor || 0); });
+            pag.forEach(c => { const k = parseInt((c.data_pagamento || '').substring(5, 7), 10) - 1; if (k >= 0 && k < 12) sai[k] += parseFloat(c.valor || 0); });
+            const liq = ent.map((e, i) => e - sai[i]);
+            let run = 0; const saldo = liq.map(v => (run += v));
+            const tem = ent.map((e, i) => e > 0 || sai[i] > 0);
+            const mN = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+            const tot = a => a.reduce((s, v) => s + v, 0);
+            const cel = (v, i, sig) => (i < 12 && !tem[i]) ? '-' : (sig ? fmtS(v) : fmt(v)).replace('R$ ', '');
+            tituloSecao('Resumo mensal ' + anoSel);
+            const corpo = [
+                ['Entradas', ...ent.map((v, i) => cel(v, i)), fmt(tot(ent)).replace('R$ ', '')],
+                ['Saídas', ...sai.map((v, i) => cel(v, i)), fmt(tot(sai)).replace('R$ ', '')],
+                ['Fluxo líquido', ...liq.map((v, i) => cel(v, i, true)), fmtS(tot(liq)).replace('R$ ', '')],
+                ['Saldo acumulado', ...saldo.map((v, i) => cel(v, i, true)), fmtS(run).replace('R$ ', '')]
+            ].map(r => r.map(_pdfTxt));
+            doc.autoTable({
+                startY: y, margin: { left: mg, right: mg, top: PDF_TOPO + 2 },
+                head: [['R$', ...mN.map(m => m + '/' + String(anoSel).slice(2)), 'Total']],
+                body: corpo,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: { top: 1.6, bottom: 1.6, left: 1.2, right: 1.2 }, halign: 'right', lineColor: [232, 234, 238], lineWidth: 0.15, textColor: [45, 45, 45] },
+                headStyles: { fillColor: ESC, textColor: 255, fontStyle: 'bold', halign: 'right', fontSize: 7 },
+                columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 26 }, 13: { fontStyle: 'bold', fillColor: [243, 244, 247] } },
+                didParseCell: d => {
+                    if (d.section === 'head' && d.column.index === 0) d.cell.styles.halign = 'left';
+                    if (d.section === 'head' && d.column.index - 1 === R.mesIdxSel) d.cell.styles.fillColor = LAR;
+                    if (d.section !== 'body') return;
+                    const r = d.row.index, ci = d.column.index;
+                    if (ci > 0 && ci - 1 === R.mesIdxSel) d.cell.styles.fillColor = [255, 241, 232];
+                    if (r === 0 && ci > 0) d.cell.styles.textColor = VERDE;
+                    if (r === 1 && ci > 0) d.cell.styles.textColor = VERM;
+                    if (r >= 2 && ci > 0) {
+                        const val = ci === 13 ? (r === 2 ? tot(liq) : run) : (r === 2 ? liq[ci - 1] : saldo[ci - 1]);
+                        d.cell.styles.textColor = val >= 0 ? VERDE : VERM;
+                        d.cell.styles.fontStyle = 'bold';
                     }
-                    xc += w;
-                });
-                y += altLinha;
-            };
-
-            linhasMensal.forEach(tr => processarLinhaMensal(tr, false));
-            linhasFoot.forEach(tr => processarLinhaMensal(tr, true));
+                    if (r === 3) d.cell.styles.fillColor = ci - 1 === R.mesIdxSel ? [255, 228, 210] : [246, 247, 249];
+                }
+            });
+            y = doc.lastAutoTable.finalY + 8;
         }
 
-        // Rodapé de página
+        // ---- DFC por categoria ----
+        const M = _dfcModeloCategorias();
+        tituloSecao('DFC detalhado por categoria' + (M.mesSel >= 0 ? ' - mês selecionado + acumulado do ano' : ''));
+        const head = ['Descrição', ...M.cols.map(c => c.label)];
+        if (M.temPct) head.push('% do acum.');
+        const meta = [];
+        const body = [];
+        const nC = head.length;
+        M.linhas.forEach(l => {
+            if (l.tipo === 'secao') {
+                body.push([{ content: _pdfTxt(l.label), colSpan: nC }]);
+                meta.push(l); return;
+            }
+            const row = [(l.tipo === 'sub' ? '   ' : '') + _pdfTxt(l.label)];
+            l.vals.forEach((v, i) => {
+                const vazio = ((l.tipo === 'liq' || l.tipo === 'saldo') && !M.cols[i].acum && l.temMov && !l.temMov[i]) || (!v && l.tipo !== 'liq' && l.tipo !== 'saldo');
+                row.push(vazio ? '-' : _pdfTxt((l.tipo === 'liq' || l.tipo === 'saldo') ? fmtS(v) : fmt(v)).replace('R$ ', ''));
+            });
+            if (M.temPct) {
+                const base = l.lado === 'sai' ? M.baseSai : M.baseEnt;
+                const va = l.vals[M.acumIdx];
+                row.push(l.lado && base > 0 && va ? (va / base * 100).toFixed(1).replace('.', ',') + '%' : '');
+            }
+            body.push(row); meta.push(l);
+        });
+        const nMeses = M.cols.length;
+        const largDesc = nMeses > 8 ? 46 : 70;
+        doc.autoTable({
+            startY: y, margin: { left: mg, right: mg, top: PDF_TOPO + 2, bottom: 12 },
+            head: [head.map(_pdfTxt)], body,
+            theme: 'plain',
+            styles: { fontSize: nMeses > 10 ? 6.6 : 7.5, cellPadding: { top: 1.15, bottom: 1.15, left: 1.2, right: 1.4 }, halign: 'right', textColor: [45, 45, 45], overflow: 'ellipsize' },
+            headStyles: { fillColor: ESC, textColor: 255, fontStyle: 'bold' },
+            columnStyles: { 0: { halign: 'left', cellWidth: largDesc, overflow: 'linebreak' } },
+            didParseCell: d => {
+                const ci = d.column.index;
+                const col = M.cols[ci - 1];
+                if (d.section === 'head') {
+                    if (ci === 0) d.cell.styles.halign = 'left';
+                    if (col && col.destaque) d.cell.styles.fillColor = LAR;
+                    if (col && col.acum) d.cell.styles.fillColor = [33, 38, 47];
+                    return;
+                }
+                const l = meta[d.row.index];
+                if (!l) return;
+                if (col && col.destaque) d.cell.styles.fillColor = [255, 245, 238];
+                if (col && col.acum) { d.cell.styles.fillColor = [243, 244, 247]; d.cell.styles.fontStyle = 'bold'; }
+                const corLado = l.lado === 'sai' ? VERM : VERDE;
+                if (l.tipo === 'secao') {
+                    d.cell.styles.halign = 'left'; d.cell.styles.fontStyle = 'bold'; d.cell.styles.textColor = corLado;
+                    d.cell.styles.fillColor = l.lado === 'sai' ? [253, 238, 238] : [234, 247, 239];
+                } else if (l.tipo === 'cat') {
+                    if (ci > 0 && d.cell.raw !== '-') d.cell.styles.textColor = corLado;
+                    if (ci === 0) d.cell.styles.fontStyle = 'bold';
+                } else if (l.tipo === 'sub') {
+                    d.cell.styles.textColor = ci === 0 ? [120, 126, 135] : [200, 110, 100];
+                    d.cell.styles.fontSize = (d.cell.styles.fontSize || 7) - 0.6;
+                } else if (l.tipo === 'total') {
+                    d.cell.styles.fontStyle = 'bold'; d.cell.styles.textColor = corLado;
+                    d.cell.styles.fillColor = l.lado === 'sai' ? [251, 228, 228] : [222, 242, 229];
+                } else if (l.tipo === 'liq' || l.tipo === 'saldo') {
+                    d.cell.styles.fontStyle = 'bold';
+                    const v = ci > 0 ? l.vals[ci - 1] : 0;
+                    if (l.tipo === 'liq') {
+                        d.cell.styles.fillColor = ESC; d.cell.styles.textColor = 255;
+                        if (ci > 0 && d.cell.raw !== '-') d.cell.styles.textColor = v >= 0 ? [140, 230, 170] : [255, 160, 150];
+                    } else {
+                        d.cell.styles.fillColor = [246, 247, 249];
+                        if (ci > 0) d.cell.styles.textColor = v >= 0 ? VERDE : VERM;
+                    }
+                }
+            },
+            didDrawCell: d => {
+                if (d.section !== 'body') return;
+                const l = meta[d.row.index];
+                if (l && (l.tipo === 'cat' || l.tipo === 'total')) {
+                    doc.setDrawColor(232, 234, 238); doc.setLineWidth(0.15);
+                    doc.line(d.cell.x, d.cell.y, d.cell.x + d.cell.width, d.cell.y);
+                }
+            }
+        });
+
+        // ---- Rodapé ----
         const total = doc.internal.getNumberOfPages();
         for (let p = 1; p <= total; p++) {
             doc.setPage(p);
-            doc.setFontSize(7);
-            doc.setTextColor(120, 120, 120);
-            doc.setFont(undefined, 'normal');
-            doc.text('Página ' + p + ' de ' + total, pageW / 2, pageH - 5, { align: 'center' });
+            doc.setDrawColor(230, 232, 236); doc.setLineWidth(0.3);
+            doc.line(mg, pageH - 9, pageW - mg, pageH - 9);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(140, 140, 140);
+            doc.text(_pdfTxt('DFC - Demonstração de Fluxo de Caixa  |  valores em R$'), mg, pageH - 5);
+            doc.text('Página ' + p + ' de ' + total, pageW - mg, pageH - 5, { align: 'right' });
         }
-
-        _pdfCabecalhoTodasPaginas(doc, 12);
-        doc.save('DFC_' + (anoSel || 'Completo') + '_' + hoje.replace(/\//g, '-') + '.pdf');
+        _pdfCabecalhoTodasPaginas(doc, mg);
+        const hoje = new Date().toISOString().slice(0, 10);
+        const mesTxt = R.mesIdxSel >= 0 ? '_' + String(R.mesIdxSel + 1).padStart(2, '0') : '';
+        doc.save('DFC_' + (anoSel || 'Completo') + mesTxt + '_' + hoje + '.pdf');
     }
 
     // ================================================================
@@ -16511,7 +16792,298 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // guardado no localStorage do navegador pelos últimos 30 dias —
     // os arquivos em si ficam na pasta de Downloads do navegador.
     // ================================================================
-    async function gerarBackupCompleto(silencioso) {
+    // ================================================================
+    // BOAS-VINDAS — pendências de pagamento e recebimento ao abrir
+    // ================================================================
+    const BV_NOME = 'Adelcio';
+    const BV_DIAS_PROXIMOS = 7;
+    const BV_MAX_ITENS = 6;
+
+    function _bvEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function _bvISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function _bvMoeda(v) { return 'R$ ' + (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    function _bvAgrupar(lista) {
+        const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        const lim = new Date(hoje); lim.setDate(lim.getDate() + BV_DIAS_PROXIMOS);
+        const hISO = _bvISO(hoje), lISO = _bvISO(lim);
+        const g = { vencidas: [], hoje: [], proximas: [] };
+        (lista || []).forEach(c => {
+            const v = (c.data_vencimento || '').slice(0, 10);
+            if (!v) return;
+            if (v < hISO) g.vencidas.push(c);
+            else if (v === hISO) g.hoje.push(c);
+            else if (v <= lISO) g.proximas.push(c);
+        });
+        const ord = (a, b) => (a.data_vencimento || '').localeCompare(b.data_vencimento || '');
+        g.vencidas.sort(ord); g.hoje.sort(ord); g.proximas.sort(ord);
+        const soma = arr => arr.reduce((s, c) => s + (parseFloat(c.valor) || 0), 0);
+        g.tVencidas = soma(g.vencidas); g.tHoje = soma(g.hoje); g.tProximas = soma(g.proximas);
+        g.qtd = g.vencidas.length + g.hoje.length + g.proximas.length;
+        g.total = g.tVencidas + g.tHoje + g.tProximas;
+        return g;
+    }
+
+    function _bvColuna(tipo, g) {
+        const pagar = tipo === 'pagar';
+        const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        const mesAbr = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+        const item = c => {
+            const d = new Date((c.data_vencimento || '').slice(0, 10) + 'T12:00:00');
+            const dias = Math.round((hoje - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+            const pessoa = pagar
+                ? (dadosCache.fornecedores.find(f => f.id === c.fornecedor_id) || {}).nome
+                : (dadosCache.clientes.find(x => x.id === c.cliente_id) || {}).nome;
+            const parc = c.total_parcelas > 1 ? ' · ' + c.parcela_atual + '/' + c.total_parcelas : '';
+            const atraso = dias > 0 ? '<span class="bv-atraso">' + dias + (dias === 1 ? ' dia' : ' dias') + ' de atraso</span>' : '';
+            return '<div class="bv-item">' +
+                '<div class="bv-dia"><b>' + String(d.getDate()).padStart(2, '0') + '</b><span>' + mesAbr[d.getMonth()] + '</span></div>' +
+                '<div class="bv-info"><div class="bv-info-nome">' + _bvEsc(pessoa || c.descricao || '—') + '</div>' +
+                '<div class="bv-info-desc">' + _bvEsc(pessoa ? (c.descricao || '') : '') + parc + atraso + '</div></div>' +
+                '<div class="bv-valor">' + _bvMoeda(parseFloat(c.valor) || 0) + '</div>' +
+                '<button class="bv-acao" onclick="_bvAcao(\'' + tipo + '\',' + JSON.stringify(c.id).replace(/"/g, '&quot;') + ')">' + (pagar ? 'Pagar' : 'Receber') + '</button>' +
+                '</div>';
+        };
+        const grupo = (chave, titulo, arr, total) => {
+            if (!arr.length) return '';
+            const extra = arr.length > BV_MAX_ITENS ? '<div class="bv-mais">+ ' + (arr.length - BV_MAX_ITENS) + ' outra(s) — ' + _bvMoeda(arr.slice(BV_MAX_ITENS).reduce((s, c) => s + (parseFloat(c.valor) || 0), 0)) + '</div>' : '';
+            return '<div class="bv-grupo ' + chave + '"><div class="bv-grupo-tit"><span>' + titulo + '</span><span class="bv-tag">' + arr.length + ' · ' + _bvMoeda(total) + '</span></div>' +
+                arr.slice(0, BV_MAX_ITENS).map(item).join('') + extra + '</div>';
+        };
+        const corpo = g.qtd
+            ? grupo('vencidas', 'Vencidas', g.vencidas, g.tVencidas) +
+              grupo('hoje', 'Vencem hoje', g.hoje, g.tHoje) +
+              grupo('proximas', 'Próximos ' + BV_DIAS_PROXIMOS + ' dias', g.proximas, g.tProximas)
+            : '<div class="bv-vazio"><b>✅</b>Nada ' + (pagar ? 'a pagar' : 'a receber') + ' vencido ou nos próximos ' + BV_DIAS_PROXIMOS + ' dias.</div>';
+        return '<div class="bv-col ' + tipo + '">' +
+            '<div class="bv-col-topo"><div class="bv-col-tit"><span class="bv-ico">' + (pagar ? '📤' : '📥') + '</span>' + (pagar ? 'Contas a pagar' : 'Contas a receber') + '</div>' +
+            '<div class="bv-col-total">' + _bvMoeda(g.total) + '</div></div>' +
+            corpo +
+            '<div class="bv-col-rodape"><button class="bv-link" onclick="fecharBoasVindas();showPage(\'' + (pagar ? 'lancar-pagar' : 'lancar-receber') + '\', null)">Ver todas ' + (pagar ? 'a pagar' : 'a receber') + ' →</button></div>' +
+            '</div>';
+    }
+
+    // forcar = true quando aberto pelo botão "🔔 Pendências" (mostra mesmo sem pendências)
+    function mostrarBoasVindas(forcar) {
+        const pag = _bvAgrupar(dadosCache.contasPagar);
+        const rec = _bvAgrupar(dadosCache.contasReceber);
+        if (!forcar && pag.qtd === 0 && rec.qtd === 0) return;
+
+        const agora = new Date();
+        const h = agora.getHours();
+        const saud = h < 5 ? ['Boa noite', '🌙'] : h < 12 ? ['Bom dia', '☀️'] : h < 18 ? ['Boa tarde', '🌤️'] : ['Boa noite', '🌙'];
+        let dataTxt = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        dataTxt = dataTxt.charAt(0).toUpperCase() + dataTxt.slice(1);
+
+        const kpi = (rot, val, sub, cls) => '<div class="bv-kpi ' + (cls || '') + '"><div class="bv-kpi-rot">' + rot + '</div><div class="bv-kpi-val">' + val + '</div><div class="bv-kpi-sub">' + sub + '</div></div>';
+        const qtdTxt = n => n + (n === 1 ? ' conta' : ' contas');
+        const resumo = (pag.qtd + rec.qtd) === 0
+            ? 'Tudo em dia por aqui. Nenhuma conta vencida ou vencendo nos próximos ' + BV_DIAS_PROXIMOS + ' dias.'
+            : 'Você tem ' + (pag.vencidas.length + rec.vencidas.length) + ' conta(s) vencida(s) e ' + (pag.hoje.length + rec.hoje.length) + ' vencendo hoje.';
+
+        let ov = document.getElementById('bvOverlay');
+        if (!ov) {
+            ov = document.createElement('div');
+            ov.id = 'bvOverlay';
+            ov.addEventListener('click', e => { if (e.target === ov) fecharBoasVindas(); });
+            document.body.appendChild(ov);
+        }
+        ov.innerHTML =
+            '<div class="bv-caixa" role="dialog" aria-modal="true" aria-label="Pendências">' +
+              '<div class="bv-topo">' +
+                '<button class="bv-fechar" onclick="fecharBoasVindas()" title="Fechar">✕</button>' +
+                '<div class="bv-saudacao">' + saud[1] + ' Resumo do dia · pendências financeiras</div>' +
+                '<div class="bv-nome">' + saud[0] + ', ' + _bvEsc(BV_NOME) + '!</div>' +
+                '<div class="bv-data">' + dataTxt + ' · ' + resumo + '</div>' +
+                '<div class="bv-kpis">' +
+                  kpi('A pagar vencido', _bvMoeda(pag.tVencidas), qtdTxt(pag.vencidas.length), pag.vencidas.length ? 'alerta' : 'ok') +
+                  kpi('A pagar hoje + ' + BV_DIAS_PROXIMOS + ' dias', _bvMoeda(pag.tHoje + pag.tProximas), qtdTxt(pag.hoje.length + pag.proximas.length)) +
+                  kpi('A receber vencido', _bvMoeda(rec.tVencidas), qtdTxt(rec.vencidas.length), rec.vencidas.length ? 'alerta' : 'ok') +
+                  kpi('A receber hoje + ' + BV_DIAS_PROXIMOS + ' dias', _bvMoeda(rec.tHoje + rec.tProximas), qtdTxt(rec.hoje.length + rec.proximas.length)) +
+                '</div>' +
+              '</div>' +
+              '<div class="bv-corpo">' + _bvColuna('pagar', pag) + _bvColuna('receber', rec) + '</div>' +
+              '<div class="bv-rodape"><span class="bv-rodape-txt">Saldo previsto (a receber − a pagar, até ' + BV_DIAS_PROXIMOS + ' dias): <b style="color:' + (rec.total - pag.total >= 0 ? '#1e7e45' : '#c0392b') + ';">' + (rec.total - pag.total < 0 ? '-' : '') + _bvMoeda(Math.abs(rec.total - pag.total)) + '</b></span>' +
+              '<button class="bv-entrar" onclick="fecharBoasVindas()">Ir para o sistema →</button></div>' +
+            '</div>';
+        ov.classList.add('ativo');
+        document.addEventListener('keydown', _bvEsc_key);
+    }
+    function _bvEsc_key(e) { if (e.key === 'Escape') fecharBoasVindas(); }
+    function fecharBoasVindas() {
+        const ov = document.getElementById('bvOverlay');
+        if (ov) ov.classList.remove('ativo');
+        document.removeEventListener('keydown', _bvEsc_key);
+    }
+    function _bvAcao(tipo, id) {
+        fecharBoasVindas();
+        if (tipo === 'pagar') pagarConta(id); else receberConta(id);
+    }
+
+    // ================================================================
+    // BACKUP — pasta e horários configuráveis
+    // Gera um .json com todas as tabelas. Se uma pasta foi escolhida
+    // (Chrome/Edge — File System Access API), grava direto nela; senão
+    // baixa pela pasta de Downloads. Roda nos horários configurados
+    // enquanto o sistema estiver aberto, e recupera o horário perdido
+    // assim que o sistema é aberto de novo.
+    // ================================================================
+    const BK_PREFIXO = 'backup_cap_financeiro_';
+    let _bkDirHandle = null;      // FileSystemDirectoryHandle da pasta escolhida
+    let _bkTimer = null;
+    let _bkRodando = false;
+
+    function _bkSuportaPasta() { return typeof window.showDirectoryPicker === 'function'; }
+    function _bkChaveCfg() { return 'cap_backup_cfg_' + (usuarioAtual ? usuarioAtual.email : 'guest'); }
+    function _bkCfg() {
+        let c = {};
+        try { c = JSON.parse(localStorage.getItem(_bkChaveCfg()) || '{}'); } catch (e) { c = {}; }
+        return Object.assign({ horarios: [], aoAbrir: true, retencao: 0, pastaNome: '' }, c);
+    }
+    function _bkSalvarCfg(c) { localStorage.setItem(_bkChaveCfg(), JSON.stringify(c)); }
+    function _bkHojeISO() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function _bkChaveFeito(dia, hhmm) { return 'cap_backup_feito_' + (usuarioAtual ? usuarioAtual.email : 'guest') + '_' + dia + '_' + hhmm; }
+
+    // --- IndexedDB: guarda o "atalho" da pasta (o navegador não deixa salvar isso no localStorage)
+    function _bkIDB() {
+        return new Promise((ok, erro) => {
+            const req = indexedDB.open('cap_backup_db', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('handles');
+            req.onsuccess = () => ok(req.result);
+            req.onerror = () => erro(req.error);
+        });
+    }
+    async function _bkIDBSet(chave, valor) {
+        const db = await _bkIDB();
+        return new Promise((ok, erro) => {
+            const tx = db.transaction('handles', 'readwrite');
+            if (valor === undefined) tx.objectStore('handles').delete(chave); else tx.objectStore('handles').put(valor, chave);
+            tx.oncomplete = () => ok(); tx.onerror = () => erro(tx.error);
+        });
+    }
+    async function _bkIDBGet(chave) {
+        const db = await _bkIDB();
+        return new Promise((ok, erro) => {
+            const tx = db.transaction('handles', 'readonly');
+            const r = tx.objectStore('handles').get(chave);
+            r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error);
+        });
+    }
+    async function _bkCarregarPasta() {
+        if (!_bkSuportaPasta()) return null;
+        try { _bkDirHandle = (await _bkIDBGet('pasta_' + (usuarioAtual ? usuarioAtual.email : 'guest'))) || null; }
+        catch (e) { _bkDirHandle = null; }
+        return _bkDirHandle;
+    }
+    async function _bkPermissao(pedir) {
+        if (!_bkDirHandle) return 'sem-pasta';
+        try {
+            let p = await _bkDirHandle.queryPermission({ mode: 'readwrite' });
+            if (p !== 'granted' && pedir) p = await _bkDirHandle.requestPermission({ mode: 'readwrite' });
+            return p;
+        } catch (e) { return 'denied'; }
+    }
+
+    async function bkEscolherPasta() {
+        if (!_bkSuportaPasta()) {
+            showAlert('Este navegador não permite escolher pasta. Use o Google Chrome ou o Microsoft Edge.', 'alertBackup', 'error');
+            return;
+        }
+        try {
+            const h = await window.showDirectoryPicker({ id: 'cap-backup', mode: 'readwrite' });
+            _bkDirHandle = h;
+            await _bkIDBSet('pasta_' + (usuarioAtual ? usuarioAtual.email : 'guest'), h);
+            const cfg = _bkCfg(); cfg.pastaNome = h.name; _bkSalvarCfg(cfg);
+            await _bkPermissao(true);
+            showAlert('Pasta "' + h.name + '" configurada para os backups.', 'alertBackup', 'success');
+        } catch (e) {
+            if (e && e.name === 'AbortError') return;
+            console.error('Backup: erro ao escolher pasta', e);
+            showAlert('Não foi possível usar essa pasta (' + (e.message || e) + ').', 'alertBackup', 'error');
+        }
+        atualizarPainelBackup();
+    }
+
+    async function bkRemoverPasta() {
+        if (!confirm('Parar de gravar na pasta e voltar a baixar os backups em Downloads?')) return;
+        _bkDirHandle = null;
+        try { await _bkIDBSet('pasta_' + (usuarioAtual ? usuarioAtual.email : 'guest'), undefined); } catch (e) {}
+        const cfg = _bkCfg(); cfg.pastaNome = ''; _bkSalvarCfg(cfg);
+        atualizarPainelBackup();
+    }
+
+    function bkAdicionarHorario() {
+        const v = (document.getElementById('bkNovoHorario') || {}).value;
+        if (!v) return;
+        const cfg = _bkCfg();
+        if (!cfg.horarios.includes(v)) cfg.horarios.push(v);
+        cfg.horarios.sort();
+        // horário recém-criado que já passou hoje não dispara agora — só a partir de amanhã
+        const agora = new Date();
+        const hhmmAgora = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+        if (v <= hhmmAgora) localStorage.setItem(_bkChaveFeito(_bkHojeISO(), v), 'pulado');
+        _bkSalvarCfg(cfg);
+        atualizarPainelBackup();
+    }
+    function bkRemoverHorario(h) {
+        const cfg = _bkCfg();
+        cfg.horarios = cfg.horarios.filter(x => x !== h);
+        _bkSalvarCfg(cfg);
+        atualizarPainelBackup();
+    }
+    function bkSalvarOpcoes() {
+        const cfg = _bkCfg();
+        cfg.aoAbrir = !!document.getElementById('bkAoAbrir').checked;
+        cfg.retencao = parseInt(document.getElementById('bkRetencao').value, 10) || 0;
+        _bkSalvarCfg(cfg);
+        atualizarPainelBackup();
+    }
+
+    async function bkTestarPasta() {
+        if (!_bkDirHandle) { showAlert('Escolha uma pasta primeiro.', 'alertBackup', 'error'); return; }
+        const p = await _bkPermissao(true);
+        if (p !== 'granted') { showAlert('Sem permissão para gravar na pasta.', 'alertBackup', 'error'); atualizarPainelBackup(); return; }
+        try {
+            const f = await _bkDirHandle.getFileHandle('teste_backup_cap.txt', { create: true });
+            const w = await f.createWritable();
+            await w.write('Teste de gravação do backup — ' + new Date().toLocaleString('pt-BR'));
+            await w.close();
+            await _bkDirHandle.removeEntry('teste_backup_cap.txt');
+            showAlert('Tudo certo: o sistema consegue gravar na pasta "' + _bkDirHandle.name + '".', 'alertBackup', 'success');
+        } catch (e) {
+            showAlert('Falha ao gravar na pasta: ' + (e.message || e), 'alertBackup', 'error');
+        }
+        atualizarPainelBackup();
+    }
+
+    async function _bkGravarNaPasta(objeto, nomeArquivo) {
+        const f = await _bkDirHandle.getFileHandle(nomeArquivo, { create: true });
+        const w = await f.createWritable();
+        await w.write(new Blob([JSON.stringify(objeto, null, 2)], { type: 'application/json' }));
+        await w.close();
+    }
+
+    async function _bkLimparAntigos(dias) {
+        if (!_bkDirHandle || !dias) return 0;
+        const limite = new Date(); limite.setDate(limite.getDate() - dias);
+        const limiteISO = limite.toISOString().slice(0, 10);
+        let apagados = 0;
+        try {
+            for await (const [nome, h] of _bkDirHandle.entries()) {
+                if (h.kind !== 'file' || !nome.startsWith(BK_PREFIXO) || !nome.endsWith('.json')) continue;
+                const data = nome.substring(BK_PREFIXO.length, BK_PREFIXO.length + 10);
+                if (/^\d{4}-\d{2}-\d{2}$/.test(data) && data < limiteISO) {
+                    await _bkDirHandle.removeEntry(nome); apagados++;
+                }
+            }
+        } catch (e) { console.warn('Backup: limpeza de antigos falhou', e); }
+        return apagados;
+    }
+
+    // tipo: 'Manual' | 'Ao abrir' | 'Agendado hh:mm'
+    async function gerarBackupCompleto(silencioso, tipo, forcarDownloads) {
+        if (_bkRodando) return false;
+        _bkRodando = true;
         try {
             const tabelas = ['categorias', 'subcategorias', 'produtos', 'fornecedores', 'clientes',
                               'bancos', 'transferencias', 'contas_a_receber', 'contas_a_pagar', 'lancamentos_dre'];
@@ -16538,26 +17110,90 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 tabelas: dadosBackup
             };
 
-            const carimboHora = agora.toTimeString().slice(0, 5).replace(':', '');
-            const nomeArquivo = 'backup_cap_financeiro_' + agora.toISOString().slice(0, 10) + '_' + carimboHora + '.json';
-            _baixarJSON(backup, nomeArquivo);
+            const carimboHora = String(agora.getHours()).padStart(2, '0') + String(agora.getMinutes()).padStart(2, '0');
+            const nomeArquivo = BK_PREFIXO + _bkHojeISO() + '_' + carimboHora + '.json';
+
+            // Destino: pasta (se configurada e com permissão) → senão Downloads
+            let destino = 'Downloads';
+            if (!_bkDirHandle && !forcarDownloads) await _bkCarregarPasta();
+            if (_bkDirHandle && !forcarDownloads) {
+                const perm = await _bkPermissao(!silencioso);
+                if (perm === 'granted') {
+                    try {
+                        await _bkGravarNaPasta(backup, nomeArquivo);
+                        destino = 'Pasta: ' + _bkDirHandle.name;
+                        const cfg = _bkCfg();
+                        if (cfg.retencao) await _bkLimparAntigos(cfg.retencao);
+                    } catch (e) {
+                        console.error('Backup: falha ao gravar na pasta, baixando em Downloads.', e);
+                        destino = 'Downloads (falha na pasta)';
+                    }
+                } else if (silencioso) {
+                    // Agendado sem permissão: pede um clique em vez de baixar escondido.
+                    _bkMostrarBanner(tipo || 'Automático');
+                    return false;
+                }
+            }
+            if (destino.startsWith('Downloads')) _baixarJSON(backup, nomeArquivo);
 
             _registrarBackupLog({
                 data: agora.toISOString(),
-                tipo: silencioso ? 'Automático' : 'Manual',
+                tipo: tipo || (silencioso ? 'Automático' : 'Manual'),
+                destino,
                 arquivo: nomeArquivo,
                 registros: totalRegistros
             });
-            localStorage.setItem(_chaveUltimoBackupAuto(), agora.toISOString().slice(0, 10));
+            localStorage.setItem(_chaveUltimoBackupAuto(), _bkHojeISO());
 
-            if (!silencioso) showAlert('Backup gerado e baixado! (' + totalRegistros + ' registros)', 'alertBackup', 'success');
+            if (!silencioso) showAlert('Backup gerado (' + totalRegistros + ' registros) → ' + destino, 'alertBackup', 'success');
+            else _bkToast('💾 Backup salvo → ' + destino);
             atualizarPainelBackup();
             return true;
         } catch (erro) {
             console.error('Erro ao gerar backup:', erro);
             if (!silencioso) showAlert('Erro ao gerar backup — confira o console.', 'alertBackup', 'error');
             return false;
+        } finally {
+            _bkRodando = false;
         }
+    }
+
+    function _bkToast(msg) {
+        let el = document.getElementById('bkToast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'bkToast';
+            el.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1600;background:#2b303b;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:opacity .3s;';
+            document.body.appendChild(el);
+        }
+        el.textContent = msg; el.style.opacity = '1'; el.style.display = 'block';
+        clearTimeout(el._t); el._t = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 300); }, 4000);
+    }
+
+    let _bkPendente = null;
+    function _bkMostrarBanner(tipo) {
+        _bkPendente = tipo;
+        let b = document.getElementById('bkBanner');
+        if (!b) {
+            b = document.createElement('div');
+            b.id = 'bkBanner';
+            document.body.appendChild(b);
+        }
+        b.innerHTML = '<b>💾 Backup agendado aguardando</b><br>O navegador precisa da sua autorização para gravar na pasta <b>' +
+            (_bkDirHandle ? _bkDirHandle.name : '') + '</b>.' +
+            '<div class="bk-ban-acoes"><button style="background:transparent;color:#c3c8cf;" onclick="_bkFecharBanner()">Depois</button>' +
+            '<button style="background:#FF7A42;color:#fff;" onclick="_bkAutorizarEFazer()">Autorizar e salvar</button></div>';
+        b.classList.add('ativo');
+    }
+    function _bkFecharBanner() { const b = document.getElementById('bkBanner'); if (b) b.classList.remove('ativo'); }
+    async function _bkAutorizarEFazer() {
+        _bkFecharBanner();
+        const p = await _bkPermissao(true);
+        if (p !== 'granted') { _bkToast('Sem autorização — backup baixado em Downloads.'); }
+        const tipo = _bkPendente || 'Automático';
+        _bkPendente = null;
+        // sem permissão: garante o backup em Downloads
+        await gerarBackupCompleto(true, tipo, p !== 'granted');
     }
 
     function _baixarJSON(objeto, nomeArquivo) {
@@ -16593,31 +17229,105 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         localStorage.setItem(chave, JSON.stringify(log));
     }
 
-    function atualizarPainelBackup() {
-        const tbody = document.querySelector('#tabelaBackupLog tbody');
-        if (!tbody) return;
-        let log = [];
-        try { log = JSON.parse(localStorage.getItem(_chaveBackupLog()) || '[]'); } catch (e) { log = []; }
-        tbody.innerHTML = '';
-        if (log.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">Nenhum backup registrado ainda neste navegador.</td></tr>';
-            return;
+    function _bkProximo(cfg) {
+        if (!cfg.horarios.length) return null;
+        const agora = new Date();
+        const hoje = _bkHojeISO();
+        for (const h of cfg.horarios) {
+            const [hh, mm] = h.split(':').map(Number);
+            const d = new Date(); d.setHours(hh, mm, 0, 0);
+            if (d > agora && !localStorage.getItem(_bkChaveFeito(hoje, h))) return 'Hoje às ' + h;
         }
-        log.forEach(item => {
-            const data = new Date(item.data);
-            tbody.innerHTML += '<tr>' +
-                '<td>' + data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) + '</td>' +
-                '<td>' + item.tipo + '</td>' +
-                '<td style="font-size:11px;color:#666;">' + item.arquivo + '</td>' +
-                '<td>' + item.registros + '</td></tr>';
-        });
+        return 'Amanhã às ' + cfg.horarios[0];
     }
 
-    function verificarBackupAutomatico() {
-        const hoje = new Date().toISOString().slice(0, 10);
-        const ultimo = localStorage.getItem(_chaveUltimoBackupAuto());
-        if (ultimo === hoje) return;
-        gerarBackupCompleto(true);
+    async function atualizarPainelBackup() {
+        const cfg = _bkCfg();
+        if (!_bkDirHandle) await _bkCarregarPasta();
+        const temPasta = !!_bkDirHandle;
+        const perm = temPasta ? await _bkPermissao(false) : 'sem-pasta';
+
+        const box = document.getElementById('bkPastaBox');
+        if (box) {
+            box.classList.toggle('ok', temPasta);
+            document.getElementById('bkPastaNome').innerHTML = temPasta
+                ? 'Gravando em: <b>' + _bkDirHandle.name + '</b>'
+                : 'Nenhuma pasta escolhida — os backups vão para <b>Downloads</b>';
+            document.getElementById('bkBtnRemoverPasta').style.display = temPasta ? '' : 'none';
+        }
+        const av = document.getElementById('bkAvisoNavegador');
+        if (av) {
+            if (!_bkSuportaPasta()) {
+                av.style.display = ''; av.className = 'bk-aviso erro';
+                av.innerHTML = 'Este navegador não permite escolher uma pasta. Abra o sistema no <b>Google Chrome</b> ou no <b>Microsoft Edge</b>. Por enquanto os backups vão para Downloads.';
+            } else if (temPasta && perm !== 'granted') {
+                av.style.display = ''; av.className = 'bk-aviso';
+                av.innerHTML = 'O navegador vai pedir autorização para gravar na pasta. Clique em <b>Testar gravação na pasta</b> e escolha <b>“Permitir em todas as visitas”</b>.';
+            } else av.style.display = 'none';
+        }
+        const hz = document.getElementById('bkHorarios');
+        if (hz) {
+            hz.innerHTML = cfg.horarios.length
+                ? cfg.horarios.map(h => '<span class="bk-chip">🕒 ' + h + '<button title="Remover" onclick="bkRemoverHorario(\'' + h + '\')">✕</button></span>').join('')
+                : '<span style="font-size:13px;color:#8a8f98;">Nenhum horário — adicione um ao lado.</span>';
+        }
+        const ao = document.getElementById('bkAoAbrir'); if (ao) ao.checked = !!cfg.aoAbrir;
+        const rt = document.getElementById('bkRetencao'); if (rt) rt.value = String(cfg.retencao || 0);
+
+        let log = [];
+        try { log = JSON.parse(localStorage.getItem(_chaveBackupLog()) || '[]'); } catch (e) { log = []; }
+        const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+        set('bkStDestino', temPasta ? 'Pasta: ' + _bkDirHandle.name : 'Downloads');
+        set('bkStProximo', _bkProximo(cfg) || (cfg.aoAbrir ? 'Ao abrir o sistema (1x por dia)' : 'Somente manual'));
+        if (log[0]) {
+            const d = new Date(log[0].data);
+            set('bkStUltimo', d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' · ' + log[0].tipo);
+        } else set('bkStUltimo', 'Nenhum ainda');
+        set('bkStPermissao', !temPasta ? '—' : perm === 'granted' ? '✅ Autorizada' : '⚠️ Precisa autorizar');
+
+        const tbody = document.querySelector('#tabelaBackupLog tbody');
+        if (!tbody) return;
+        if (log.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">Nenhum backup registrado ainda neste navegador.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = log.map(item => {
+            const data = new Date(item.data);
+            return '<tr>' +
+                '<td>' + data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) + '</td>' +
+                '<td>' + item.tipo + '</td>' +
+                '<td>' + (item.destino || 'Downloads') + '</td>' +
+                '<td style="font-size:11px;color:#666;">' + item.arquivo + '</td>' +
+                '<td>' + item.registros + '</td></tr>';
+        }).join('');
+    }
+
+    // Verifica a cada 30s se chegou (ou já passou) algum horário de hoje ainda não feito.
+    async function _bkVerificarAgenda() {
+        if (!usuarioAtual || _bkRodando) return;
+        const cfg = _bkCfg();
+        if (!cfg.horarios.length) return;
+        const agora = new Date();
+        const hoje = _bkHojeISO();
+        const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+        const vencidos = cfg.horarios.filter(h => h <= hhmm && !localStorage.getItem(_bkChaveFeito(hoje, h)));
+        if (!vencidos.length) return;
+        // vários horários perdidos (sistema fechado) viram um backup só
+        vencidos.forEach(h => localStorage.setItem(_bkChaveFeito(hoje, h), 'feito'));
+        const ok = await gerarBackupCompleto(true, 'Agendado ' + vencidos[vencidos.length - 1]);
+        if (!ok && !_bkPendente) vencidos.forEach(h => localStorage.removeItem(_bkChaveFeito(hoje, h)));
+    }
+
+    async function verificarBackupAutomatico() {
+        await _bkCarregarPasta();
+        const cfg = _bkCfg();
+        const hoje = _bkHojeISO();
+        if (cfg.horarios.length) await _bkVerificarAgenda();
+        if (cfg.aoAbrir && localStorage.getItem(_chaveUltimoBackupAuto()) !== hoje) {
+            await gerarBackupCompleto(true, 'Ao abrir');
+        }
+        if (_bkTimer) clearInterval(_bkTimer);
+        _bkTimer = setInterval(_bkVerificarAgenda, 30000);
     }
 
     // ================================================================
