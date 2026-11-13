@@ -2651,7 +2651,7 @@
         @keyframes bvFade { from { opacity:0; } to { opacity:1; } }
         @keyframes bvSobe { from { transform:translateY(18px); opacity:0; } to { transform:none; opacity:1; } }
         .bv-caixa { width:min(1080px, 100%); max-height:calc(100vh - 40px); display:flex; flex-direction:column; background:#f6f7f9; border-radius:18px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.35); animation:bvSobe .35s cubic-bezier(.2,.8,.2,1); }
-        .bv-topo { position:relative; padding:26px 30px 22px; color:#fff; background:linear-gradient(120deg, #2b303b 0%, #3a2f2a 55%, #FF7A42 140%); overflow:hidden; }
+        .bv-topo { flex-shrink:0; position:relative; padding:26px 30px 22px; color:#fff; background:linear-gradient(120deg, #2b303b 0%, #3a2f2a 55%, #FF7A42 140%); overflow:hidden; }
         .bv-topo::after { content:''; position:absolute; right:-60px; top:-80px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle, rgba(255,122,66,.45), rgba(255,122,66,0) 70%); }
         .bv-saudacao { font-size:13px; letter-spacing:.6px; text-transform:uppercase; opacity:.75; font-weight:600; display:flex; align-items:center; gap:8px; }
         .bv-nome { font-size:30px; font-weight:800; margin:4px 0 2px; letter-spacing:-.4px; }
@@ -2661,7 +2661,7 @@
         .bv-kpis { position:relative; z-index:1; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:18px; }
         .bv-kpi { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px 14px; }
         .bv-kpi-rot { font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; opacity:.75; font-weight:700; }
-        .bv-kpi-val { font-size:19px; font-weight:800; margin-top:3px; font-variant-numeric:tabular-nums; }
+        .bv-kpi-val { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:19px; font-weight:800; margin-top:3px; font-variant-numeric:tabular-nums; }
         .bv-kpi-sub { font-size:11.5px; opacity:.75; margin-top:1px; }
         .bv-kpi.alerta .bv-kpi-val { color:#ffb3a7; }
         .bv-kpi.ok .bv-kpi-val { color:#9de8b8; }
@@ -2701,7 +2701,7 @@
         .bv-vazio b { display:block; font-size:28px; margin-bottom:6px; }
         .bv-col-rodape { margin-top:auto; padding:10px 16px; border-top:1px solid #f0f1f3; text-align:right; }
         .bv-link { border:none; background:none; color:var(--cor-primaria); font-weight:700; font-size:13px; cursor:pointer; }
-        .bv-rodape { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 22px 16px; border-top:1px solid #e9ebee; background:#fff; }
+        .bv-rodape { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 22px 16px; border-top:1px solid #e9ebee; background:#fff; }
         .bv-rodape-txt { font-size:12px; color:#8a8f98; }
         .bv-entrar { border:none; border-radius:10px; padding:10px 22px; font-size:14px; font-weight:800; color:#fff; background:linear-gradient(135deg, #FF7A42, #e95f22); cursor:pointer; box-shadow:0 6px 16px rgba(255,122,66,.35); }
         .bv-entrar:hover { filter:brightness(1.05); }
@@ -2758,15 +2758,15 @@
             <p style="color:#666; font-size:13px; margin-top:10px;">Gestão Financeira</p>
         </div>
         <div class="error-message" id="errorMessage"></div>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on">
             <div class="form-group">
                 <label for="username">Usuário</label>
-                <input type="text" id="username" name="username" required placeholder="admin">
+                <input type="text" id="username" name="username" required placeholder="admin" autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="password">Senha</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required placeholder="Sua senha">
+                    <input type="password" id="password" name="password" required placeholder="Sua senha" autocomplete="current-password">
                     <span class="toggle-password" onclick="togglePassword()">👁️</span>
                 </div>
             </div>
@@ -5828,10 +5828,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (username === 'admin' && password === 'C@ppas_2026') {
             usuarioAtual = { email: username, nome: 'Administrador' };
             
-            if (remember) {
-                localStorage.setItem('cap_usuario', JSON.stringify(usuarioAtual));
-                localStorage.setItem('cap_lembrar', 'true');
-            }
+            try {
+                if (remember) {
+                    localStorage.setItem('cap_lembrar', 'true');
+                    localStorage.setItem('cap_login_salvo', JSON.stringify({ u: username, p: password }));
+                } else {
+                    localStorage.removeItem('cap_lembrar');
+                    localStorage.removeItem('cap_login_salvo');
+                }
+            } catch (e) {}
 
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').classList.add('active');
@@ -5941,21 +5946,33 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     });
 
     function verificarLogin() {
-        // Nunca pular a tela de login — sempre exibir ao abrir o sistema
+        // Sempre exibe a tela de login ao abrir o sistema, mas se o usuário
+        // marcou "Lembrar-me", já deixa usuário e senha preenchidos.
         localStorage.removeItem('cap_usuario');
-        localStorage.removeItem('cap_lembrar');
+        _preencherLoginSalvo();
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('mainContainer').classList.remove('active');
+    }
+
+    function _preencherLoginSalvo() {
+        try {
+            if (localStorage.getItem('cap_lembrar') !== 'true') return;
+            const salvo = JSON.parse(localStorage.getItem('cap_login_salvo') || 'null');
+            if (!salvo) return;
+            document.getElementById('username').value = salvo.u || '';
+            document.getElementById('password').value = salvo.p || '';
+            document.getElementById('remember').checked = true;
+        } catch (e) {}
     }
 
     function handleLogout() {
         if (confirm('Tem certeza que deseja sair?')) {
             usuarioAtual = null;
             localStorage.removeItem('cap_usuario');
-            localStorage.removeItem('cap_lembrar');
             document.getElementById('mainContainer').classList.remove('active');
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('loginForm').reset();
+            _preencherLoginSalvo();
         }
     }
 
@@ -6001,10 +6018,19 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 headers['Prefer'] = 'return=representation';
             }
 
-            const opcoes = { method: metodo, headers: headers };
+            // GET: o Supabase devolve no máximo 1000 linhas por consulta.
+            // Busca em páginas até trazer tudo, para que lançamentos novos
+            // não "sumam" depois que a tabela passa de 1000 registros.
+            if (metodo === 'GET') {
+                return await _fetchSupabaseTodasPaginas(tabela, url, headers, filtros);
+            }
+
+            _limparCacheTabela(tabela);
+            const opcoes = { method: metodo, headers: headers, cache: 'no-store' };
             if (dados) opcoes.body = JSON.stringify(dados);
 
             const resposta = await fetch(url, opcoes);
+            _limparCacheTabela(tabela); // de novo após gravar, para nenhuma leitura antiga ficar guardada
             const status = resposta.status;
 
             // 204 No Content (DELETE bem-sucedido)
@@ -6027,6 +6053,112 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             console.error('Erro de rede:', erro);
             return null;
         }
+    }
+
+    const _TAMANHO_PAGINA_BD = 1000;
+    // Reaproveita por alguns segundos uma consulta idêntica que acabou de ser feita
+    // (várias telas pedem a mesma tabela ao mesmo tempo). Qualquer gravação na
+    // tabela apaga esse reaproveitamento, então o que foi lançado aparece na hora.
+    const _CACHE_GET_MS = 8000;
+    const _cacheGet = new Map(); // url -> { quando, promessa, tabela }
+    function _limparCacheTabela(tabela) {
+        for (const [k, v] of _cacheGet) if (!tabela || v.tabela === tabela) _cacheGet.delete(k);
+    }
+    function _copiar(v) {
+        try { return typeof structuredClone === 'function' ? structuredClone(v) : JSON.parse(JSON.stringify(v)); }
+        catch (e) { return v; }
+    }
+    async function _fetchSupabaseTodasPaginas(tabela, url, headers, filtros) {
+        const agora = Date.now();
+        const c = _cacheGet.get(url);
+        if (c && agora - c.quando < _CACHE_GET_MS) {
+            const r = await c.promessa;
+            return r === null ? null : _copiar(r);
+        }
+        const promessa = _buscarTodasPaginas(tabela, url, headers, filtros)
+            .catch(e => { _cacheGet.delete(url); throw e; });
+        _cacheGet.set(url, { quando: agora, promessa, tabela });
+        const r = await promessa;
+        if (r === null) _cacheGet.delete(url); // não guarda erro
+        return r === null ? null : _copiar(r);
+    }
+
+    async function _buscarTodasPaginas(tabela, url, headers, filtros) {
+        let urlBase = url;
+        if (!/(^|&)order=/.test(filtros || '')) {
+            urlBase += (url.indexOf('?') >= 0 ? '&' : '?') + 'order=id.asc';
+        }
+        const temLimite = /(^|&)limit=/.test(filtros || '');
+
+        const pedir = async (inicio, contar) => {
+            const h = Object.assign({}, headers);
+            if (!temLimite) {
+                h['Range-Unit'] = 'items';
+                h['Range'] = inicio + '-' + (inicio + _TAMANHO_PAGINA_BD - 1);
+                if (contar) h['Prefer'] = 'count=exact';
+            }
+            return fetch(urlBase, { method: 'GET', headers: h, cache: 'no-store' });
+        };
+        const erro = async (resposta) => {
+            const text = await resposta.text();
+            _ultimoErroSupabase = { status: resposta.status, body: text };
+            console.error('Erro Supabase [GET ' + tabela + '] HTTP ' + resposta.status + ':', text);
+            mostrarErroBD(tabela, 'GET', resposta.status, text);
+            return null;
+        };
+        const ler = async (resposta) => {
+            const text = await resposta.text();
+            if (!text || text.trim() === '') return [];
+            try { return JSON.parse(text); } catch (e) { return []; }
+        };
+
+        // 1ª página já pede o total de linhas
+        let resposta = await pedir(0, true);
+        if (!resposta.ok && resposta.status === 400 && urlBase !== url) {
+            urlBase = url; // tabela sem coluna "id"
+            resposta = await pedir(0, true);
+        }
+        if (resposta.status === 416) return [];
+        if (!resposta.ok) return await erro(resposta);
+        const primeira = await ler(resposta);
+        if (!Array.isArray(primeira) || temLimite) return primeira;
+
+        const cr = resposta.headers.get('Content-Range') || '';
+        const total = parseInt((cr.split('/')[1] || ''), 10);
+        let todos = primeira;
+
+        if (isFinite(total) && total > primeira.length && primeira.length > 0) {
+            // Sabemos o total: busca as páginas restantes em paralelo (até 6 por vez)
+            const passo = primeira.length;
+            const inicios = [];
+            for (let i = passo; i < total; i += passo) inicios.push(i);
+            const resultados = new Array(inicios.length);
+            let prox = 0;
+            const trabalhador = async () => {
+                while (prox < inicios.length) {
+                    const idx = prox++;
+                    const r = await pedir(inicios[idx], false);
+                    if (r.status === 416) { resultados[idx] = []; continue; }
+                    if (!r.ok) { resultados[idx] = await erro(r); continue; }
+                    resultados[idx] = await ler(r);
+                }
+            };
+            await Promise.all(Array.from({ length: Math.min(6, inicios.length) }, trabalhador));
+            resultados.forEach(l => { if (Array.isArray(l)) todos = todos.concat(l); });
+        } else if (!isFinite(total) && primeira.length >= _TAMANHO_PAGINA_BD) {
+            // Servidor não informou o total: segue página a página
+            let inicio = primeira.length;
+            for (let pagina = 1; pagina < 500; pagina++) {
+                const r = await pedir(inicio, false);
+                if (r.status === 416 || !r.ok) break;
+                const lote = await ler(r);
+                if (!Array.isArray(lote) || lote.length === 0) break;
+                todos = todos.concat(lote);
+                inicio += lote.length;
+                if (lote.length < _TAMANHO_PAGINA_BD) break;
+            }
+        }
+        return todos;
     }
 
     function mostrarErroBD(tabela, metodo, status, body) {
@@ -6192,7 +6324,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         lista.forEach(cat => {
             const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '-';
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td><b>${cat.nome}</b></td>
                 <td><span style="background:#e8f4fd;color:#1565c0;padding:2px 8px;border-radius:10px;font-size:11px;">${grupoLabel}</span></td>
                 <td>${cat.tipo || '-'}</td>
@@ -6202,7 +6334,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-secondary btn-small" onclick="editarCategoria(${cat.id})">Editar</button>
                     <button class="btn btn-danger btn-small" onclick="deletarCategoria(${cat.id})">Deletar</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
 
         if (lista.length === 0) {
@@ -6436,7 +6568,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         tbody.innerHTML = '';
         dadosCache.subcategorias.forEach(sub => {
             const categoria = dadosCache.categorias.find(c => c.id === sub.categoria_id);
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td><b>${sub.nome}</b></td>
                 <td><span style="background:#f3e8fd;color:#6f2da8;padding:2px 8px;border-radius:10px;font-size:11px;">${categoria ? categoria.nome : '-'}</span></td>
                 <td>${sub.descricao || '-'}</td>
@@ -6445,7 +6577,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-secondary btn-small" onclick="editarSubcategoria(${sub.id})">Editar</button>
                     <button class="btn btn-danger btn-small" onclick="deletarSubcategoria(${sub.id})">Deletar</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
     }
 
@@ -6545,7 +6677,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
         dadosCache.produtos.forEach(prod => {
             const categoria = dadosCache.categorias.find(c => c.id === prod.categoria_id);
-            tbody.innerHTML += `
+            tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td>${prod.nome}</td>
                     <td>${categoria ? categoria.nome : '-'}</td>
@@ -6556,7 +6688,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <button class="btn btn-danger btn-small" onclick="deletarProduto(${prod.id})">Deletar</button>
                     </td>
                 </tr>
-            `;
+            `);
         });
     }
 
@@ -6658,7 +6790,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         tbody.innerHTML = '';
 
         dadosCache.fornecedores.forEach(forn => {
-            tbody.innerHTML += `
+            tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td>${forn.nome}</td>
                     <td>${forn.cnpj || '-'}</td>
@@ -6670,7 +6802,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <button class="btn btn-danger btn-small" onclick="deletarFornecedor(${forn.id})">Deletar</button>
                     </td>
                 </tr>
-            `;
+            `);
         });
     }
 
@@ -6778,7 +6910,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         tbody.innerHTML = '';
 
         dadosCache.clientes.forEach(cli => {
-            tbody.innerHTML += `
+            tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td>${cli.nome}</td>
                     <td>${cli.cpf_cnpj || '-'}</td>
@@ -6790,7 +6922,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <button class="btn btn-danger btn-small" onclick="deletarCliente(${cli.id})">Deletar</button>
                     </td>
                 </tr>
-            `;
+            `);
         });
     }
 
@@ -6935,7 +7067,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const compLabel = conta.data_competencia
                 ? new Date(conta.data_competencia + 'T12:00:00').toLocaleDateString('pt-BR', {month:'2-digit',year:'numeric'})
                 : '-';
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td>${cliente ? cliente.nome : '-'}</td>
                 <td>${conta.descricao}</td>
                 <td>${compLabel}</td>
@@ -6948,7 +7080,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-secondary btn-small" onclick="editarLancamento(${conta.id}, 'receber')">✏️ Editar</button>
                     <button class="btn btn-danger btn-small" onclick="deletarConta(${conta.id}, 'contas_a_receber')">Deletar</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
     }
 
@@ -7065,7 +7197,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const compLabel = conta.data_competencia
                 ? new Date(conta.data_competencia + 'T12:00:00').toLocaleDateString('pt-BR', {month:'2-digit',year:'numeric'})
                 : '-';
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td>${fornecedor ? fornecedor.nome : '-'}</td>
                 <td>${categoria ? categoria.nome : '-'}</td>
                 <td>${conta.descricao}</td>
@@ -7080,7 +7212,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-secondary btn-small" onclick="editarLancamento(${conta.id}, 'pagar')">✏️ Editar</button>
                     <button class="btn btn-danger btn-small" onclick="deletarConta(${conta.id}, 'contas_a_pagar')">Deletar</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
     }
 
@@ -7195,7 +7327,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const parcLabel = conta.custo_fixo ? '🔁 Fixo' : (conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-');
             const vencFmt = conta.data_vencimento ? new Date(conta.data_vencimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             const recFmt  = conta.data_recebimento ? new Date(conta.data_recebimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td>${cliente ? cliente.nome : '-'}</td>
                 <td>${conta.descricao}</td>
                 <td style="text-align:center;">${parcLabel}</td>
@@ -7209,7 +7341,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-warning btn-small" onclick="reverterRecebimento(${conta.id})" style="background:#ffc107;color:#333;">↩ Reverter</button>
                     <button class="btn btn-danger btn-small" onclick="deletarConta(${conta.id}, 'contas_a_receber')">🗑️</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
 
         // Caixa de totais — reflete a soma e a quantidade do filtro atualmente aplicado
@@ -7278,7 +7410,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const parcLabel  = conta.custo_fixo ? '🔁 Fixo' : (conta.total_parcelas > 1 ? conta.parcela_atual + '/' + conta.total_parcelas : '-');
             const vencFmt    = conta.data_vencimento ? new Date(conta.data_vencimento + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             const pagFmt     = conta.data_pagamento  ? new Date(conta.data_pagamento  + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
-            tbody.innerHTML += `<tr>
+            tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td>${fornecedor ? fornecedor.nome : '-'}</td>
                 <td>${categoria  ? categoria.nome  : '-'}</td>
                 <td>${conta.descricao}</td>
@@ -7294,7 +7426,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <button class="btn btn-warning btn-small" onclick="reverterPagamento(${conta.id})" style="background:#ffc107;color:#333;">↩ Reverter</button>
                     <button class="btn btn-danger btn-small" onclick="deletarConta(${conta.id}, 'contas_a_pagar')">🗑️</button>
                 </td>
-            </tr>`;
+            </tr>`);
         });
 
         // Caixa de totais — reflete a soma e a quantidade do filtro atualmente aplicado
@@ -8283,7 +8415,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const anoFim    = Math.max(anoFimBase, ANO_LIMITE_PLANEJAMENTO);
             const anoInicio = anoAtual - 5;
             for (let ano = anoFim; ano >= anoInicio; ano--) {
-                select.innerHTML += `<option value="${ano}">${ano}${ano === anoAtual ? ' (atual)' : ''}</option>`;
+                select.insertAdjacentHTML('beforeend', `<option value="${ano}">${ano}${ano === anoAtual ? ' (atual)' : ''}</option>`);
             }
         });
     }
@@ -8314,7 +8446,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         
         selects.forEach(select => {
             for (let dia = 1; dia <= 31; dia++) {
-                select.innerHTML += `<option value="${String(dia).padStart(2, '0')}">${dia}</option>`;
+                select.insertAdjacentHTML('beforeend', `<option value="${String(dia).padStart(2, '0')}">${dia}</option>`);
             }
         });
     }
@@ -8334,7 +8466,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             ? '<option value="">Selecione...</option>'
             : '<option value="">Nenhuma subcategoria cadastrada</option>';
         subcategorias.forEach(sub => {
-            selectSubcategorias.innerHTML += `<option value="${sub.id}">${sub.nome}</option>`;
+            selectSubcategorias.insertAdjacentHTML('beforeend', `<option value="${sub.id}">${sub.nome}</option>`);
         });
         if (valorAtual) selectSubcategorias.value = valorAtual;
     }
@@ -8471,7 +8603,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             })
             .sort((a, b) => b.valor - a.valor)
             .forEach((item, index) => {
-                tbody.innerHTML += `
+                tbody.insertAdjacentHTML('beforeend', `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${item.nome}</td>
@@ -8479,7 +8611,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <td>R$ ${item.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
                         <td>${item.pct}%</td>
                     </tr>
-                `;
+                `);
             });
 
         // Gráfico Top 10
@@ -8594,7 +8726,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             })
             .sort((a, b) => b.valor - a.valor)
             .forEach((item, index) => {
-                tbody.innerHTML += `
+                tbody.insertAdjacentHTML('beforeend', `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${item.nome}</td>
@@ -8602,7 +8734,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         <td>R$ ${item.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
                         <td>${item.pct}%</td>
                     </tr>
-                `;
+                `);
             });
 
         // Store for toggle
@@ -8751,7 +8883,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             .map(function([nome, d]){ return { nome: nome, quantidade: d.quantidade, valor: d.valor, pct: total>0?(d.valor/total*100).toFixed(2):'0.00' }; })
             .sort(function(a,b){ return b.valor-a.valor; })
             .forEach(function(item, index) {
-                tbody.innerHTML += '<tr><td>'+(index+1)+'</td><td>'+item.nome+'</td><td>'+item.quantidade+'</td><td>R$ '+item.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td>'+item.pct+'%</td></tr>';
+                tbody.insertAdjacentHTML('beforeend', '<tr><td>'+(index+1)+'</td><td>'+item.nome+'</td><td>'+item.quantidade+'</td><td>R$ '+item.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td>'+item.pct+'%</td></tr>');
             });
     }
 
@@ -9109,7 +9241,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
             // Linha principal (prefixo)
             var temSubs = Object.keys(g.subs).length > 0;
-            tbody.innerHTML += '<tr style="background:'+bg+';border-top:'+(idx>0?'1px solid #f0f0f0':'none')+'">'
+            tbody.insertAdjacentHTML('beforeend', '<tr style="background:'+bg+';border-top:'+(idx>0?'1px solid #f0f0f0':'none')+'">'
                 + '<td style="font-weight:700;padding:6px 10px;font-size:12px;position:sticky;left:0;background:'+bg+';color:#444;">'
                 + pref + '</td>'
                 + g.valores.map(function(v){
@@ -9117,12 +9249,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         + (v>0?fmtValFull(v):'—')+'</td>';
                 }).join('')
                 + '<td style="text-align:right;padding:6px 10px;font-size:12px;font-weight:700;color:#8e44ad;white-space:nowrap;">'+fmtValFull(g.total)+'</td>'
-                + '</tr>';
+                + '</tr>');
 
             // Subcategorias ↳
             Object.keys(g.subs).sort(function(a,b){ return g.subs[b].total-g.subs[a].total; }).forEach(function(subNome) {
                 var s = g.subs[subNome];
-                tbody.innerHTML += '<tr style="background:'+bg+'">'
+                tbody.insertAdjacentHTML('beforeend', '<tr style="background:'+bg+'">'
                     + '<td style="padding:3px 10px 3px 26px;font-size:11px;color:#888;position:sticky;left:0;background:'+bg+';">'
                     + '<span style="color:#ccc;margin-right:4px;">↳</span>'+subNome+'</td>'
                     + s.valores.map(function(v){
@@ -9130,7 +9262,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                             + (v>0?fmtValFull(v):'—')+'</td>';
                     }).join('')
                     + '<td style="text-align:right;padding:3px 10px;font-size:11px;font-weight:600;color:#dc3545;white-space:nowrap;">'+fmtValFull(s.total)+'</td>'
-                    + '</tr>';
+                    + '</tr>');
             });
         });
 
@@ -9170,13 +9302,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         linhas.forEach(function(l, idx) {
             const ticket = l.qtd > 0 ? l.valor/l.qtd : 0;
             const pct = totalGeral > 0 ? (l.valor/totalGeral*100).toFixed(1) : '0.0';
-            tbody.innerHTML += '<tr style="'+(idx%2===0?'':'background:#fafafa')+'">'
+            tbody.insertAdjacentHTML('beforeend', '<tr style="'+(idx%2===0?'':'background:#fafafa')+'">'
                 + '<td style="font-weight:600;">'+l.mes+'</td>'
                 + '<td style="text-align:right;color:'+(l.valor>0?'#dc3545':'#bbb')+';font-weight:'+(l.valor>0?'600':'400')+';"> '+(l.valor>0?'R$ '+l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'-')+'</td>'
                 + '<td style="text-align:right;">'+(l.qtd>0?l.qtd:'-')+'</td>'
                 + '<td style="text-align:right;">'+(l.qtd>0?'R$ '+ticket.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'-')+'</td>'
                 + '<td style="text-align:right;">'+(l.valor>0?pct+'%':'-')+'</td>'
-                + '</tr>';
+                + '</tr>');
         });
 
         const totVal  = document.getElementById('pagarMensalTotalVal');
@@ -9743,7 +9875,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const bgRow = i < 3 ? (i === 0 ? 'background:#fffde7;' : 'background:#f0fdf4;') : '';
             const temConta = dia.totalR > 0 || dia.totalP > 0;
 
-            tbody.innerHTML += `<tr class="${temConta ? 'cal-dia-clicavel' : ''}" style="${bgRow}" ${temConta ? `onclick="abrirContasDoDia('${dia.dataStr}')" title="Clique para ver as contas do dia"` : ''}>
+            tbody.insertAdjacentHTML('beforeend', `<tr class="${temConta ? 'cal-dia-clicavel' : ''}" style="${bgRow}" ${temConta ? `onclick="abrirContasDoDia('${dia.dataStr}')" title="Clique para ver as contas do dia"` : ''}>
                 <td style="text-align:center;font-size:16px;">${medalhas[i] || (i+1)}</td>
                 <td style="font-weight:600;">${dia.d}</td>
                 <td>${dtFmt}</td>
@@ -9752,7 +9884,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <td style="color:#28a745;">${fmtV(dia.totalR)}</td>
                 <td style="color:${saldoCor};font-weight:600;">${saldoFmt}</td>
                 <td>${indicacao}</td>
-            </tr>`;
+            </tr>`);
         });
 
         if (dias.length === 0) {
@@ -9868,7 +10000,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const saldoReal = saldoAtual - saldoTerc;
             const saldoRealClass = saldoReal >= 0 ? 'color:#28a745;font-weight:600;' : 'color:#dc3545;font-weight:600;';
             const saldoRealHtml = '<td style="' + saldoRealClass + '">R$ ' + saldoReal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>';
-            tbody.innerHTML += '<tr>' +
+            tbody.insertAdjacentHTML('beforeend', '<tr>' +
                 '<td><b>' + banco.nome + '</b></td>' +
                 '<td>' + (banco.agencia || '-') + '</td>' +
                 '<td>' + (banco.conta || '-') + '</td>' +
@@ -9880,7 +10012,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 '<td><span class="status-badge ' + (banco.ativo ? 'status-recebido' : 'status-atrasado') + '">' + (banco.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
                 '<td><button class="btn btn-secondary btn-small" onclick="editarBanco(' + banco.id + ')">Editar</button> ' +
                 '<button class="btn btn-secondary btn-small" style="background:#fff3cd;color:#856404;" onclick="openModalAcertoSaldo(' + banco.id + ')" title="Corrigir saldo para bater com o extrato real">🔧 Acerto</button> ' +
-                '<button class="btn btn-danger btn-small" onclick="deletarBanco(' + banco.id + ')">Deletar</button></td></tr>';
+                '<button class="btn btn-danger btn-small" onclick="deletarBanco(' + banco.id + ')">Deletar</button></td></tr>');
         });
     }
 
@@ -9897,7 +10029,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const saldoTerc = saldosTerceiros && saldosTerceiros[banco.id] !== undefined ? saldosTerceiros[banco.id] : 0;
             totalTerceiros += saldoTerc;
             const cor = saldo >= 0 ? '#28a745' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + cor + ';cursor:pointer;" title="Clique para ver e editar os lançamentos desta caixa" onclick="abrirLancamentosBanco(' + banco.id + ')">' +
+            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + cor + ';cursor:pointer;" title="Clique para ver e editar os lançamentos desta caixa" onclick="abrirLancamentosBanco(' + banco.id + ')">' +
                 '<div class="stat-label">🏦 ' + banco.nome + '</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">' + (banco.tipo || '') + '</div>' +
                 '<div class="stat-value" style="color:' + cor + ';font-size:20px;">R$ ' + saldo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
@@ -9905,25 +10037,25 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 ' · <span style="color:#8e44ad;">Saldo de Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
                 '</div>' +
                 '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>';
+                '</div>');
         });
         if ((dadosCache.bancos || []).filter(b => b.ativo).length > 1) {
             const corTotal = totalGeral >= 0 ? '#FF7A42' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTotal + ';cursor:pointer;" title="Clique para ver os lançamentos de todas as caixas" onclick="abrirLancamentosBanco(\'\')">' +
+            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + corTotal + ';cursor:pointer;" title="Clique para ver os lançamentos de todas as caixas" onclick="abrirLancamentosBanco(\'\')">' +
                 '<div class="stat-label">💰 Saldo Total</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">Todos os bancos</div>' +
                 '<div class="stat-value" style="color:' + corTotal + ';font-size:20px;">R$ ' + totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>';
+                '</div>');
         }
         if (configAtiva) {
             const corTerc = totalTerceiros >= 0 ? '#8e44ad' : '#dc3545';
-            container.innerHTML += '<div class="stat-card" style="border-left-color:' + corTerc + ';cursor:pointer;" title="Clique para ver os lançamentos que compõem o Saldo de Terceiros" onclick="abrirLancamentosTerceiros()">' +
+            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + corTerc + ';cursor:pointer;" title="Clique para ver os lançamentos que compõem o Saldo de Terceiros" onclick="abrirLancamentosTerceiros()">' +
                 '<div class="stat-label">👤 Saldo de Terceiros</div>' +
                 '<div style="font-size:11px;color:#999;margin-bottom:4px;">Não é seu — a devolver/repassar</div>' +
                 '<div class="stat-value" style="color:' + corTerc + ';font-size:20px;">R$ ' + totalTerceiros.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '<div style="font-size:10px;color:#8e44ad;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>';
+                '</div>');
         }
     }
 
@@ -10018,14 +10150,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             } else {
                 acoes = '<button onclick="bancoLancExcluirTransferencia(' + m.id + ')" class="btn btn-danger btn-small" title="Estornar transferência">🗑️</button>';
             }
-            tbody.innerHTML += '<tr>' +
+            tbody.insertAdjacentHTML('beforeend', '<tr>' +
                 '<td>' + fmtData(m.data) + '</td>' +
                 '<td>' + m.descricao + '</td>' +
                 '<td style="font-size:11px;color:#666;">' + m.parte + '</td>' +
                 '<td>' + badge + '</td>' +
                 '<td style="text-align:right;font-weight:600;color:' + (m.tipo === 'credito' ? '#28a745' : '#dc3545') + ';">' + (m.tipo === 'credito' ? '+' : '-') + fmtVal(m.valor) + '</td>' +
                 '<td style="white-space:nowrap;">' + acoes + '</td>' +
-                '</tr>';
+                '</tr>');
         });
         if (movs.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Nenhum lançamento nesta caixa.</td></tr>';
 
@@ -10088,14 +10220,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                         '<button onclick="bancoLancReverter(' + m.id + ",'pagar')\" class=\"btn btn-small\" style=\"background:#ffc107;color:#333;\" title=\"Reverter para pendente\">↩</button> " +
                         '<button onclick="bancoLancExcluir(' + m.id + ",'contas_a_pagar')\" class=\"btn btn-danger btn-small\" title=\"Excluir\">🗑️</button>";
             }
-            tbody.innerHTML += '<tr>' +
+            tbody.insertAdjacentHTML('beforeend', '<tr>' +
                 '<td>' + fmtData(m.data) + '</td>' +
                 '<td>' + m.descricao + '</td>' +
                 '<td style="font-size:11px;color:#666;">' + m.parte + '</td>' +
                 '<td>' + badge + '</td>' +
                 '<td style="text-align:right;font-weight:600;color:' + (m.tipo === 'credito' ? '#28a745' : '#dc3545') + ';">' + (m.tipo === 'credito' ? '+' : '-') + fmtVal(m.valor) + '</td>' +
                 '<td style="white-space:nowrap;">' + acoes + '</td>' +
-                '</tr>';
+                '</tr>');
         });
         if (movs.length === 0) {
             const semConfig = !catE && !catS;
@@ -10252,10 +10384,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         tbody.innerHTML = ''; let acumulado=saldoInicial, totalCred=0, totalDeb=0;
         if (saldoInicial !== 0) {
             const cor = saldoInicial>=0?'#28a745':'#dc3545';
-            tbody.innerHTML += '<tr style="background:#f8f9fa;"><td colspan="6" style="font-weight:600;color:#555;">Saldo Inicial</td>' +
-                '<td style="text-align:right;font-weight:700;color:'+cor+';">'+fmtVal(saldoInicial)+'</td></tr>';
+            tbody.insertAdjacentHTML('beforeend', '<tr style="background:#f8f9fa;"><td colspan="6" style="font-weight:600;color:#555;">Saldo Inicial</td>' +
+                '<td style="text-align:right;font-weight:700;color:'+cor+';">'+fmtVal(saldoInicial)+'</td></tr>');
         }
-        if (movimentos.length===0) tbody.innerHTML += '<tr><td colspan="7" style="text-align:center;color:#999;padding:24px;">Nenhum lançamento encontrado para o período.</td></tr>';
+        if (movimentos.length===0) tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="7" style="text-align:center;color:#999;padding:24px;">Nenhum lançamento encontrado para o período.</td></tr>');
         // Cada lançamento vira sua própria linha, com a data repetida e o saldo acumulado
         // recalculado transação a transação — igual ao extrato original do banco.
         let diaAnterior = null;
@@ -10268,13 +10400,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const deb  = m.tipo==='debito' ?'<td style="text-align:right;color:#dc3545;font-weight:600;">'+fmtVal(m.valor)+'</td>':'<td style="text-align:right;color:#bbb;">-</td>';
             const novoDia = m.data !== diaAnterior;
             diaAnterior = m.data;
-            tbody.innerHTML += '<tr style="'+(novoDia?'border-top:2px solid #eee;':'')+'">' +
+            tbody.insertAdjacentHTML('beforeend', '<tr style="'+(novoDia?'border-top:2px solid #eee;':'')+'">' +
                 '<td>'+fmtData(m.data)+'</td>' +
                 '<td>'+desc+'</td>' +
                 '<td style="font-size:11px;color:#666;">'+m.banco+'</td>' +
                 '<td><span style="padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:'+(m.tipo==='credito'?'#d4edda;color:#155724':'#f8d7da;color:#721c24')+';"> '+(m.tipo==='credito'?'Crédito':'Débito')+'</span></td>' +
                 cred + deb +
-                '<td style="text-align:right;font-weight:700;color:'+corAcum+';">'+fmtVal(acumulado)+'</td></tr>';
+                '<td style="text-align:right;font-weight:700;color:'+corAcum+';">'+fmtVal(acumulado)+'</td></tr>');
         });
         const fluxo=totalCred-totalDeb;
         tfoot.innerHTML = '<tr style="font-weight:700;background:#333;color:white;">' +
@@ -10923,19 +11055,19 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const selFornecedor = document.getElementById('lancRapidoFornecedor');
         selFornecedor.innerHTML = '<option value="">Selecione...</option>';
         (dadosCache.fornecedores || []).filter(f => f.ativo !== false).forEach(f => {
-            selFornecedor.innerHTML += '<option value="' + f.id + '">' + f.nome + '</option>';
+            selFornecedor.insertAdjacentHTML('beforeend', '<option value="' + f.id + '">' + f.nome + '</option>');
         });
 
         const selCliente = document.getElementById('lancRapidoCliente');
         selCliente.innerHTML = '<option value="">Selecione...</option>';
         (dadosCache.clientes || []).filter(c => c.ativo !== false).forEach(c => {
-            selCliente.innerHTML += '<option value="' + c.id + '">' + c.nome + '</option>';
+            selCliente.insertAdjacentHTML('beforeend', '<option value="' + c.id + '">' + c.nome + '</option>');
         });
 
         const selCategoria = document.getElementById('lancRapidoCategoria');
         selCategoria.innerHTML = '<option value="">Selecione...</option>';
         (dadosCache.categorias || []).filter(c => c.ativo !== false).forEach(c => {
-            selCategoria.innerHTML += '<option value="' + c.id + '">' + c.nome + '</option>';
+            selCategoria.insertAdjacentHTML('beforeend', '<option value="' + c.id + '">' + c.nome + '</option>');
         });
 
         document.getElementById('modalLancamentoRapidoConciliacao').classList.add('active');
@@ -10953,7 +11085,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             ? '<option value="">Selecione...</option>'
             : '<option value="">Nenhuma subcategoria cadastrada</option>';
         subcategorias.forEach(sub => {
-            selectSubcategorias.innerHTML += '<option value="' + sub.id + '">' + sub.nome + '</option>';
+            selectSubcategorias.insertAdjacentHTML('beforeend', '<option value="' + sub.id + '">' + sub.nome + '</option>');
         });
     }
 
@@ -11264,14 +11396,23 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     // o script de criação). Usada em carregamentos de fundo (ex: página Bancos).
     async function _fetchTransferenciasSilencioso() {
         try {
-            const resposta = await fetch(API_URL + '/transferencias?order=data.desc,id.desc', {
-                method: 'GET',
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }
-            });
-            if (!resposta.ok) { window._transferenciasIndisponivel = true; return []; }
+            const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+            let todos = [], inicio = 0;
+            for (let pagina = 0; pagina < 500; pagina++) {
+                const resposta = await fetch(API_URL + '/transferencias?order=data.desc,id.desc', {
+                    method: 'GET', cache: 'no-store',
+                    headers: Object.assign({ 'Range-Unit': 'items', 'Range': inicio + '-' + (inicio + 999) }, headers)
+                });
+                if (resposta.status === 416) break;
+                if (!resposta.ok) { window._transferenciasIndisponivel = true; return pagina === 0 ? [] : todos; }
+                const texto = await resposta.text();
+                const lote = texto ? JSON.parse(texto) : [];
+                todos = todos.concat(lote);
+                if (lote.length < 1000) break;
+                inicio += lote.length;
+            }
             window._transferenciasIndisponivel = false;
-            const texto = await resposta.text();
-            return texto ? JSON.parse(texto) : [];
+            return todos;
         } catch (e) {
             window._transferenciasIndisponivel = true;
             return [];
@@ -11425,14 +11566,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         lista.forEach(t => {
             const origem  = (dadosCache.bancos || []).find(b => b.id === t.banco_origem_id);
             const destino = (dadosCache.bancos || []).find(b => b.id === t.banco_destino_id);
-            tbody.innerHTML += '<tr>' +
+            tbody.insertAdjacentHTML('beforeend', '<tr>' +
                 '<td>' + fmtData(t.data) + '</td>' +
                 '<td>🔻 ' + (origem ? origem.nome : '-') + '</td>' +
                 '<td>🔺 ' + (destino ? destino.nome : '-') + '</td>' +
                 '<td style="text-align:right;font-weight:600;">' + fmtVal(t.valor) + '</td>' +
                 '<td>' + (t.descricao || '-') + '</td>' +
                 '<td><button class="btn btn-danger btn-small" onclick="deletarTransferencia(' + t.id + ')">Excluir</button></td>' +
-                '</tr>';
+                '</tr>');
         });
     }
 
@@ -12527,13 +12668,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const cl = (tipo, temValor) => temValor
                 ? ` class="cel-click" onclick="abrirDetalheDFCMes('${tipo}',${idx},'${ano}')"`
                 : '';
-            tbody.innerHTML += `<tr style="${hasData ? '' : 'color:#ccc;'}">
+            tbody.insertAdjacentHTML('beforeend', `<tr style="${hasData ? '' : 'color:#ccc;'}">
                 <td style="font-weight:${hasData?'600':'400'};">${nome}</td>
                 <td style="color:${hasData?'#28a745':'#ccc'};"${cl('ent', ent > 0)}>${ent > 0 ? fmtBRL(ent) : '-'}</td>
                 <td style="color:${hasData?'#dc3545':'#ccc'};"${cl('sai', sai > 0)}>${sai > 0 ? fmtBRL(sai) : '-'}</td>
                 <td style="color:${hasData?liqCor:'#ccc'};font-weight:${hasData?'600':'400'};"${cl('liq', hasData)}>${hasData ? fmtValSig(liq) : '-'}</td>
                 <td style="color:${acuCor};font-weight:600;">${fmtValSig(acumulado)}</td>
-            </tr>`;
+            </tr>`);
         });
         const totLiq = totEnt - totSai;
         document.getElementById('dfcMensalTotalEnt').textContent = fmtBRL(totEnt);
@@ -13027,32 +13168,32 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         }
 
         // ── Seção ENTRADAS ──
-        tbody.innerHTML += linhaSeparador('ENTRADAS DE CAIXA');
+        tbody.insertAdjacentHTML('beforeend', linhaSeparador('ENTRADAS DE CAIXA'));
         if (Object.keys(catRec).length === 0) {
-            tbody.innerHTML += '<tr><td colspan="' + (13+1) + '" style="padding:6px 10px;color:#aaa;font-size:12px;">Nenhum recebimento no período</td></tr>';
+            tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="' + (13+1) + '" style="padding:6px 10px;color:#aaa;font-size:12px;">Nenhum recebimento no período</td></tr>');
         } else {
             Object.entries(catRec).sort((a,b) => b[1].reduce((s,v)=>s+v,0) - a[1].reduce((s,v)=>s+v,0)).forEach(([cat, arr]) => {
-                tbody.innerHTML += linhaTabela(cat, arr, { indent: true, clique: { tipo: 'rec-cat', nome: cat } });
+                tbody.insertAdjacentHTML('beforeend', linhaTabela(cat, arr, { indent: true, clique: { tipo: 'rec-cat', nome: cat } }));
             });
         }
-        tbody.innerHTML += linhaTabela('= Total Entradas', totEntMes, { bg: '#d4edda', fc: '#155724', bold: true, clique: { tipo: 'rec-todos', nome: '' } });
+        tbody.insertAdjacentHTML('beforeend', linhaTabela('= Total Entradas', totEntMes, { bg: '#d4edda', fc: '#155724', bold: true, clique: { tipo: 'rec-todos', nome: '' } }));
 
         // ── Seção SAÍDAS ──
-        tbody.innerHTML += linhaSeparador('SAÍDAS DE CAIXA');
+        tbody.insertAdjacentHTML('beforeend', linhaSeparador('SAÍDAS DE CAIXA'));
         if (Object.keys(catPag).length === 0) {
-            tbody.innerHTML += '<tr><td colspan="' + (13+1) + '" style="padding:6px 10px;color:#aaa;font-size:12px;">Nenhum pagamento no período</td></tr>';
+            tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="' + (13+1) + '" style="padding:6px 10px;color:#aaa;font-size:12px;">Nenhum pagamento no período</td></tr>');
         } else {
             Object.entries(catPag).sort((a,b) => b[1].reduce((s,v)=>s+v,0) - a[1].reduce((s,v)=>s+v,0)).forEach(([cat, arr]) => {
                 const negArr = arr.map(v => -v);
-                tbody.innerHTML += linhaTabela(cat, negArr, { indent: true, clique: { tipo: 'pag-cat', nome: cat } });
+                tbody.insertAdjacentHTML('beforeend', linhaTabela(cat, negArr, { indent: true, clique: { tipo: 'pag-cat', nome: cat } }));
             });
         }
-        tbody.innerHTML += linhaTabela('= Total Saídas', totSaiMes.map(v => -v), { bg: '#f8d7da', fc: '#721c24', bold: true, clique: { tipo: 'pag-todos', nome: '' } });
+        tbody.insertAdjacentHTML('beforeend', linhaTabela('= Total Saídas', totSaiMes.map(v => -v), { bg: '#f8d7da', fc: '#721c24', bold: true, clique: { tipo: 'pag-todos', nome: '' } }));
 
         // ── Saldo mensal e acumulado ──
-        tbody.innerHTML += linhaSeparador('SALDO');
-        tbody.innerHTML += linhaTabela('Saldo Mensal (Entradas - Saídas)', saldoMes, { bg: '#f5f5f5', bold: true, clique: { tipo: 'saldo', nome: '' } });
-        tbody.innerHTML += linhaTabela('Saldo Acumulado', acumArr, { bg: 'var(--cor-primaria)', fc: 'white', bold: true });
+        tbody.insertAdjacentHTML('beforeend', linhaSeparador('SALDO'));
+        tbody.insertAdjacentHTML('beforeend', linhaTabela('Saldo Mensal (Entradas - Saídas)', saldoMes, { bg: '#f5f5f5', bold: true, clique: { tipo: 'saldo', nome: '' } }));
+        tbody.insertAdjacentHTML('beforeend', linhaTabela('Saldo Acumulado', acumArr, { bg: 'var(--cor-primaria)', fc: 'white', bold: true }));
 
         // Mostrar card
         const cardMensal = document.getElementById('cardFCPMensal');
