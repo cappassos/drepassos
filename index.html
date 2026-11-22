@@ -2571,7 +2571,8 @@
     </style>
     <style id="melhorias-nov26">
         /* ===================== DFC — acumulado do ano + tabela ===================== */
-        #dfc .dfc-acum { display:flex; justify-content:space-between; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed #e3e5e9; font-size:11.5px; color:#8a8f98; white-space:nowrap; }
+        #dfc .dfc-acum { display:flex; flex-wrap:wrap; justify-content:space-between; column-gap:8px; row-gap:2px; margin-top:6px; padding-top:6px; border-top:1px dashed #e3e5e9; font-size:11.5px; color:#8a8f98; }
+        #dfc .dfc-acum > * { white-space:nowrap; }
         #dfc .dfc-acum b { font-variant-numeric: tabular-nums; font-size:12.5px; }
         #dfc .dfc-cat-periodo { font-size:12px; font-weight:500; color:#8a8f98; margin-left:6px; }
         #dfc .dfc-cat-wrap { overflow:auto; margin-top:8px; max-height:calc(100vh - 300px); border:1px solid #eceef1; border-radius:8px; }
@@ -2600,12 +2601,27 @@
         #dfc table.dfc-tab tr.dfc-r-total.dfc-ent td { background:#e3f5e9; }
         #dfc table.dfc-tab tr.dfc-r-total.dfc-sai td { background:#fbe7e7; }
         #dfc table.dfc-tab tfoot td { position:sticky; z-index:2; font-weight:800; font-size:13.5px; }
-        #dfc table.dfc-tab tfoot tr.dfc-r-liq td { bottom:34px; background:#343a46; color:#fff; padding:9px 10px; }
-        #dfc table.dfc-tab tfoot tr.dfc-r-liq:last-child td { bottom:0; }
+        #dfc table.dfc-tab tfoot tr td { bottom:var(--dfc-bottom, 0px) !important; height:34px; box-sizing:border-box; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-liq td { background:#343a46; color:#fff; padding:9px 10px; }
+        #dfc table.dfc-tab tr.dfc-toggle { cursor:pointer; user-select:none; }
+        #dfc table.dfc-tab tr.dfc-toggle:hover td { filter:brightness(0.97); }
+        #dfc table.dfc-tab .dfc-caret { display:inline-block; width:14px; margin-right:4px; color:inherit; font-size:11px; }
+        #dfc table.dfc-tab .dfc-caret-cat { cursor:pointer; color:#8a8f98; border-radius:3px; text-align:center; }
+        #dfc table.dfc-tab .dfc-caret-cat:hover { background:#eceef1; color:#343a46; }
+        #dfc table.dfc-tab .dfc-dica { font-weight:500; font-size:11px; letter-spacing:0; text-transform:none; opacity:.65; }
+        #dfc table.dfc-tab td.dfc-estorno { font-style:italic; }
+        #dfc table.dfc-tab tr.dfc-r-saldoini td { background:#f1f3f6; font-weight:700; font-size:12.5px; border-bottom:1px solid #d9dde3; }
+        #dfc table.dfc-tab tr.dfc-r-saldoini td.dfc-col-desc { background:#f1f3f6; color:#4b5260; }
+        #dfc table.dfc-tab tr.dfc-r-saldoini td.dfc-pos { color:#1e7e45; }
+        #dfc table.dfc-tab tr.dfc-r-saldoini td.dfc-neg { color:#c0392b; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-saldo-ajuste td { background:#fff8e6 !important; font-weight:600 !important; font-size:12px; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-saldo-ajuste td.dfc-col-desc { color:#8a6d1d; }
+        html[data-tema="escuro"] #dfc table.dfc-tab tr.dfc-r-saldoini td { background:#262a32; }
+        html[data-tema="escuro"] #dfc table.dfc-tab tfoot tr.dfc-r-saldo-ajuste td { background:#2e2a1c !important; }
         #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-pos { color:#8ce6aa; }
         #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-neg { color:#ffa096; }
         #dfc table.dfc-tab tfoot tr.dfc-r-liq td.dfc-col-desc { background:#343a46; color:#fff; z-index:3; }
-        #dfc table.dfc-tab tfoot tr.dfc-r-saldo td { bottom:0; background:#f1f3f6; font-size:12.5px; border-top:1px solid #d9dde3; }
+        #dfc table.dfc-tab tfoot tr.dfc-r-saldo td { background:#f1f3f6; font-size:12.5px; border-top:1px solid #d9dde3; }
         #dfc table.dfc-tab tfoot tr.dfc-r-saldo td.dfc-col-desc { background:#f1f3f6; z-index:3; color:#4b5260; }
         #dfc table.dfc-tab tfoot td.dfc-pos { color:#1e7e45; }
         #dfc table.dfc-tab tfoot td.dfc-neg { color:#c0392b; }
@@ -2843,6 +2859,7 @@
         <div class="menu-section">
             <div class="menu-section-title">Cadastro</div>
             <div class="menu-item" onclick="showPage('categorias', this)">📁 Categorias</div>
+            <div class="menu-item" onclick="showPage('grupos-dre', this)">📑 Grupos DRE</div>
             <div class="menu-item" onclick="showPage('subcategorias', this)">🏷️ Subcategorias</div>
             <div class="menu-item" onclick="showPage('produtos', this)">📦 Produtos</div>
             <div class="menu-item" onclick="showPage('fornecedores', this)">🏭 Fornecedores</div>
@@ -3050,6 +3067,48 @@
                             <th>Grupo DRE</th>
                             <th>Tipo</th>
                             <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GRUPOS DRE -->
+        <div id="grupos-dre" class="page">
+            <div class="page-header">
+                <h1>📑 Grupos DRE</h1>
+                <button class="btn btn-primary btn-small" onclick="openModalGrupoDRE()">+ Novo Grupo</button>
+            </div>
+            <div class="alert alert-success" id="alertGruposDRE"></div>
+            <div id="gruposDREAvisoArmazenamento" style="display:none;margin-bottom:14px;padding:10px 14px;border-radius:8px;font-size:12.5px;background:#fff8e1;color:#7a5b00;border:1px solid #ffe08a;"></div>
+            <div style="font-size:12.5px;color:#777;margin-bottom:14px;line-height:1.5;">
+                Os <b>grupos padrão</b> formam a estrutura da DRE (Receita Bruta, CPV, Despesas…) — você pode renomeá-los e definir a natureza no DFC, mas não excluí-los.
+                Os <b>grupos personalizados</b> ficam dentro de um grupo padrão (ex.: “Marketing Digital” dentro de Despesas Comerciais) e podem ser usados nas categorias.
+                A <b>natureza</b> define em que lado do DFC a categoria aparece (Receita = entradas, Despesa = saídas, Neutra = conforme o lançamento).
+            </div>
+            <div class="filter-container" style="margin-bottom:16px;">
+                <div class="filter-row" style="align-items:flex-end;gap:12px;flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1;min-width:220px;">
+                        <label>Pesquisar</label>
+                        <input type="text" id="buscaGruposDRE" placeholder="Nome, código ou grupo pai..." oninput="atualizarTabelaGruposDRE()">
+                    </div>
+                    <div class="form-group" style="padding-bottom:6px;">
+                        <span id="contadorGruposDRE" style="font-size:12px;color:#777;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="tabelaGruposDRE">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Código</th>
+                            <th>Posição na DRE</th>
+                            <th>Natureza (DFC)</th>
+                            <th>Categorias</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
@@ -4085,6 +4144,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
 
             <div id="dfcAviso" style="display:none;"></div>
+            <div id="dfcAvisoConc" style="display:none;"></div>
 
             <div class="filter-container">
                 <div class="filter-row" style="align-items:flex-end;">
@@ -4129,6 +4189,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                     <div class="stat-change" id="dfcCardLiquidoLabel">Resultado do período</div>
                     <div class="dfc-acum" id="dfcCardLiquidoAcum"></div>
                 </div>
+                <div class="stat-card" id="dfcCardSaldoBox" style="border-left-color:#343a46;cursor:pointer;" title="Saldo dos bancos (mesmo cálculo da tela Bancos)" onclick="showPage('bancos')">
+                    <div class="stat-label">🏦 Saldo em Bancos</div>
+                    <div class="stat-value" id="dfcCardSaldo" style="font-size:22px;">R$ 0,00</div>
+                    <div class="stat-change" id="dfcCardSaldoLabel">Final do período</div>
+                    <div class="dfc-acum" id="dfcCardSaldoInfo"></div>
+                </div>
                 <div class="stat-card" style="border-left-color:#17a2b8;">
                     <div class="stat-label">⏳ A Receber (pendente)</div>
                     <div class="stat-value" id="dfcCardPendentesReceber" style="color:#17a2b8; font-size:22px;">R$ 0,00</div>
@@ -4152,7 +4218,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                                 <th style="width:140px;color:#28a745;">Entradas</th>
                                 <th style="width:140px;color:#dc3545;">Saídas</th>
                                 <th style="width:140px;">Fluxo Líquido</th>
-                                <th style="width:140px;">Acumulado</th>
+                                <th style="width:140px;">Saldo em bancos</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -4219,6 +4285,11 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                     <span>&#128202; DFC Detalhado por Categoria <span class="dfc-cat-periodo" id="dfcCatPeriodo"></span> <span class="dfc-cat-periodo">· valores em R$</span></span>
                     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="dfcCatNivel" onchange="dfcDefinirNivel(this.value)" title="Recolher ou expandir as categorias" style="padding:5px 10px;font-size:12px;border:1px solid #ddd;border-radius:6px;">
+                            <option value="totais">Recolhido (só totais)</option>
+                            <option value="categorias">Categorias</option>
+                            <option value="detalhe">Categorias + detalhes</option>
+                        </select>
                         <select id="dfcCatVisao" onchange="renderizarDFCCategoria()" style="padding:5px 10px;font-size:12px;border:1px solid #ddd;border-radius:6px;">
                             <option value="mensal">Mensal + acumulado do ano</option>
                             <option value="total">Mês x acumulado do ano</option>
@@ -5468,6 +5539,58 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 </div>
 
 <!-- MODAIS -->
+<div class="modal" id="modalGrupoDRE">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <span id="modalGrupoDRETitulo">Novo Grupo DRE</span>
+            <button class="modal-close" onclick="closeModal('modalGrupoDRE')">&times;</button>
+        </div>
+        <form onsubmit="salvarGrupoDRE(event)">
+            <input type="hidden" id="grupoDREEditId">
+            <div class="form-group">
+                <label>Nome*</label>
+                <input type="text" id="grupoDRENome" required maxlength="60" oninput="_sugerirCodigoGrupoDRE()">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Código*</label>
+                    <input type="text" id="grupoDRECodigo" required maxlength="40" style="text-transform:uppercase;" placeholder="Ex.: MARKETING_DIGITAL">
+                    <small style="color:#999;font-size:11px;">Gerado a partir do nome; não pode ser alterado depois.</small>
+                </div>
+                <div class="form-group" id="grupoDREPaiBox">
+                    <label>Fica dentro de (posição na DRE)*</label>
+                    <select id="grupoDREPai" onchange="_grupoDREPaiMudou()"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Natureza no DFC</label>
+                    <select id="grupoDRENatureza">
+                        <option value="receita">Receita (+) — entradas de caixa</option>
+                        <option value="despesa">Despesa (−) — saídas de caixa</option>
+                        <option value="neutra">Neutra — conforme o lançamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ordem</label>
+                    <input type="number" id="grupoDREOrdem" step="1" value="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" id="grupoDREDescricao" maxlength="200">
+            </div>
+            <div class="form-group" id="grupoDREAtivoBox">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="grupoDREAtivo" checked style="width:auto;margin:0;"> Ativo</label>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalGrupoDRE')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal" id="modalCategoria">
     <div class="modal-content" style="max-width:500px;">
         <div class="modal-header">
@@ -6267,9 +6390,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     // CATEGORIAS
     async function carregarCategorias() {
+        if (!_gruposDRECarregados) { try { await carregarGruposDRE(); } catch (e) {} }
         const dados = await fetchSupabase('categorias', 'GET');
         if (dados) {
             dadosCache.categorias = dados;
+            _normalizarGruposCategorias();
+            _popularSelectsGrupoDRE();
             _popularFiltroGrupoCategorias();
             atualizarTabelaCategorias();
             atualizarSelectCategorias();
@@ -6284,8 +6410,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const atual = sel.value;
         let html = '<option value="">Todos os grupos</option>';
         html += '<option value="__sem__">— Sem grupo —</option>';
-        Object.keys(_GRUPOS_DRE_LABELS).forEach(id => {
-            html += '<option value="' + id + '">' + _GRUPOS_DRE_LABELS[id] + '</option>';
+        _gruposDREOrdenados().forEach(g => {
+            html += '<option value="' + g.id + '">' + (g.grupo_pai ? '&nbsp;&nbsp;↳ ' : '') + _escHtmlGrupo(g.nome) + '</option>';
         });
         sel.innerHTML = html;
         sel.value = atual;
@@ -6306,6 +6432,372 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         'OUTRAS_RECEITAS':'Outras Receitas','OUTRAS_DESPESAS':'Outras Despesas'
     };
 
+    // ================================================================
+    // GRUPOS DRE — cadastro (padrão + personalizados)
+    // ----------------------------------------------------------------
+    // Grupos padrão: estrutura fixa da DRE (podem ser renomeados e ter a
+    // natureza do DFC ajustada, mas não excluídos).
+    // Grupos personalizados: ficam "dentro" de um grupo padrão (grupo_pai)
+    // e somam nele na DRE. Na tabela categorias, grupo_dre guarda o código
+    // do grupo escolhido; no cache, cat.grupo_dre é convertido para o grupo
+    // padrão correspondente (para os cálculos) e o código original fica em
+    // cat.grupo_dre_cod.
+    // Armazenamento: tabela Supabase "grupos_dre"; se ela não existir,
+    // os grupos ficam salvos neste navegador (localStorage).
+    // ================================================================
+    const _GRUPOS_DRE_BASE = [
+        { id: 'RECEITA_BRUTA',      nome: 'Receita Bruta',                 natureza: 'receita', ordem: 10 },
+        { id: 'DEDUCOES',           nome: 'Deduções / Impostos s/ Receita', natureza: 'despesa', ordem: 20 },
+        { id: 'CPV',                nome: 'CPV / Custo dos Serviços',      natureza: 'despesa', ordem: 30 },
+        { id: 'DESP_COMERCIAL',     nome: 'Despesas Comerciais',           natureza: 'despesa', ordem: 40 },
+        { id: 'DESP_ADMIN',         nome: 'Despesas Administrativas',      natureza: 'despesa', ordem: 50 },
+        { id: 'RECEITA_FINANCEIRA', nome: 'Receitas Financeiras',          natureza: 'receita', ordem: 60 },
+        { id: 'DESP_FINANCEIRA',    nome: 'Despesas Financeiras',          natureza: 'despesa', ordem: 70 },
+        { id: 'IRPJ',               nome: 'IRPJ / CSLL',                   natureza: 'despesa', ordem: 80 },
+        { id: 'EMPRESTIMO',         nome: 'Empréstimos e Financiamentos',  natureza: 'neutra',  ordem: 90 },
+        { id: 'INVESTIMENTO',       nome: 'Investimentos',                 natureza: 'neutra',  ordem: 100 },
+        { id: 'OUTRAS_RECEITAS',    nome: 'Outras Receitas',               natureza: 'receita', ordem: 110 },
+        { id: 'OUTRAS_DESPESAS',    nome: 'Outras Despesas',               natureza: 'despesa', ordem: 120 }
+    ];
+    const _GRUPOS_DRE_BASE_IDS = _GRUPOS_DRE_BASE.map(g => g.id);
+    const _GRUPOS_DRE_LS = 'cap_grupos_dre';
+    let _gruposDRERegistros = [];      // linhas salvas (overrides dos padrão + personalizados)
+    let _gruposDRECarregados = false;
+    let _gruposDREModoLocal = false;   // true = tabela grupos_dre indisponível no Supabase
+    let _gruposDREEditando = null;
+
+    function _escHtmlGrupo(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Lista completa (padrão + personalizados), já com os overrides aplicados.
+    function _gruposDRETodos() {
+        const regs = _gruposDRERegistros || [];
+        const lista = _GRUPOS_DRE_BASE.map(b => {
+            const o = regs.find(r => r.id === b.id) || {};
+            return {
+                id: b.id, sistema: true, grupo_pai: null,
+                nome: o.nome || b.nome,
+                natureza: o.natureza || b.natureza,
+                natureza_padrao: b.natureza,
+                ordem: b.ordem,
+                descricao: o.descricao || '',
+                ativo: true
+            };
+        });
+        regs.filter(r => !_GRUPOS_DRE_BASE_IDS.includes(r.id)).forEach(r => {
+            const pai = _GRUPOS_DRE_BASE.find(b => b.id === r.grupo_pai);
+            lista.push({
+                id: r.id, sistema: false,
+                grupo_pai: pai ? pai.id : 'OUTRAS_DESPESAS',
+                nome: r.nome || r.id,
+                natureza: r.natureza || (pai ? pai.natureza : 'despesa'),
+                ordem: parseInt(r.ordem, 10) || 0,
+                descricao: r.descricao || '',
+                ativo: r.ativo !== false
+            });
+        });
+        return lista;
+    }
+
+    // Ordem de exibição: cada grupo padrão seguido dos seus personalizados.
+    function _gruposDREOrdenados(somenteAtivos) {
+        const todos = _gruposDRETodos();
+        const out = [];
+        todos.filter(g => g.sistema).sort((a, b) => a.ordem - b.ordem).forEach(b => {
+            out.push(b);
+            todos.filter(g => !g.sistema && g.grupo_pai === b.id && (!somenteAtivos || g.ativo))
+                 .sort((a, c) => (a.ordem - c.ordem) || a.nome.localeCompare(c.nome))
+                 .forEach(g => out.push(g));
+        });
+        return out;
+    }
+
+    function _grupoDREInfo(cod) { return _gruposDRETodos().find(g => g.id === cod) || null; }
+
+    // Grupo padrão (estrutural) em que um código soma na DRE.
+    function _grupoBaseDRE(cod) {
+        if (!cod) return cod;
+        if (_GRUPOS_DRE_BASE_IDS.includes(cod)) return cod;
+        const g = _grupoDREInfo(cod);
+        return g && g.grupo_pai ? g.grupo_pai : cod;
+    }
+
+    function _nomeGrupoDRE(cod, comPai) {
+        const g = _grupoDREInfo(cod);
+        if (!g) return (typeof _GRUPOS_DRE_LABELS !== 'undefined' && _GRUPOS_DRE_LABELS[cod]) || cod;
+        if (comPai && g.grupo_pai) {
+            const p = _grupoDREInfo(g.grupo_pai);
+            return g.nome + ' (' + (p ? p.nome : g.grupo_pai) + ')';
+        }
+        return g.nome;
+    }
+
+    // Natureza no DFC do grupo de uma categoria: 'receita' | 'despesa' | 'neutra' | ''.
+    function _naturezaGrupoDRE(cod) {
+        const g = cod ? _grupoDREInfo(cod) : null;
+        return g ? g.natureza : '';
+    }
+
+    // Aplica o mapeamento (personalizado → padrão) no cache de categorias.
+    function _normalizarGruposCategorias() {
+        (dadosCache.categorias || []).forEach(c => {
+            if (c.grupo_dre_cod === undefined) c.grupo_dre_cod = c.grupo_dre || null;
+            c.grupo_dre = c.grupo_dre_cod ? _grupoBaseDRE(c.grupo_dre_cod) : c.grupo_dre_cod;
+        });
+    }
+
+    // Atualiza rótulos usados no resto do sistema (DRE, filtros, análise).
+    function _aplicarRotulosGruposDRE() {
+        _gruposDRETodos().forEach(g => {
+            if (!g.sistema) { _GRUPOS_DRE_LABELS[g.id] = g.nome; return; }
+            _GRUPOS_DRE_LABELS[g.id] = g.nome;
+            if (typeof DRE_GRUPOS !== 'undefined') {
+                const d = DRE_GRUPOS.find(x => x.id === g.id);
+                if (d) {
+                    if (d._labelOrig === undefined) d._labelOrig = d.label;
+                    const ov = (_gruposDRERegistros || []).find(r => r.id === g.id && r.nome);
+                    if (!ov) { d.label = d._labelOrig; return; }
+                    const m = d._labelOrig.match(/^(\s*(?:\d+\.|\([+\-]\))?\s*)/);
+                    d.label = (m ? m[1] : '') + g.nome;
+                }
+            }
+        });
+    }
+
+    // Selects que listam grupos: categoria (padrão + personalizados ativos).
+    function _popularSelectsGrupoDRE() {
+        const sel = document.getElementById('categoriaGrupoDRE');
+        if (!sel) return;
+        const atual = sel.value;
+        let html = '<option value="">Nenhum</option>';
+        _gruposDREOrdenados(true).forEach(g => {
+            html += '<option value="' + g.id + '">' + (g.grupo_pai ? '&nbsp;&nbsp;&nbsp;↳ ' : '') + _escHtmlGrupo(g.nome) + '</option>';
+        });
+        sel.innerHTML = html;
+        sel.value = atual;
+    }
+
+    function _cabecalhosSupabase(extra) {
+        return Object.assign({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }, extra || {});
+    }
+
+    async function carregarGruposDRE() {
+        let regs = null;
+        try {
+            const r = await fetch(API_URL + '/grupos_dre?order=ordem.asc,nome.asc', { method: 'GET', cache: 'no-store', headers: _cabecalhosSupabase() });
+            if (r.ok) { const t = await r.text(); regs = t ? JSON.parse(t) : []; }
+        } catch (e) { regs = null; }
+        if (Array.isArray(regs)) {
+            _gruposDREModoLocal = false;
+            // Se havia grupos só neste navegador e a tabela foi criada agora, migra-os.
+            try {
+                const locais = JSON.parse(localStorage.getItem(_GRUPOS_DRE_LS) || '[]');
+                const faltando = locais.filter(l => !regs.some(r => r.id === l.id));
+                if (faltando.length) {
+                    const ok = await _gravarGrupoDRERemoto(faltando);
+                    if (ok) { regs = regs.concat(faltando); localStorage.removeItem(_GRUPOS_DRE_LS); }
+                }
+            } catch (e) {}
+            _gruposDRERegistros = regs;
+        } else {
+            _gruposDREModoLocal = true;
+            try { _gruposDRERegistros = JSON.parse(localStorage.getItem(_GRUPOS_DRE_LS) || '[]'); } catch (e) { _gruposDRERegistros = []; }
+        }
+        _gruposDRECarregados = true;
+        _aplicarRotulosGruposDRE();
+        _normalizarGruposCategorias();
+    }
+
+    async function _gravarGrupoDRERemoto(linhas) {
+        try {
+            const r = await fetch(API_URL + '/grupos_dre?on_conflict=id', {
+                method: 'POST', cache: 'no-store',
+                headers: _cabecalhosSupabase({ 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+                body: JSON.stringify(linhas)
+            });
+            return r.ok;
+        } catch (e) { return false; }
+    }
+
+    async function _excluirGrupoDRERemoto(id) {
+        try {
+            const r = await fetch(API_URL + '/grupos_dre?id=eq.' + encodeURIComponent(id), { method: 'DELETE', cache: 'no-store', headers: _cabecalhosSupabase() });
+            return r.ok;
+        } catch (e) { return false; }
+    }
+
+    function _salvarGruposDRELocal() {
+        try { localStorage.setItem(_GRUPOS_DRE_LS, JSON.stringify(_gruposDRERegistros)); } catch (e) {}
+    }
+
+    async function carregarTelaGruposDRE() {
+        await carregarGruposDRE();
+        if (!dadosCache.categorias || !dadosCache.categorias.length) {
+            const cats = await fetchSupabase('categorias', 'GET');
+            if (cats) { dadosCache.categorias = cats; _normalizarGruposCategorias(); }
+        }
+        const aviso = document.getElementById('gruposDREAvisoArmazenamento');
+        if (aviso) {
+            if (_gruposDREModoLocal) {
+                aviso.style.display = 'block';
+                aviso.innerHTML = '⚠️ A tabela <b>grupos_dre</b> ainda não existe no banco de dados, então os grupos estão sendo salvos <b>só neste navegador</b>. ' +
+                    'Para compartilhar com todos os usuários, rode este SQL no Supabase (SQL Editor) e recarregue a página — os grupos daqui serão enviados automaticamente:' +
+                    '<pre style="margin:8px 0 0;padding:8px;background:#fff;border:1px solid #f0d68a;border-radius:6px;font-size:11.5px;white-space:pre-wrap;user-select:all;">' +
+                    'create table if not exists grupos_dre (\n  id text primary key,\n  nome text,\n  grupo_pai text,\n  natureza text,\n  descricao text,\n  ordem integer default 0,\n  ativo boolean default true\n);\n' +
+                    'alter table grupos_dre disable row level security;\n' +
+                    '-- se a coluna categorias.grupo_dre tiver restrição de valores, remova-a:\n' +
+                    '-- alter table categorias drop constraint if exists categorias_grupo_dre_check;</pre>';
+            } else {
+                aviso.style.display = 'none';
+            }
+        }
+        atualizarTabelaGruposDRE();
+    }
+
+    function atualizarTabelaGruposDRE() {
+        const tbody = document.querySelector('#tabelaGruposDRE tbody');
+        if (!tbody) return;
+        const termo = normalizarTexto(((document.getElementById('buscaGruposDRE') || {}).value || '').trim()).toLowerCase();
+        const cats = dadosCache.categorias || [];
+        const natLbl = { receita: '<span style="color:#1e7e45;font-weight:600;">Receita (+)</span>', despesa: '<span style="color:#c0392b;font-weight:600;">Despesa (−)</span>', neutra: '<span style="color:#6c757d;font-weight:600;">Neutra</span>' };
+        const lista = _gruposDREOrdenados().filter(g => {
+            if (!termo) return true;
+            const pai = g.grupo_pai ? _nomeGrupoDRE(g.grupo_pai) : '';
+            return normalizarTexto([g.nome, g.id, pai, g.descricao].join(' ')).toLowerCase().includes(termo);
+        });
+        tbody.innerHTML = lista.map(g => {
+            const qtd = cats.filter(c => (c.grupo_dre_cod || c.grupo_dre) === g.id).length;
+            const pos = g.sistema
+                ? '<span style="background:#eef1f5;color:#4b5260;padding:2px 8px;border-radius:10px;font-size:11px;">Grupo padrão</span>'
+                : '↳ dentro de <b>' + _escHtmlGrupo(_nomeGrupoDRE(g.grupo_pai)) + '</b>';
+            const acoes = '<button class="btn btn-secondary btn-small" onclick="editarGrupoDRE(\'' + g.id + '\')">Editar</button>' +
+                (g.sistema ? '' : ' <button class="btn btn-danger btn-small" onclick="deletarGrupoDRE(\'' + g.id + '\')">Deletar</button>');
+            return '<tr' + (g.sistema ? ' style="background:#fafbfc;"' : '') + '>' +
+                '<td style="' + (g.sistema ? 'font-weight:700;' : 'padding-left:28px;') + '">' + _escHtmlGrupo(g.nome) +
+                    (g.descricao ? '<div style="font-size:11px;color:#999;font-weight:400;">' + _escHtmlGrupo(g.descricao) + '</div>' : '') + '</td>' +
+                '<td><code style="font-size:11px;color:#777;">' + g.id + '</code></td>' +
+                '<td>' + pos + '</td>' +
+                '<td>' + (natLbl[g.natureza] || '-') + '</td>' +
+                '<td>' + (qtd ? '<a href="#" onclick="_verCategoriasDoGrupo(\'' + g.id + '\');return false;">' + qtd + ' categoria(s)</a>' : '<span style="color:#bbb;">0</span>') + '</td>' +
+                '<td><span class="status-badge ' + (g.ativo ? 'status-recebido' : 'status-atrasado') + '">' + (g.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
+                '<td>' + acoes + '</td></tr>';
+        }).join('') || '<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Nenhum grupo encontrado</td></tr>';
+        const cont = document.getElementById('contadorGruposDRE');
+        if (cont) {
+            const nP = _gruposDRETodos().filter(g => !g.sistema).length;
+            cont.textContent = _GRUPOS_DRE_BASE.length + ' padrão · ' + nP + ' personalizado(s)';
+        }
+    }
+
+    function _verCategoriasDoGrupo(id) {
+        showPage('categorias');
+        setTimeout(() => {
+            const sel = document.getElementById('filtroGrupoCategorias');
+            if (sel) { sel.value = id; atualizarTabelaCategorias(); }
+        }, 300);
+    }
+
+    function _codigoGrupoDRE(nome) {
+        return normalizarTexto(String(nome || '')).toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40);
+    }
+
+    function _sugerirCodigoGrupoDRE() {
+        if (_gruposDREEditando) return;
+        const cod = document.getElementById('grupoDRECodigo');
+        if (cod && !cod.dataset.manual) cod.value = _codigoGrupoDRE(document.getElementById('grupoDRENome').value);
+    }
+
+    function _grupoDREPaiMudou() {
+        if (_gruposDREEditando) return;
+        const pai = _GRUPOS_DRE_BASE.find(b => b.id === document.getElementById('grupoDREPai').value);
+        if (pai) document.getElementById('grupoDRENatureza').value = _naturezaGrupoDRE(pai.id) || pai.natureza;
+    }
+
+    function _prepararModalGrupoDRE(g) {
+        _gruposDREEditando = g ? g.id : null;
+        const selPai = document.getElementById('grupoDREPai');
+        selPai.innerHTML = _gruposDREOrdenados().filter(x => x.sistema).map(x => '<option value="' + x.id + '">' + _escHtmlGrupo(x.nome) + '</option>').join('');
+        const cod = document.getElementById('grupoDRECodigo');
+        cod.dataset.manual = '';
+        cod.oninput = () => { cod.dataset.manual = '1'; };
+        document.getElementById('grupoDREEditId').value = g ? g.id : '';
+        document.getElementById('grupoDRENome').value = g ? g.nome : '';
+        cod.value = g ? g.id : '';
+        cod.readOnly = !!g;
+        cod.style.background = g ? '#f3f4f6' : '';
+        selPai.value = g ? (g.grupo_pai || '') : 'DESP_ADMIN';
+        document.getElementById('grupoDREPaiBox').style.display = (g && g.sistema) ? 'none' : '';
+        document.getElementById('grupoDREAtivoBox').style.display = (g && g.sistema) ? 'none' : '';
+        document.getElementById('grupoDRENatureza').value = g ? g.natureza : (_naturezaGrupoDRE('DESP_ADMIN') || 'despesa');
+        document.getElementById('grupoDREOrdem').value = g ? (g.sistema ? g.ordem : g.ordem) : 0;
+        document.getElementById('grupoDREOrdem').disabled = !!(g && g.sistema);
+        document.getElementById('grupoDREDescricao').value = g ? (g.descricao || '') : '';
+        document.getElementById('grupoDREAtivo').checked = g ? g.ativo : true;
+        document.getElementById('modalGrupoDRETitulo').textContent = g ? (g.sistema ? 'Editar Grupo Padrão' : 'Editar Grupo DRE') : 'Novo Grupo DRE';
+        document.getElementById('modalGrupoDRE').classList.add('active');
+    }
+
+    function openModalGrupoDRE() { _prepararModalGrupoDRE(null); }
+
+    function editarGrupoDRE(id) {
+        const g = _grupoDREInfo(id);
+        if (g) _prepararModalGrupoDRE(g);
+    }
+
+    async function salvarGrupoDRE(event) {
+        event.preventDefault();
+        const editId = document.getElementById('grupoDREEditId').value;
+        const nome = document.getElementById('grupoDRENome').value.trim();
+        const id = editId || _codigoGrupoDRE(document.getElementById('grupoDRECodigo').value || nome);
+        if (!nome || !id) { alert('Informe o nome do grupo.'); return; }
+        const ehBase = _GRUPOS_DRE_BASE_IDS.includes(id);
+        if (!editId && (ehBase || _grupoDREInfo(id))) { alert('Já existe um grupo com o código ' + id + '. Escolha outro nome/código.'); return; }
+        const baseDef = _GRUPOS_DRE_BASE.find(b => b.id === id);
+        const reg = {
+            id: id,
+            // Grupo padrão: só guarda o nome se foi realmente renomeado.
+            nome: (baseDef && nome === baseDef.nome) ? null : nome,
+            grupo_pai: ehBase ? null : document.getElementById('grupoDREPai').value,
+            natureza: document.getElementById('grupoDRENatureza').value,
+            descricao: document.getElementById('grupoDREDescricao').value.trim() || null,
+            ordem: ehBase ? 0 : (parseInt(document.getElementById('grupoDREOrdem').value, 10) || 0),
+            ativo: ehBase ? true : document.getElementById('grupoDREAtivo').checked
+        };
+        let ok = true;
+        if (!_gruposDREModoLocal) ok = await _gravarGrupoDRERemoto([reg]);
+        if (!ok) { showAlert('Erro ao salvar o grupo no banco de dados. Verifique a conexão.', 'alertGruposDRE', 'error'); return; }
+        const i = _gruposDRERegistros.findIndex(r => r.id === id);
+        if (i >= 0) _gruposDRERegistros[i] = reg; else _gruposDRERegistros.push(reg);
+        if (_gruposDREModoLocal) _salvarGruposDRELocal();
+        _aplicarRotulosGruposDRE();
+        _normalizarGruposCategorias();
+        _popularSelectsGrupoDRE();
+        closeModal('modalGrupoDRE');
+        showAlert('Grupo salvo com sucesso!', 'alertGruposDRE', 'success');
+        atualizarTabelaGruposDRE();
+    }
+
+    async function deletarGrupoDRE(id) {
+        if (_GRUPOS_DRE_BASE_IDS.includes(id)) return;
+        const usados = (dadosCache.categorias || []).filter(c => (c.grupo_dre_cod || c.grupo_dre) === id);
+        if (usados.length) {
+            alert('Este grupo está em uso por ' + usados.length + ' categoria(s): ' + usados.slice(0, 5).map(c => c.nome).join(', ') + (usados.length > 5 ? '…' : '') +
+                '.\n\nTroque o grupo dessas categorias (ou marque o grupo como Inativo) antes de excluir.');
+            return;
+        }
+        if (!confirm('Excluir o grupo "' + _nomeGrupoDRE(id) + '"?')) return;
+        let ok = true;
+        if (!_gruposDREModoLocal) ok = await _excluirGrupoDRERemoto(id);
+        if (!ok) { showAlert('Erro ao excluir o grupo. Verifique a conexão.', 'alertGruposDRE', 'error'); return; }
+        _gruposDRERegistros = _gruposDRERegistros.filter(r => r.id !== id);
+        if (_gruposDREModoLocal) _salvarGruposDRELocal();
+        _aplicarRotulosGruposDRE();
+        _popularSelectsGrupoDRE();
+        showAlert('Grupo excluído.', 'alertGruposDRE', 'success');
+        atualizarTabelaGruposDRE();
+    }
+
     function atualizarTabelaCategorias() {
         const tbody = document.querySelector('#tabelaCategorias tbody');
         tbody.innerHTML = '';
@@ -6314,16 +6806,18 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const termoNorm = normalizarTexto(termo.trim()).toLowerCase();
 
         const lista = (dadosCache.categorias || []).filter(cat => {
-            if (grupoFiltro === '__sem__' && cat.grupo_dre) return false;
-            if (grupoFiltro && grupoFiltro !== '__sem__' && cat.grupo_dre !== grupoFiltro) return false;
+            const codGrupo = cat.grupo_dre_cod || cat.grupo_dre;
+            if (grupoFiltro === '__sem__' && codGrupo) return false;
+            if (grupoFiltro && grupoFiltro !== '__sem__' && codGrupo !== grupoFiltro && cat.grupo_dre !== grupoFiltro) return false;
             if (!termoNorm) return true;
-            const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '';
+            const grupoLabel = codGrupo ? _nomeGrupoDRE(codGrupo) : '';
             const alvo = normalizarTexto([cat.nome, grupoLabel, cat.tipo, cat.descricao].filter(Boolean).join(' ')).toLowerCase();
             return alvo.includes(termoNorm);
         });
 
         lista.forEach(cat => {
-            const grupoLabel = cat.grupo_dre ? (_GRUPOS_DRE_LABELS[cat.grupo_dre] || cat.grupo_dre) : '-';
+            const codGrupo = cat.grupo_dre_cod || cat.grupo_dre;
+            const grupoLabel = codGrupo ? _nomeGrupoDRE(codGrupo, true) : '-';
             tbody.insertAdjacentHTML('beforeend', `<tr>
                 <td><b>${cat.nome}</b></td>
                 <td><span style="background:#e8f4fd;color:#1565c0;padding:2px 8px;border-radius:10px;font-size:11px;">${grupoLabel}</span></td>
@@ -6493,6 +6987,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         editandoId = null;
         editandoTipo = null;
         document.getElementById('nomeCategoria').value = '';
+        _popularSelectsGrupoDRE();
         document.getElementById('categoriaGrupoDRE').value = '';
         document.getElementById('categoriaTipo').value = '';
         document.getElementById('descricaoCategoria').value = '';
@@ -6507,7 +7002,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             editandoId = id;
             editandoTipo = 'categoria';
             document.getElementById('nomeCategoria').value = categoria.nome;
-            document.getElementById('categoriaGrupoDRE').value = categoria.grupo_dre || '';
+            _popularSelectsGrupoDRE();
+            document.getElementById('categoriaGrupoDRE').value = categoria.grupo_dre_cod || categoria.grupo_dre || '';
             document.getElementById('categoriaTipo').value = categoria.tipo || '';
             document.getElementById('descricaoCategoria').value = categoria.descricao || '';
             document.getElementById('ativoCategoria').checked = categoria.ativo;
@@ -6538,7 +7034,13 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             closeModal('modalCategoria');
             await carregarCategorias();
         } else {
-            showAlert('Erro ao salvar categoria. Verifique a conexão.', 'alertCategorias', 'error');
+            const _gSel = dados.grupo_dre;
+            const _errTxt = (typeof _ultimoErroSupabase !== 'undefined' && _ultimoErroSupabase && _ultimoErroSupabase.body) || '';
+            if (_gSel && !_GRUPOS_DRE_BASE_IDS.includes(_gSel) && /check|constraint|enum|violat/i.test(_errTxt)) {
+                showAlert('O banco de dados só aceita os grupos padrão na coluna grupo_dre. Abra a tela Grupos DRE e rode o SQL indicado lá para liberar grupos personalizados.', 'alertCategorias', 'error');
+            } else {
+                showAlert('Erro ao salvar categoria. Verifique a conexão.', 'alertCategorias', 'error');
+            }
         }
     }
 
@@ -8514,6 +9016,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
             // Carrega dados quando a página for exibida
             if (pageId === 'categorias') carregarCategorias();
+            else if (pageId === 'grupos-dre') carregarTelaGruposDRE();
             else if (pageId === 'subcategorias') carregarSubcategorias();
             else if (pageId === 'produtos') carregarProdutos();
             else if (pageId === 'fornecedores') carregarFornecedores();
@@ -12263,9 +12766,29 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     }
 
     async function carregarDFC() {
-        const contasReceber = await fetchSupabase('contas_a_receber', 'GET');
-        const contasPagar   = await fetchSupabase('contas_a_pagar',   'GET');
-        if (!contasReceber || !contasPagar) return;
+        const [contasReceberBruto, contasPagarBruto, bancosDFC, transfDFC] = await Promise.all([
+            fetchSupabase('contas_a_receber', 'GET'),
+            fetchSupabase('contas_a_pagar',   'GET'),
+            fetchSupabase('bancos', 'GET'),
+            _fetchTransferenciasSilencioso()
+        ]);
+        if (!contasReceberBruto || !contasPagarBruto) return;
+        if (!_gruposDRECarregados) { try { await carregarGruposDRE(); } catch (e) {} }
+
+        // Lançamentos confirmados (originais) — usados para o saldo dos bancos.
+        const recConfirmados = contasReceberBruto.filter(c => c.status === 'recebido');
+        const pagConfirmados = contasPagarBruto.filter(c => c.status === 'pago');
+        _dfcPrepararSaldoBancos(bancosDFC || dadosCache.bancos || [], recConfirmados, pagConfirmados, transfDFC || []);
+
+        // Classifica cada lançamento pela NATUREZA da categoria (grupo DRE):
+        // despesa lançada em Contas a Receber vira estorno nas Saídas (valor negativo) e
+        // receita lançada em Contas a Pagar vira devolução nas Entradas (valor negativo).
+        // O fluxo líquido não muda; só o lado em que o valor aparece.
+        _dfcCalcularHeuristicaNatureza(recConfirmados, pagConfirmados);
+        const dfcClass = _dfcReclassificar(recConfirmados, pagConfirmados);
+        window._dfcReclassificados = dfcClass.reclass;
+        const contasReceber = dfcClass.ent.concat(contasReceberBruto.filter(c => c.status !== 'recebido'));
+        const contasPagar   = dfcClass.sai.concat(contasPagarBruto.filter(c => c.status !== 'pago'));
 
         const filtroAno = document.getElementById('filtroAnoDFC');
         const anoSel    = filtroAno ? filtroAno.value : '';
@@ -12370,6 +12893,50 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             pendPag: totalPendPag, pendPagQtd: pendentes_pagar.length
         };
 
+        // ── Saldo em bancos (mesmo cálculo da tela Bancos) ─────────────────────
+        let perIni = null, perFim = null;
+        if (anoSel && mesSel) { perIni = anoSel + '-' + mesSel + '-01'; perFim = anoSel + '-' + mesSel + '-31'; }
+        else if (anoSel)      { perIni = anoSel + '-01-01'; perFim = anoSel + '-12-31'; }
+        const saldoIniPer = _dfcSaldoAntesDe(perIni);
+        const saldoFimPer = _dfcSaldoAte(perFim);
+        const saldoHoje   = window._dfcBancos ? window._dfcBancos.total : 0;
+        const ajustePer   = saldoFimPer - saldoIniPer - fluxoLiquido;
+        window._dfcSaldoFimMes = anoSel ? Array.from({ length: 12 }, (_, m) => _dfcSaldoAte(_dfcMesFim(anoSel, m))) : null;
+        window._dfcSaldoIniAno = anoSel ? _dfcSaldoAntesDe(anoSel + '-01-01') : null;
+        Object.assign(window._dfcResumo, { saldoIni: saldoIniPer, saldoFim: saldoFimPer, saldoHoje, ajuste: ajustePer });
+        const elSaldo = document.getElementById('dfcCardSaldo');
+        if (elSaldo) {
+            elSaldo.textContent = fmtValSig(saldoFimPer);
+            elSaldo.style.color = saldoFimPer >= 0 ? '#343a46' : '#dc3545';
+            document.getElementById('dfcCardSaldoLabel').textContent = 'Final — ' + rotuloPeriodo;
+            const info = document.getElementById('dfcCardSaldoInfo');
+            if (info) {
+                info.style.display = '';
+                info.innerHTML = '<span>Inicial ' + fmtValSig(saldoIniPer) + '</span><b title="Saldo total na tela Bancos (todas as datas)">Bancos hoje ' + fmtValSig(saldoHoje) + '</b>';
+            }
+        }
+
+        // Avisos de conciliação: reclassificações e lançamentos fora dos bancos
+        const elConc = document.getElementById('dfcAvisoConc');
+        if (elConc) {
+            const msgs = [];
+            const nRec = (window._dfcReclassificados || []).length;
+            if (nRec) msgs.push('↔ <b>' + nRec + '</b> lançamento(s) estavam no lado errado (ex.: despesa lançada em Contas a Receber) e foram mostrados no lado certo, como estorno/devolução (valor negativo). <a href="#" onclick="abrirDetalheDFCReclassificados();return false;">Ver lista</a>');
+            const B = window._dfcBancos || { fora: [], transfFora: 0 };
+            const foraPer = B.fora.filter(f => (!perIni || (f.d && f.d >= perIni)) && (!perFim || (f.d && f.d <= perFim)));
+            if (Math.abs(ajustePer) >= 0.01) {
+                let txt = '🏦 O fluxo do período difere da variação do saldo dos bancos em <b>' + fmtValSig(ajustePer) + '</b> (linha “Movimentos fora dos bancos”).';
+                if (foraPer.length) txt += ' Há <b>' + foraPer.length + '</b> lançamento(s) baixado(s) sem banco ou em banco inativo — <a href="#" onclick="abrirDetalheDFCForaBancos(' + (perIni ? "'" + perIni + "','" + perFim + "'" : 'null,null') + ');return false;">ver e informar o banco</a>.';
+                if (B.transfFora) txt += ' ' + B.transfFora + ' transferência(s) envolvem banco inativo/excluído.';
+                msgs.push(txt);
+            }
+            if (Math.abs(saldoFimPer - saldoHoje) >= 0.01 && perFim) {
+                msgs.push('📅 O saldo final do período (' + fmtValSig(saldoFimPer) + ') é diferente do saldo de hoje na tela Bancos (' + fmtValSig(saldoHoje) + ') porque há movimentos com data depois do fim do período (' + rotuloPeriodo + ').');
+            }
+            elConc.style.cssText = msgs.length ? 'display:block;padding:8px 12px;margin-bottom:10px;border-radius:8px;font-size:12px;line-height:1.55;background:#f4f7fb;color:#34495e;border:1px solid #d6e0ec;' : 'display:none;';
+            elConc.innerHTML = msgs.join('<br>');
+        }
+
         // Tabela mensal Jan-Dez (só se ano selecionado) — usa a versão SEM filtro de mês,
         // ela sempre mostra o ano inteiro, independente do mês escolhido acima.
         const cardMensal = document.getElementById('cardDFCMensal');
@@ -12393,6 +12960,160 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         window._dfcRecAnoTodo = recebidosAno;
         window._dfcPagAnoTodo = pagosAno;
         renderizarDFCCategoria();
+    }
+
+    // ================================================================
+    // DFC — natureza das categorias, saldo dos bancos e recolher linhas
+    // ================================================================
+    let _dfcHeuristica = {};
+    // Para categorias sem grupo DRE nem tipo: usa o lado em que a categoria
+    // movimenta muito mais dinheiro (≥ 3x) como natureza provável.
+    function _dfcCalcularHeuristicaNatureza(rec, pag) {
+        const r = {}, p = {};
+        rec.forEach(c => { if (c.categoria_id != null) r[c.categoria_id] = (r[c.categoria_id] || 0) + Math.abs(parseFloat(c.valor) || 0); });
+        pag.forEach(c => { if (c.categoria_id != null) p[c.categoria_id] = (p[c.categoria_id] || 0) + Math.abs(parseFloat(c.valor) || 0); });
+        _dfcHeuristica = {};
+        new Set(Object.keys(r).concat(Object.keys(p))).forEach(id => {
+            const vr = r[id] || 0, vp = p[id] || 0;
+            if (vp > 0 && vp >= vr * 3) _dfcHeuristica[id] = 'despesa';
+            else if (vr > 0 && vr >= vp * 3) _dfcHeuristica[id] = 'receita';
+        });
+    }
+
+    function _dfcNaturezaCategoria(catId) {
+        const cat = (dadosCache.categorias || []).find(x => x.id === catId);
+        if (!cat) return 'neutra';
+        const n = _naturezaGrupoDRE(cat.grupo_dre_cod || cat.grupo_dre);
+        if (n) return n;
+        const t = normalizarTexto(cat.tipo || '').toLowerCase();
+        if (t === 'receita') return 'receita';
+        if (t === 'custo' || t === 'despesa' || t === 'imposto') return 'despesa';
+        if (t) return 'neutra';
+        return _dfcHeuristica[catId] || 'neutra';
+    }
+
+    function _dfcReclassificar(recebidos, pagos) {
+        const ent = [], sai = [], reclass = [];
+        recebidos.forEach(c => {
+            if (_dfcNaturezaCategoria(c.categoria_id) === 'despesa') {
+                const cp = Object.assign({}, c, { valor: -(parseFloat(c.valor) || 0), data_pagamento: c.data_recebimento, status: 'pago',
+                                                  _orig: c, _fonte: 'receber', _reclass: true });
+                sai.push(cp); reclass.push(cp);
+            } else ent.push(c);
+        });
+        pagos.forEach(c => {
+            if (_dfcNaturezaCategoria(c.categoria_id) === 'receita') {
+                const cp = Object.assign({}, c, { valor: -(parseFloat(c.valor) || 0), data_recebimento: c.data_pagamento, status: 'recebido',
+                                                  _orig: c, _fonte: 'pagar', _reclass: true });
+                ent.push(cp); reclass.push(cp);
+            } else sai.push(c);
+        });
+        return { ent, sai, reclass };
+    }
+
+    // Item do modal de detalhe a partir de uma linha do DFC (original ou reclassificada).
+    function _itemLancDFC(c, fontePadrao, data) {
+        const it = _itemLanc(c._orig || c, c._fonte || fontePadrao, data);
+        if (c._reclass) it.descricao = '↔ ' + it.descricao;
+        return it;
+    }
+
+    // ── Saldo dos bancos (mesmo cálculo da tela Bancos: bancos ATIVOS) ──
+    function _dfcPrepararSaldoBancos(bancos, rec, pag, transf) {
+        const ativos = new Set((bancos || []).filter(b => b.ativo).map(b => String(b.id)));
+        const base = (bancos || []).filter(b => b.ativo).reduce((s, b) => s + (parseFloat(b.saldo_inicial) || 0), 0);
+        const movs = [];
+        rec.forEach(c => { if (c.banco_id != null && ativos.has(String(c.banco_id))) movs.push({ d: c.data_recebimento || '', v: parseFloat(c.valor) || 0 }); });
+        pag.forEach(c => { if (c.banco_id != null && ativos.has(String(c.banco_id))) movs.push({ d: c.data_pagamento || '', v: -(parseFloat(c.valor) || 0) }); });
+        let transfFora = 0;
+        (transf || []).forEach(t => {
+            const v = parseFloat(t.valor) || 0;
+            const o = ativos.has(String(t.banco_origem_id)), de = ativos.has(String(t.banco_destino_id));
+            if (o) movs.push({ d: t.data || '', v: -v });
+            if (de) movs.push({ d: t.data || '', v: v });
+            if (o !== de) transfFora++;
+        });
+        // Lançamentos baixados que entram no DFC mas NÃO no saldo dos bancos.
+        const fora = [];
+        rec.forEach(c => { if (c.banco_id == null || !ativos.has(String(c.banco_id))) fora.push({ c, fonte: 'receber', d: c.data_recebimento || '' }); });
+        pag.forEach(c => { if (c.banco_id == null || !ativos.has(String(c.banco_id))) fora.push({ c, fonte: 'pagar', d: c.data_pagamento || '' }); });
+        window._dfcBancos = { base, movs, fora, transfFora, qtdAtivos: ativos.size,
+                              total: base + movs.reduce((s, m) => s + m.v, 0) };
+    }
+
+    // Saldo dos bancos considerando os movimentos cuja data satisfaz `cond(d)`.
+    // Movimentos sem data só entram quando cond é null (saldo de todo o período).
+    function _dfcSaldoBancos(cond) {
+        const B = window._dfcBancos;
+        if (!B) return 0;
+        return B.base + B.movs.reduce((s, m) => {
+            if (!cond) return s + m.v;
+            return (m.d && cond(m.d)) ? s + m.v : s;
+        }, 0);
+    }
+    function _dfcSaldoAntesDe(dataIni) { return dataIni ? _dfcSaldoBancos(d => d < dataIni) : (window._dfcBancos ? window._dfcBancos.base : 0); }
+    function _dfcSaldoAte(dataFim)     { return dataFim ? _dfcSaldoBancos(d => d <= dataFim) : _dfcSaldoBancos(null); }
+    function _dfcMesIni(ano, m) { return ano + '-' + String(m + 1).padStart(2, '0') + '-01'; }
+    function _dfcMesFim(ano, m) { return ano + '-' + String(m + 1).padStart(2, '0') + '-31'; }
+
+    // Lista os lançamentos que estão no DFC mas fora do saldo dos bancos (sem banco / banco inativo).
+    function abrirDetalheDFCForaBancos(dataIni, dataFim) {
+        const B = window._dfcBancos || { fora: [] };
+        const itens = B.fora.filter(f => (!dataIni || (f.d && f.d >= dataIni)) && (!dataFim || (f.d && f.d <= dataFim)))
+            .map(f => _itemLanc(f.c, f.fonte, f.d));
+        const per = dataIni ? (dataIni.split('-').reverse().join('/') + ' a ' + (dataFim || '').replace(/-31$/, '-' + new Date(+dataFim.slice(0, 4), +dataFim.slice(5, 7), 0).getDate()).split('-').reverse().join('/')) : 'todo o período';
+        abrirDetalheLanc('Lançamentos sem banco (ou em banco inativo) — ' + per + ' · edite e informe o banco', itens, async () => {
+            await carregarDFC();
+            abrirDetalheDFCForaBancos(dataIni, dataFim);
+        });
+    }
+
+    function abrirDetalheDFCReclassificados() {
+        const itens = (window._dfcReclassificados || []).map(c => _itemLancDFC(c, c._fonte, c._fonte === 'receber' ? c.data_recebimento : c.data_pagamento));
+        abrirDetalheLanc('Lançamentos reclassificados pela natureza da categoria', itens, async () => {
+            await carregarDFC();
+            abrirDetalheDFCReclassificados();
+        });
+    }
+
+    // ── Recolher / expandir linhas do DFC por categoria ──
+    let _dfcExpand = { nivel: 'totais', secoes: { ent: false, sai: false }, cats: {} };
+    (function () {
+        try {
+            const s = JSON.parse(localStorage.getItem('cap_dfc_expand') || 'null');
+            if (s && s.nivel) _dfcExpand = { nivel: s.nivel, secoes: Object.assign({ ent: false, sai: false }, s.secoes || {}), cats: s.cats || {} };
+        } catch (e) {}
+    })();
+    function _dfcSalvarExpand() { try { localStorage.setItem('cap_dfc_expand', JSON.stringify(_dfcExpand)); } catch (e) {} }
+
+    function dfcDefinirNivel(nivel) {
+        _dfcExpand.nivel = nivel;
+        _dfcExpand.cats = {};
+        const aberto = nivel !== 'totais';
+        _dfcExpand.secoes = { ent: aberto, sai: aberto };
+        _dfcSalvarExpand();
+        renderizarDFCCategoria();
+    }
+    function dfcToggleSecao(lado) {
+        _dfcExpand.secoes[lado] = !_dfcExpand.secoes[lado];
+        _dfcSalvarExpand();
+        renderizarDFCCategoria();
+    }
+    function _dfcCatAberta(lado, nome) {
+        const k = lado + '|' + nome;
+        if (Object.prototype.hasOwnProperty.call(_dfcExpand.cats, k)) return !!_dfcExpand.cats[k];
+        return _dfcExpand.nivel === 'detalhe';
+    }
+    function dfcToggleCat(lado, nome) {
+        _dfcExpand.cats[lado + '|' + nome] = !_dfcCatAberta(lado, nome);
+        if (!_dfcExpand.secoes[lado]) _dfcExpand.secoes[lado] = true;
+        _dfcSalvarExpand();
+        renderizarDFCCategoria();
+    }
+    function _dfcLinhaVisivel(l) {
+        if (l.tipo === 'cat') return !!_dfcExpand.secoes[l.lado];
+        if (l.tipo === 'sub') return !!_dfcExpand.secoes[l.lado] && _dfcCatAberta(l.lado, l.pai);
+        return true;
     }
 
     // ================================================================
@@ -12451,33 +13172,41 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
 
         var valsDe = function(d) { return cols.map(function(col){ return col.meses.reduce(function(s, m){ return s + d.meses[m]; }, 0); }); };
+        // Datas de início/fim de cada coluna — para o saldo em bancos.
+        cols.forEach(function(col){
+            if (!anoSel) { col.ini = null; col.fim = null; return; }
+            var mn = Math.min.apply(null, col.meses), mx = Math.max.apply(null, col.meses);
+            col.ini = _dfcMesIni(anoSel, mn); col.fim = _dfcMesFim(anoSel, mx);
+        });
+        var saldoIniV = cols.map(function(col){ return _dfcSaldoAntesDe(col.ini); });
+        var saldoFimV = cols.map(function(col){ return _dfcSaldoAte(col.fim); });
+        // Sem ano escolhido, as colunas de mês somam vários anos: saldo só faz sentido no total.
+        var temSaldo = cols.map(function(col){ return !!anoSel || !!col.acum; });
         var linhas = [];
+        linhas.push({ tipo: 'saldo', pos: 'topo', label: 'Saldo inicial em bancos', vals: saldoIniV, temMov: temSaldo });
         linhas.push({ tipo: 'secao', label: '(+) ENTRADAS DE CAIXA', lado: 'ent' });
         Object.keys(entCat).sort(function(a,b){ return entCat[b].total - entCat[a].total; }).forEach(function(n){
-            linhas.push({ tipo: 'cat', label: n, vals: valsDe(entCat[n]), lado: 'ent', clique: { tipo: 'ent', nome: n } });
+            linhas.push({ tipo: 'cat', label: n, vals: valsDe(entCat[n]), lado: 'ent', clique: { tipo: 'ent', nome: n }, temSubs: false });
         });
         linhas.push({ tipo: 'total', label: '(=) TOTAL ENTRADAS', vals: valsDe(entTot), lado: 'ent' });
         linhas.push({ tipo: 'secao', label: '(-) SAÍDAS DE CAIXA', lado: 'sai' });
         Object.keys(saiCat).sort(function(a,b){ return saiCat[b].total - saiCat[a].total; }).forEach(function(p){
-            linhas.push({ tipo: 'cat', label: p, vals: valsDe(saiCat[p]), lado: 'sai', clique: { tipo: 'sai-pref', nome: p } });
             var subs = saiCat[p].subs;
-            Object.keys(subs).sort(function(a,b){ return subs[b].total - subs[a].total; }).forEach(function(s){
-                linhas.push({ tipo: 'sub', label: s, vals: valsDe(subs[s]), lado: 'sai', clique: { tipo: 'sai-sub', nome: s } });
+            var nomesSubs = Object.keys(subs);
+            linhas.push({ tipo: 'cat', label: p, vals: valsDe(saiCat[p]), lado: 'sai', clique: { tipo: 'sai-pref', nome: p }, temSubs: nomesSubs.length > 0 });
+            nomesSubs.sort(function(a,b){ return subs[b].total - subs[a].total; }).forEach(function(s){
+                linhas.push({ tipo: 'sub', label: s, vals: valsDe(subs[s]), lado: 'sai', pai: p, clique: { tipo: 'sai-sub', nome: s } });
             });
         });
         linhas.push({ tipo: 'total', label: '(=) TOTAL SAÍDAS', vals: valsDe(saiTot), lado: 'sai' });
         var entV = valsDe(entTot), saiV = valsDe(saiTot);
         var liqV = entV.map(function(e, i){ return e - saiV[i]; });
-        linhas.push({ tipo: 'liq', label: '(=) FLUXO LÍQUIDO', vals: liqV, temMov: entV.map(function(e,i){ return e > 0 || saiV[i] > 0; }) });
-        if (visao === 'mensal' && cols.length > 2) {
-            var run = 0, comecou = false, temMovS = [];
-            var saldoV = cols.map(function(col, i){
-                if (col.acum) { temMovS.push(true); return run; }
-                if (entV[i] > 0 || saiV[i] > 0) comecou = true;
-                temMovS.push(comecou); run += liqV[i]; return run;
-            });
-            linhas.push({ tipo: 'saldo', label: 'Saldo acumulado no ano', vals: saldoV, temMov: temMovS });
+        linhas.push({ tipo: 'liq', label: '(=) FLUXO LÍQUIDO', vals: liqV, temMov: entV.map(function(e,i){ return e !== 0 || saiV[i] !== 0; }) });
+        var ajusteV = cols.map(function(col, i){ if (!temSaldo[i]) return 0; var a = saldoFimV[i] - saldoIniV[i] - liqV[i]; return Math.abs(a) < 0.005 ? 0 : a; });
+        if (ajusteV.some(function(v){ return v !== 0; })) {
+            linhas.push({ tipo: 'saldo', sub: 'ajuste', label: '(±) Movimentos fora dos bancos', vals: ajusteV, temMov: temSaldo });
         }
+        linhas.push({ tipo: 'saldo', sub: 'fim', label: 'Saldo final em bancos', vals: saldoFimV, temMov: temSaldo });
         var acumIdx = cols.length - 1;
         return { cols: cols, linhas: linhas, temPct: temPct, acumIdx: acumIdx,
                  baseEnt: entV[acumIdx], baseSai: saiV[acumIdx], visao: visao, anoSel: anoSel, mesSel: mesSel,
@@ -12503,24 +13232,36 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             + (M.temPct ? '<th class="dfc-col-pct">% do acum.</th>' : '')
             + '</tr>';
 
-        var html = '', foot = '';
+        var html = '', footRows = [];
         var nCols = M.cols.length + 1 + (M.temPct ? 1 : 0);
+        var selNivel = document.getElementById('dfcCatNivel');
+        if (selNivel) selNivel.value = _dfcExpand.nivel;
         M.linhas.forEach(function(l) {
+            if (!_dfcLinhaVisivel(l)) return;
             if (l.tipo === 'secao') {
-                html += '<tr class="dfc-r-secao dfc-' + l.lado + '"><td colspan="' + nCols + '">' + l.label + '</td></tr>';
+                var aberta = !!_dfcExpand.secoes[l.lado];
+                html += '<tr class="dfc-r-secao dfc-' + l.lado + ' dfc-toggle" onclick="dfcToggleSecao(\'' + l.lado + '\')" title="Clique para ' + (aberta ? 'recolher' : 'ver') + ' as categorias">'
+                    + '<td colspan="' + nCols + '"><span class="dfc-caret">' + (aberta ? '▾' : '▸') + '</span>' + l.label
+                    + (aberta ? '' : ' <span class="dfc-dica">· clique para ver as categorias</span>') + '</td></tr>';
                 return;
             }
-            var cls = 'dfc-r-' + l.tipo + (l.lado ? ' dfc-' + l.lado : '');
+            var ehSaldo = (l.tipo === 'liq' || l.tipo === 'saldo');
+            var cls = 'dfc-r-' + l.tipo + (l.sub ? ' dfc-r-saldo-' + l.sub : '') + (l.pos === 'topo' ? ' dfc-r-saldoini' : '') + (l.lado ? ' dfc-' + l.lado : '');
             var cells = l.vals.map(function(v, i) {
                 var col = M.cols[i];
                 var c = thCls(col);
-                if (l.tipo === 'liq' || l.tipo === 'saldo') {
-                    var vazio = !col.acum && l.temMov && !l.temMov[i];
+                if (ehSaldo) {
+                    var vazio = l.temMov && !l.temMov[i] && (!col.acum || l.tipo === 'saldo');
+                    if (l.sub === 'ajuste' && !vazio) {
+                        if (!v) return '<td class="' + c + ' dfc-vazio">—</td>';
+                        var a1 = col.ini ? "'" + col.ini + "'" : 'null', a2 = col.fim ? "'" + col.fim + "'" : 'null';
+                        return '<td class="' + c + ' cel-click ' + (v >= 0 ? 'dfc-pos' : 'dfc-neg') + '" title="Ver lançamentos sem banco neste período" onclick="abrirDetalheDFCForaBancos(' + a1 + ',' + a2 + ')">' + fmtN(v) + '</td>';
+                    }
                     return '<td class="' + c + (vazio ? ' dfc-vazio' : (v >= 0 ? ' dfc-pos' : ' dfc-neg')) + '">' + (vazio ? '—' : fmtN(v)) + '</td>';
                 }
                 if (!v) return '<td class="' + c + ' dfc-vazio">—</td>';
                 var clk = l.clique ? ' onclick="abrirDetalheDFCCat(\'' + l.clique.tipo + '\',\'' + escQ(l.clique.nome) + '\',' + col.mes + ')"' : '';
-                return '<td class="' + c + (l.clique ? ' cel-click' : '') + '"' + clk + '>' + fmtN(v) + '</td>';
+                return '<td class="' + c + (l.clique ? ' cel-click' : '') + (v < 0 ? ' dfc-estorno' : '') + '"' + clk + (v < 0 ? ' title="Estorno/devolução: lançamento do outro lado com esta categoria"' : '') + '>' + fmtN(v) + '</td>';
             }).join('');
             if (M.temPct) {
                 var base = l.lado === 'sai' ? M.baseSai : M.baseEnt;
@@ -12528,10 +13269,21 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 var pct = (l.lado && base > 0 && va) ? (va / base * 100).toFixed(1).replace('.', ',') + '%' : '';
                 cells += '<td class="dfc-col-pct">' + pct + '</td>';
             }
-            var label = l.tipo === 'sub' ? '<span class="dfc-seta">↳</span>' + l.label : l.label;
+            var label;
+            if (l.tipo === 'sub') label = '<span class="dfc-seta">↳</span>' + l.label;
+            else if (l.tipo === 'cat' && l.temSubs) {
+                var ab = _dfcCatAberta(l.lado, l.label);
+                label = '<span class="dfc-caret dfc-caret-cat" onclick="event.stopPropagation();dfcToggleCat(\'' + l.lado + '\',\'' + escQ(l.label) + '\')" title="' + (ab ? 'Recolher' : 'Ver') + ' detalhes">' + (ab ? '▾' : '▸') + '</span>' + l.label;
+            } else if (l.tipo === 'cat') label = '<span class="dfc-caret dfc-caret-vazio"></span>' + l.label;
+            else label = l.label;
             var tr = '<tr class="' + cls + '"><td class="dfc-col-desc">' + label + '</td>' + cells + '</tr>';
-            if (l.tipo === 'liq' || l.tipo === 'saldo') foot += tr; else html += tr;
+            if (ehSaldo && l.pos !== 'topo') footRows.push(tr); else html += tr;
         });
+        // Rodapé fixo: cada linha "gruda" acima da seguinte.
+        var foot = footRows.map(function(tr, i) {
+            var bottom = (footRows.length - 1 - i) * 34;
+            return tr.replace('<tr class="', '<tr style="--dfc-bottom:' + bottom + 'px" class="');
+        }).join('');
         tbody.innerHTML = html;
         if (tfoot) tfoot.innerHTML = foot;
     }
@@ -12544,12 +13296,12 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const itens = [];
         if (tipo === 'ent' || tipo === 'liq') {
             (window._dfcRecAno || []).forEach(c => {
-                if (c.data_recebimento && c.data_recebimento.startsWith(prefixo)) itens.push(_itemLanc(c, 'receber', c.data_recebimento));
+                if (c.data_recebimento && c.data_recebimento.startsWith(prefixo)) itens.push(_itemLancDFC(c, 'receber', c.data_recebimento));
             });
         }
         if (tipo === 'sai' || tipo === 'liq') {
             (window._dfcPagAno || []).forEach(c => {
-                if (c.data_pagamento && c.data_pagamento.startsWith(prefixo)) itens.push(_itemLanc(c, 'pagar', c.data_pagamento));
+                if (c.data_pagamento && c.data_pagamento.startsWith(prefixo)) itens.push(_itemLancDFC(c, 'pagar', c.data_pagamento));
             });
         }
         const rot = tipo === 'ent' ? 'Entradas' : tipo === 'sai' ? 'Saídas' : 'Fluxo Líquido';
@@ -12569,7 +13321,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 const cat = dadosCache.categorias.find(x => x.id === c.categoria_id);
                 const n = cat ? cat.nome : 'Receitas de Clientes';
                 if (n !== nome || !casaMes(c.data_recebimento)) return;
-                itens.push(_itemLanc(c, 'receber', c.data_recebimento));
+                itens.push(_itemLancDFC(c, 'receber', c.data_recebimento));
             });
         } else {
             (window._dfcPagos || []).forEach(c => {
@@ -12577,7 +13329,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 const nCompleto = cat ? cat.nome : 'Sem Categoria';
                 const n = tipo === 'sai-pref' ? getCatPrefixo(nCompleto) : nCompleto;
                 if (n !== nome || !casaMes(c.data_pagamento)) return;
-                itens.push(_itemLanc(c, 'pagar', c.data_pagamento));
+                itens.push(_itemLancDFC(c, 'pagar', c.data_pagamento));
             });
         }
         const periodo = mesIdx >= 0 ? (mNomes[mesIdx] + (window._dfcAnoSel ? '/' + String(window._dfcAnoSel).slice(2) : '')) : 'Total do período';
@@ -12660,7 +13412,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             const sai = pagos.filter(c => c.data_pagamento && c.data_pagamento.startsWith(prefixo))
                              .reduce((s,c) => s + parseFloat(c.valor||0), 0);
             const liq = ent - sai;
-            acumulado += liq;
+            acumulado = (window._dfcSaldoFimMes && window._dfcSaldoFimMes[idx] !== undefined) ? window._dfcSaldoFimMes[idx] : acumulado + liq;
             totEnt += ent; totSai += sai;
             const liqCor = liq >= 0 ? '#28a745' : '#dc3545';
             const acuCor = acumulado >= 0 ? '#28a745' : '#dc3545';
@@ -14181,6 +14933,14 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             { label: '(-) Compra de Veículos Consignados', fn: m => -calc[m].od, grupos: ['OUTRAS_DESPESAS'], expandir: subOrd('OUTRAS_DESPESAS'), grupoSub: 'OUTRAS_DESPESAS' },
             { label: '= Variação do Caixa de Consignados', fn: m => calc[m].vcc, corPorSinal: true, grupos: G_CONSIGNADOS },
         ];
+        // Grupos padrão renomeados na tela "Grupos DRE".
+        linhas.forEach(l => {
+            if (!l.grupoSub) return;
+            const ov = (_gruposDRERegistros || []).find(r => r.id === l.grupoSub && r.nome);
+            if (!ov) return;
+            const m = l.label.match(/^(\([+\-]\)\s*)/);
+            l.label = (m ? m[1] : '') + ov.nome;
+        });
 
         // Escapa aspas simples para uso seguro dentro de atributos onclick="..." construídos com aspas simples.
         const escApos = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -16786,8 +17546,9 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             rec.forEach(c => { const k = parseInt((c.data_recebimento || '').substring(5, 7), 10) - 1; if (k >= 0 && k < 12) ent[k] += parseFloat(c.valor || 0); });
             pag.forEach(c => { const k = parseInt((c.data_pagamento || '').substring(5, 7), 10) - 1; if (k >= 0 && k < 12) sai[k] += parseFloat(c.valor || 0); });
             const liq = ent.map((e, i) => e - sai[i]);
-            let run = 0; const saldo = liq.map(v => (run += v));
-            const tem = ent.map((e, i) => e > 0 || sai[i] > 0);
+            const saldo = (window._dfcSaldoFimMes || []).length === 12 ? window._dfcSaldoFimMes.slice() : (() => { let r = 0; return liq.map(v => (r += v)); })();
+            const run = saldo[11];
+            const tem = ent.map((e, i) => e !== 0 || sai[i] !== 0);
             const mN = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
             const tot = a => a.reduce((s, v) => s + v, 0);
             const cel = (v, i, sig) => (i < 12 && !tem[i]) ? '-' : (sig ? fmtS(v) : fmt(v)).replace('R$ ', '');
@@ -16796,7 +17557,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 ['Entradas', ...ent.map((v, i) => cel(v, i)), fmt(tot(ent)).replace('R$ ', '')],
                 ['Saídas', ...sai.map((v, i) => cel(v, i)), fmt(tot(sai)).replace('R$ ', '')],
                 ['Fluxo líquido', ...liq.map((v, i) => cel(v, i, true)), fmtS(tot(liq)).replace('R$ ', '')],
-                ['Saldo acumulado', ...saldo.map((v, i) => cel(v, i, true)), fmtS(run).replace('R$ ', '')]
+                ['Saldo em bancos', ...saldo.map((v, i) => fmtS(v).replace('R$ ', '')), fmtS(run).replace('R$ ', '')]
             ].map(r => r.map(_pdfTxt));
             doc.autoTable({
                 startY: y, margin: { left: mg, right: mg, top: PDF_TOPO + 2 },
@@ -16834,14 +17595,15 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const body = [];
         const nC = head.length;
         M.linhas.forEach(l => {
+            if (!_dfcLinhaVisivel(l)) return;
             if (l.tipo === 'secao') {
                 body.push([{ content: _pdfTxt(l.label), colSpan: nC }]);
                 meta.push(l); return;
             }
             const row = [(l.tipo === 'sub' ? '   ' : '') + _pdfTxt(l.label)];
             l.vals.forEach((v, i) => {
-                const vazio = ((l.tipo === 'liq' || l.tipo === 'saldo') && !M.cols[i].acum && l.temMov && !l.temMov[i]) || (!v && l.tipo !== 'liq' && l.tipo !== 'saldo');
-                row.push(vazio ? '-' : _pdfTxt((l.tipo === 'liq' || l.tipo === 'saldo') ? fmtS(v) : fmt(v)).replace('R$ ', ''));
+                const vazio = ((l.tipo === 'liq' || l.tipo === 'saldo') && (!M.cols[i].acum || l.tipo === 'saldo') && l.temMov && !l.temMov[i]) || (!v && ((l.tipo !== 'liq' && l.tipo !== 'saldo') || l.sub === 'ajuste'));
+                row.push(vazio ? '-' : _pdfTxt((l.tipo === 'liq' || l.tipo === 'saldo') ? fmtS(v) : (v < 0 ? '-' + fmt(-v) : fmt(v))).replace('R$ ', ''));
             });
             if (M.temPct) {
                 const base = l.lado === 'sai' ? M.baseSai : M.baseEnt;
