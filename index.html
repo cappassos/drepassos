@@ -11453,6 +11453,30 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         return saldos;
     }
 
+    // Quando este navegador ainda não tem a configuração do Saldo de Terceiros salva
+    // (outro computador, outro navegador, cache limpo), encontra sozinho as categorias
+    // de consignado pelo nome e salva. Se o usuário já salvou algo (mesmo "nenhuma"),
+    // respeita a escolha dele.
+    async function _tercAutoConfigurar() {
+        let jaSalvo = false;
+        try { jaSalvo = localStorage.getItem('cap_config_saldo_terceiros') !== null; } catch (e) {}
+        if (jaSalvo || configSaldoTerceiros.catEntradaId || configSaldoTerceiros.catSaidaId) return;
+        let cats = dadosCache.categorias;
+        if (!cats || !cats.length) { cats = await fetchSupabase('categorias', 'GET'); if (cats) dadosCache.categorias = cats; }
+        if (!cats || !cats.length) return;
+        const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const consig = cats.filter(c => /consign/.test(norm(c.nome)));
+        if (!consig.length) return;
+        const pont = (c, re) => (re.test(norm(c.nome)) ? 2 : 0) + (re.test(norm(c.tipo)) ? 1 : 0);
+        const ent = consig.map(c => ({ c, p: pont(c, /receita|venda|entrada|recebi/) - pont(c, /pagamento|parceir|repasse|despesa|saida/) }))
+                          .filter(x => x.p > 0).sort((a, b) => b.p - a.p)[0];
+        const sai = consig.map(c => ({ c, p: pont(c, /pagamento|parceir|repasse|despesa|saida/) - pont(c, /receita|venda|entrada|recebi/) }))
+                          .filter(x => x.p > 0).sort((a, b) => b.p - a.p)[0];
+        if (!ent && !sai) return;
+        configSaldoTerceiros = { catEntradaId: ent ? String(ent.c.id) : '', catSaidaId: sai ? String(sai.c.id) : '' };
+        try { localStorage.setItem('cap_config_saldo_terceiros', JSON.stringify(configSaldoTerceiros)); } catch (e) {}
+    }
+
     async function carregarBancos() {
         const [bancos, recebidas, pagas, transferencias] = await Promise.all([
             fetchSupabase('bancos', 'GET'),
@@ -11465,6 +11489,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         if (recebidas) dadosCache.contasRecebidas = recebidas;
         if (pagas)     dadosCache.contasPagas     = pagas;
         dadosCache.transferencias = transferencias || [];
+        try { await _tercAutoConfigurar(); } catch (e) {}
         const saldos = _calcularSaldosBancos(bancos, recebidas || [], pagas || [], dadosCache.transferencias);
         const saldosTerceiros = _calcularSaldosTerceirosBancos(bancos, recebidas || [], pagas || []);
         atualizarTabelaBancos(saldos, saldosTerceiros);
