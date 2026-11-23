@@ -3221,6 +3221,250 @@
     }
     @media (prefers-reduced-motion: reduce) { #loginScreen *, #loginScreen *::before, #loginScreen *::after { animation: none !important; } .lx-in { opacity: 1; transform: none; } }
 
+    
+    /* ══════════ BANCOS — layout profissional (bk-*) ══════════ */
+    #bancos .bk-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+    #bancos .bk-head h1 { margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    #bancos .bk-sub { font-size:13px; color:#8a8f98; margin-top:4px; }
+    .bk-pill { display:inline-flex; align-items:center; gap:6px; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:700; background:#f3f4f6; color:#4b5563; border:1px solid #e5e7eb; letter-spacing:0; }
+    .bk-pill i { width:7px; height:7px; border-radius:50%; background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.15); }
+    .bk-acts-top { display:flex; gap:8px; flex-wrap:wrap; }
+    .bk-btn2 { display:inline-flex; align-items:center; gap:7px; height:40px; padding:0 15px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; color:#1f2937; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; transition:.15s; }
+    .bk-btn2:hover { border-color:#FF7A42; color:#e2611f; box-shadow:0 4px 14px rgba(255,122,66,.12); }
+    .bk-btn2 svg { width:16px; height:16px; }
+    .bk-btn-pri { background:#FF7A42; border-color:#FF7A42; color:#fff; }
+    .bk-btn-pri:hover { background:#f46a2f; color:#fff; border-color:#f46a2f; }
+
+    .bk-hero { position:relative; overflow:hidden; border-radius:18px; padding:24px 26px 20px; margin-bottom:22px; color:#fff;
+      background:radial-gradient(900px 260px at 100% 0%, rgba(255,122,66,.35), transparent 60%), linear-gradient(125deg,#1b1d22 0%,#262a31 55%,#3a2619 100%);
+      box-shadow:0 10px 30px rgba(17,24,39,.18); }
+    .bk-hero-grid { display:grid; grid-template-columns:minmax(240px,1.1fr) minmax(260px,1.6fr) minmax(240px,1.1fr); gap:26px; align-items:stretch; }
+    .bk-hero-lbl { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#a3a8b0; }
+    .bk-hero-val { font-size:34px; font-weight:800; letter-spacing:-1px; line-height:1.1; margin-top:6px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .bk-hero-val { color:#4ade80; }
+    .bk-hero-val.neg { color:#f87171; }
+    .bk-hero-var { display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,.08); }
+    .bk-hero-var.up { color:#86efac; } .bk-hero-var.down { color:#fca5a5; }
+    .bk-hero-var span { color:#a3a8b0; font-weight:600; }
+    .bk-hero-meta { font-size:11.5px; color:#a3a8b0; margin-top:12px; }
+    .bk-hero-chart { display:flex; flex-direction:column; min-width:0; }
+    .bk-hero-chart .bk-hero-lbl { display:flex; justify-content:space-between; gap:8px; }
+    .bk-hero-chart .bk-hero-lbl b { color:#fff; font-weight:700; letter-spacing:0; text-transform:none; font-size:11.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .bk-hero-chart svg { width:100%; height:96px; margin-top:8px; overflow:visible; }
+    .bk-hero-axis { display:flex; justify-content:space-between; font-size:10px; color:#7b818b; margin-top:4px; }
+    .bk-hero-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .bk-hs { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px; }
+    .bk-hs.click { cursor:pointer; transition:.15s; } .bk-hs.click:hover { background:rgba(255,255,255,.12); }
+    .bk-hs span { display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#a3a8b0; }
+    .bk-hs b { display:block; font-size:15px; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums; }
+    .bk-hs b.pos { color:#86efac; } .bk-hs b.neg { color:#fca5a5; } .bk-hs b.ter { color:#d8b4fe; }
+    .bk-comp { margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,.08); }
+    .bk-comp-bar { display:flex; height:10px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,.08); gap:2px; }
+    .bk-comp-bar i { display:block; height:100%; min-width:3px; }
+    .bk-comp-leg { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:10px; font-size:11.5px; color:#d1d5db; }
+    .bk-comp-leg span { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+    .bk-comp-leg em { width:9px; height:9px; border-radius:3px; display:inline-block; }
+    .bk-comp-leg b { color:#fff; font-weight:600; font-variant-numeric:tabular-nums; }
+    @media (max-width:1100px) { .bk-hero-grid { grid-template-columns:1fr 1fr; } .bk-hero-chart { grid-column:1 / -1; order:3; } }
+    @media (max-width:640px) { .bk-hero-grid { grid-template-columns:1fr; } .bk-hero-val { font-size:28px; } .bk-hero { padding:18px; } }
+
+    .bk-sec-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:4px 2px 12px; flex-wrap:wrap; }
+    .bk-sec-tit { font-size:16px; font-weight:800; color:#1f2937; display:flex; align-items:center; gap:8px; }
+    .bk-sec-tit small { font-size:12px; font-weight:600; color:#9ca3af; }
+    .bk-sec-sub { font-size:12px; color:#9ca3af; }
+
+    #cardsSaldoBancos.bk-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; margin-bottom:24px; }
+    .bk-card { position:relative; background:#fff; border:1px solid #e9eaee; border-radius:16px; padding:18px 18px 14px; display:flex; flex-direction:column; gap:12px; transition:box-shadow .18s, transform .18s; overflow:hidden; }
+    .bk-card::before { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--bk,#FF7A42); }
+    .bk-card:hover { box-shadow:0 12px 28px rgba(17,24,39,.08); transform:translateY(-2px); }
+    .bk-card.neg { background:linear-gradient(180deg,#fff 0%,#fff 70%,#fef2f2 100%); }
+    .bk-card.inativa { opacity:.62; }
+    .bk-card.inativa::before { background:#9ca3af; }
+    .bk-top { display:flex; align-items:center; gap:12px; min-width:0; }
+    .bk-top .banco-logo { width:46px; height:46px; border-radius:13px; }
+    .bk-top .banco-logo.ini { font-size:16px; }
+    .bk-id { min-width:0; flex:1; cursor:pointer; }
+    .bk-nome { font-size:14.5px; font-weight:800; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .bk-subt { font-size:11.5px; color:#9ca3af; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .bk-tipo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; padding:4px 9px; border-radius:20px; background:#f3f4f6; color:#4b5563; white-space:nowrap; flex-shrink:0; }
+    .bk-tipo.off { background:#fee2e2; color:#b91c1c; }
+    .bk-saldo-box { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; cursor:pointer; }
+    .bk-saldo-lbl { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#9ca3af; }
+    .bk-saldo { font-size:24px; font-weight:800; letter-spacing:-.6px; color:#1f2937; line-height:1.15; margin-top:3px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .bk-saldo.neg { color:#dc2626; }
+    .bk-spark { width:110px; height:40px; flex-shrink:0; overflow:visible; }
+    .bk-share { display:flex; align-items:center; gap:10px; font-size:11px; color:#6b7280; }
+    .bk-share-bar { flex:1; height:6px; background:#f3f4f6; border-radius:4px; overflow:hidden; }
+    .bk-share-bar i { display:block; height:100%; background:var(--bk,#FF7A42); border-radius:4px; }
+    .bk-share b { color:#374151; font-weight:700; font-variant-numeric:tabular-nums; }
+    .bk-ter { display:grid; grid-template-columns:1fr 1fr; gap:8px; cursor:pointer; border-radius:12px; transition:box-shadow .12s; }
+    .bk-ter:hover { box-shadow:0 0 0 2px #e9d5ff; }
+    .bk-ter div { border-radius:10px; padding:7px 10px; background:#faf5ff; border:1px solid #f3e8ff; }
+    .bk-ter div.real { background:#f0fdf4; border-color:#dcfce7; }
+    .bk-ter div.real.neg { background:#fef2f2; border-color:#fee2e2; }
+    .bk-ter span { display:block; font-size:10px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:.5px; }
+    .bk-ter b { display:block; font-size:13px; margin-top:2px; color:#7e22ce; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .bk-ter .real b { color:#15803d; } .bk-ter .real.neg b { color:#dc2626; }
+    .bk-mes { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .bk-mes div { background:#f9fafb; border-radius:10px; padding:8px 10px; border:1px solid transparent; }
+    .bk-mes span { display:block; font-size:10px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:.5px; }
+    .bk-mes b { display:block; font-size:13px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums; }
+    .bk-mes .e b { color:#16a34a; } .bk-mes .s b { color:#dc2626; }
+    .bk-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px dashed #e9eaee; }
+    .bk-ult { font-size:11px; color:#9ca3af; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+    .bk-ult b { color:#4b5563; font-weight:600; }
+    .bk-acts { display:flex; gap:4px; flex-shrink:0; }
+    .bk-ic { width:32px; height:32px; border-radius:9px; border:1px solid #e9eaee; background:#fff; color:#6b7280; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:.12s; padding:0; }
+    .bk-ic svg { width:15px; height:15px; }
+    .bk-ic:hover { background:#1f2937; border-color:#1f2937; color:#fff; }
+    .bk-ic.ac:hover { background:#d97706; border-color:#d97706; }
+    .bk-ic.del:hover { background:#dc2626; border-color:#dc2626; }
+    .bk-add { border:1.5px dashed #d1d5db; border-radius:16px; background:transparent; min-height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#9ca3af; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; transition:.15s; }
+    .bk-add:hover { border-color:#FF7A42; color:#e2611f; background:#fff7f2; }
+    .bk-add span { width:44px; height:44px; border-radius:50%; background:#f3f4f6; display:flex; align-items:center; justify-content:center; font-size:22px; transition:.15s; }
+    .bk-add:hover span { background:#FF7A42; color:#fff; }
+    .bk-vazio { grid-column:1 / -1; text-align:center; padding:46px 20px; border:1.5px dashed #d1d5db; border-radius:16px; color:#6b7280; }
+    .bk-vazio div { font-size:34px; margin-bottom:6px; }
+
+.bk-ter .bk-ter-aviso { grid-column:1 / -1; margin:0; font-size:11px; font-weight:600; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:6px 9px; cursor:help; }
+    html[data-tema="escuro"] .bk-ter .bk-ter-aviso { background:rgba(217,119,6,.12); border-color:rgba(217,119,6,.3); color:#fbbf24; }
+
+    /* ══════════ MODAL SALDO DE TERCEIROS (tm-*) ══════════ */
+    #modalTerceiros .tm-box { background:#f7f7f9; width:min(1180px,96vw); max-height:94vh; border-radius:18px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,.28); }
+    .tm-head { display:flex; align-items:center; gap:16px; padding:20px 26px; color:#fff;
+      background:radial-gradient(700px 200px at 100% 0%, rgba(168,85,247,.45), transparent 60%), linear-gradient(125deg,#1b1d22 0%,#262a31 60%,#3b2350 120%); }
+    .tm-ico { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+    .tm-tit { font-size:19px; font-weight:800; letter-spacing:-.2px; }
+    .tm-sub { font-size:12px; color:#c4c8cf; margin-top:3px; }
+    .tm-sub b { color:#fff; font-weight:600; }
+    .tm-head-r { margin-left:auto; display:flex; align-items:center; gap:10px; }
+    .tm-hbtn { height:34px; padding:0 12px; border-radius:9px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08); color:#fff; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .tm-hbtn:hover { background:rgba(255,255,255,.18); }
+    .tm-x { width:34px; height:34px; border-radius:9px; border:none; background:rgba(255,255,255,.1); color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; }
+    .tm-x:hover { background:rgba(255,255,255,.22); }
+    .tm-body { padding:18px 26px 10px; overflow:auto; flex:1; }
+    .tm-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .tm-kpi { background:#fff; border:1px solid #e9eaee; border-radius:14px; padding:14px 16px; position:relative; overflow:hidden; }
+    .tm-kpi::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--c,#9ca3af); }
+    .tm-kpi span { display:block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#9ca3af; }
+    .tm-kpi b { display:block; font-size:20px; font-weight:800; color:var(--c,#1f2937); margin-top:5px; letter-spacing:-.4px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tm-kpi small { display:block; font-size:11px; color:#9ca3af; margin-top:3px; }
+    .tm-kpi.dest { background:linear-gradient(135deg,#fff 0%,#faf5ff 100%); border-color:#e9d5ff; }
+    .tm-cob { height:6px; background:#f3f4f6; border-radius:4px; overflow:hidden; margin-top:8px; }
+    .tm-cob i { display:block; height:100%; border-radius:4px; }
+    .tm-cols { display:grid; grid-template-columns:1.25fr 1fr; gap:12px; margin-bottom:16px; }
+    .tm-panel { background:#fff; border:1px solid #e9eaee; border-radius:14px; padding:14px 16px; min-width:0; }
+    .tm-ptit { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#9ca3af; margin-bottom:10px; display:flex; justify-content:space-between; gap:8px; }
+    .tm-ptit em { font-style:normal; text-transform:none; letter-spacing:0; font-weight:600; }
+    .tm-bt { width:100%; border-collapse:collapse; font-size:12.5px; }
+    .tm-bt th { background:none !important; border:none !important; text-transform:uppercase; text-align:right; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:#9ca3af; padding:0 6px 8px; white-space:nowrap; }
+    .tm-bt th:first-child { text-align:left; padding-left:0; }
+    .tm-bt td { padding:8px 6px; border-top:1px solid #f3f4f6; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .tm-bt td:first-child { text-align:left; padding-left:0; }
+    .tm-bt tr.clk { cursor:pointer; } .tm-bt tr.clk:hover td { background:#faf5ff; }
+    .tm-bt tr.on td { background:#f3e8ff; }
+    .tm-bt thead, .tm-tab thead { background:none !important; color:inherit; position:static; }
+    .tm-bt-wrap { overflow-x:auto; margin:0 -4px; padding:0 4px; }
+    .tm-bt { min-width:520px; }
+    .tm-bn { display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#1f2937; }
+    .tm-chip { display:inline-block; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px; letter-spacing:.3px; }
+    .tm-chip.ok { background:#dcfce7; color:#15803d; } .tm-chip.parc { background:#fef3c7; color:#b45309; } .tm-chip.sem { background:#fee2e2; color:#b91c1c; } .tm-chip.neu { background:#f3f4f6; color:#6b7280; }
+    .tm-mes { display:flex; flex-direction:column; gap:7px; }
+    .tm-ml { display:grid; grid-template-columns:54px 1fr 96px; gap:10px; align-items:center; font-size:12px; }
+    .tm-ml > span { color:#6b7280; font-weight:700; }
+    .tm-ml > b { text-align:right; font-variant-numeric:tabular-nums; font-weight:700; color:#7e22ce; }
+    .tm-bars { display:flex; flex-direction:column; gap:2px; }
+    .tm-bars i { display:block; height:6px; border-radius:3px; min-width:2px; }
+    .tm-bars i.e { background:#22c55e; } .tm-bars i.s { background:#f87171; }
+    .tm-leg { display:flex; gap:14px; font-size:11px; color:#9ca3af; margin-top:10px; }
+    .tm-leg i { display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+    .tm-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+    .tm-seg { display:inline-flex; background:#fff; border:1px solid #e9eaee; border-radius:10px; padding:3px; gap:2px; flex-wrap:wrap; }
+    .tm-seg button { border:none; background:none; height:30px; padding:0 11px; border-radius:7px; font-size:12px; font-weight:700; color:#6b7280; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .tm-seg button:hover { color:#1f2937; background:#f3f4f6; }
+    .tm-seg button.on { background:#1f2937; color:#fff; }
+    .tm-seg.tipo button.on[data-v="e"] { background:#16a34a; } .tm-seg.tipo button.on[data-v="s"] { background:#dc2626; }
+    .tm-in { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid #e9eaee; border-radius:10px; padding:0 10px; height:38px; }
+    .tm-in.busca { flex:1; min-width:200px; }
+    .tm-in input, .tm-in select { border:none !important; outline:none; background:transparent !important; box-shadow:none !important; height:36px; font-size:13px; padding:0 !important; margin:0; width:100%; color:inherit; font-family:inherit; }
+    .tm-in select { width:auto; min-width:120px; cursor:pointer; }
+    .tm-fil { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:#6b7280; margin-bottom:8px; }
+    .tm-fil .tm-fchip { background:#f3e8ff; color:#7e22ce; border-radius:20px; padding:3px 10px; font-weight:700; font-size:11.5px; }
+    .tm-fil button { background:none; border:none; color:#9333ea; font-weight:700; cursor:pointer; text-decoration:underline; font-size:12px; font-family:inherit; }
+    .tm-lista { background:#fff; border:1px solid #e9eaee; border-radius:14px; overflow:hidden; }
+    .tm-tab { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+    .tm-tab thead th { position:sticky; top:0; z-index:1; background:#f9fafb; text-align:left; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#9ca3af; padding:10px 14px; border-bottom:1px solid #e9eaee; white-space:nowrap; }
+    .tm-tab th.r, .tm-tab td.r { text-align:right; }
+    .tm-tab td { padding:10px 14px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+    .tm-tab tr.row:hover td { background:#fcfaff; }
+    .tm-grp td { background:#faf5ff; border-bottom:1px solid #f3e8ff; padding:8px 14px; }
+    .tm-grp-in { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .tm-grp-in b { font-size:13px; color:#581c87; }
+    .tm-grp-in span { font-size:11.5px; color:#9ca3af; }
+    .tm-grp-tot { margin-left:auto; display:flex; gap:14px; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .tm-dt { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; background:#f3f4f6; line-height:1; }
+    .tm-dt b { font-size:14px; color:#1f2937; } .tm-dt small { font-size:9px; text-transform:uppercase; color:#9ca3af; font-weight:800; margin-top:2px; }
+    .tm-nm { display:flex; align-items:center; gap:10px; min-width:0; }
+    .tm-ic { width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; flex-shrink:0; }
+    .tm-ic.e { background:#dcfce7; color:#15803d; } .tm-ic.s { background:#fee2e2; color:#b91c1c; }
+    .tm-desc { font-weight:700; color:#1f2937; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tm-parte { font-size:11.5px; color:#9ca3af; margin-top:2px; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tm-bk { display:inline-flex; align-items:center; gap:7px; font-size:12px; color:#4b5563; white-space:nowrap; }
+    .tm-val { font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .tm-val.e { color:#16a34a; } .tm-val.s { color:#dc2626; }
+    .tm-acum { font-size:12px; color:#7e22ce; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .tm-acum.neg { color:#dc2626; }
+    .tm-acts { white-space:nowrap; text-align:right; }
+    .tm-ab { width:30px; height:30px; border-radius:8px; border:1px solid #e9eaee; background:#fff; color:#6b7280; cursor:pointer; font-size:13px; opacity:.45; transition:.12s; padding:0; }
+    .tm-tab tr.row:hover .tm-ab { opacity:1; }
+    .tm-ab:hover { background:#1f2937; border-color:#1f2937; color:#fff; }
+    .tm-ab.rv:hover { background:#d97706; border-color:#d97706; } .tm-ab.dl:hover { background:#dc2626; border-color:#dc2626; }
+    .tm-vazio { text-align:center; padding:46px 20px; color:#6b7280; font-size:13px; }
+    .tm-vazio div { font-size:32px; margin-bottom:6px; }
+    .tm-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 26px; border-top:1px solid #e9eaee; background:#fff; font-size:12px; color:#6b7280; }
+    .tm-foot .btns { display:flex; gap:8px; }
+    @media (max-width:900px) {
+      .tm-kpis { grid-template-columns:1fr 1fr; } .tm-cols { grid-template-columns:1fr; }
+      .tm-head { padding:16px; flex-wrap:wrap; } .tm-head-r { margin-left:0; width:100%; justify-content:space-between; }
+      .tm-body { padding:14px; } .tm-foot { padding:12px 14px; }
+      .tm-tab .hide-m { display:none; } .tm-desc, .tm-parte { max-width:170px; }
+      #modalTerceiros .tm-box { width:100vw; max-height:100vh; height:100vh; border-radius:0; }
+    }
+    html[data-tema="escuro"] #modalTerceiros .tm-box { background:var(--cor-fundo); }
+    html[data-tema="escuro"] .tm-kpi, html[data-tema="escuro"] .tm-panel, html[data-tema="escuro"] .tm-lista, html[data-tema="escuro"] .tm-seg, html[data-tema="escuro"] .tm-in, html[data-tema="escuro"] .tm-foot, html[data-tema="escuro"] .tm-ab { background:var(--escuro-surface); border-color:var(--cor-borda); }
+    html[data-tema="escuro"] .tm-kpi.dest { background:linear-gradient(135deg,var(--escuro-surface) 0%,rgba(168,85,247,.12) 100%); }
+    html[data-tema="escuro"] .tm-tab thead th { background:var(--escuro-surface-2); border-color:var(--cor-borda); }
+    html[data-tema="escuro"] .tm-tab td, html[data-tema="escuro"] .tm-bt td { border-color:var(--escuro-surface-3); }
+    html[data-tema="escuro"] .tm-grp td { background:rgba(168,85,247,.10); border-color:rgba(168,85,247,.2); }
+    html[data-tema="escuro"] .tm-grp-in b { color:#d8b4fe; }
+    html[data-tema="escuro"] .tm-desc, html[data-tema="escuro"] .tm-bn, html[data-tema="escuro"] .tm-dt b { color:#e3e5e8; }
+    html[data-tema="escuro"] .tm-dt, html[data-tema="escuro"] .tm-cob { background:var(--escuro-surface-3); }
+    html[data-tema="escuro"] .tm-tab tr.row:hover td, html[data-tema="escuro"] .tm-bt tr.clk:hover td { background:var(--escuro-surface-2); }
+    html[data-tema="escuro"] .tm-bt tr.on td { background:rgba(168,85,247,.16); }
+    html[data-tema="escuro"] .tm-bk { color:#c3c8cf; }
+    html[data-tema="escuro"] .tm-seg button:hover { background:var(--escuro-surface-3); color:#fff; }
+    html[data-tema="escuro"] .tm-seg button.on:not([data-v="e"]):not([data-v="s"]) { background:#e3e5e8; color:#111; }
+    html[data-tema="escuro"] .tm-acum, html[data-tema="escuro"] .tm-ml > b { color:#d8b4fe; }
+    /* Extrato bancário: sem as caixas de resumo e com cabeçalho cinza escuro */
+    #bancos #extratoResumo { display:none !important; }
+    #tabelaExtrato thead, #tabelaExtrato thead tr, #tabelaExtrato thead th { background:#374151 !important; color:#fff !important; }
+    html[data-tema="escuro"] #tabelaExtrato thead, html[data-tema="escuro"] #tabelaExtrato thead tr, html[data-tema="escuro"] #tabelaExtrato thead th { background:#2c313b !important; }
+    /* tema escuro */
+    html[data-tema="escuro"] .bk-pill, html[data-tema="escuro"] .bk-tipo { background:var(--escuro-surface-3); color:#c3c8cf; border-color:var(--cor-borda); }
+    html[data-tema="escuro"] .bk-btn2:not(.bk-btn-pri), html[data-tema="escuro"] .bk-ic { background:var(--escuro-surface-2); border-color:var(--cor-borda); color:#d0d4da; }
+    html[data-tema="escuro"] .bk-card { background:var(--escuro-surface); border-color:var(--cor-borda); }
+    html[data-tema="escuro"] .bk-card.neg { background:linear-gradient(180deg,var(--escuro-surface) 0%,var(--escuro-surface) 70%,rgba(220,38,38,.10) 100%); }
+    html[data-tema="escuro"] .bk-nome, html[data-tema="escuro"] .bk-saldo:not(.neg), html[data-tema="escuro"] .bk-sec-tit { color:#e3e5e8; }
+    html[data-tema="escuro"] .bk-mes div, html[data-tema="escuro"] .bk-share-bar { background:var(--escuro-surface-2); }
+    html[data-tema="escuro"] .bk-ter div { background:rgba(168,85,247,.10); border-color:rgba(168,85,247,.25); }
+    html[data-tema="escuro"] .bk-ter b { color:#d8b4fe; }
+    html[data-tema="escuro"] .bk-ter div.real { background:rgba(22,163,74,.10); border-color:rgba(22,163,74,.25); }
+    html[data-tema="escuro"] .bk-ter .real b { color:#86efac; }
+    html[data-tema="escuro"] .bk-share b, html[data-tema="escuro"] .bk-ult b { color:#c3c8cf; }
+    html[data-tema="escuro"] .bk-foot { border-top-color:var(--cor-borda); }
+    html[data-tema="escuro"] .bk-add, html[data-tema="escuro"] .bk-vazio { border-color:#3a3f48; }
+    html[data-tema="escuro"] .bk-add:hover { background:rgba(255,122,66,.08); }
+    html[data-tema="escuro"] .bk-hero { box-shadow:none; border:1px solid var(--cor-borda); }
     </style>
 </head>
 <body>
@@ -3824,27 +4068,24 @@
 
         <!-- BANCOS -->
         <div id="bancos" class="page">
-            <div class="page-header">
-                <h1>🏦 Bancos</h1>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn btn-secondary" onclick="abrirConfigSaldoTerceiros()">⚙️ Saldo de Terceiros</button>
-                    <button class="btn btn-primary" onclick="openModalBanco()">+ Novo Banco</button>
+            <div class="page-header bk-head">
+                <div>
+                    <h1>🏦 Bancos <span class="bk-pill"><i></i>Posição de caixa</span></h1>
+                    <div class="bk-sub">Saldos, contas bancárias, extrato e conciliação</div>
+                </div>
+                <div class="bk-acts-top">
+                    <button class="bk-btn2" onclick="abrirConfigSaldoTerceiros()" title="Configurar o Saldo de Terceiros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg> Saldo de Terceiros</button>
+                    <button class="bk-btn2" onclick="openModalTransferencia()" title="Transferir entre contas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h13l-4-4"/><path d="M17 17H4l4 4"/></svg> Transferir</button>
+                    <button class="bk-btn2 bk-btn-pri" onclick="openModalBanco()">+ Novo Banco</button>
                 </div>
             </div>
             <div class="alert alert-success" id="alertBancos"></div>
-            <div id="cardsSaldoBancos" class="dashboard-grid" style="margin-bottom:20px;"></div>
-            <div class="table-container" style="margin-bottom:24px;">
-                <table id="tabelaBancos">
-                    <thead><tr>
-                        <th>Banco</th><th>Agência</th><th>Conta</th><th>Tipo</th>
-                        <th>Saldo Inicial</th><th>Saldo Atual</th>
-                        <th>💰 Saldo de Terceiros <span title="Diferença entre a categoria de entrada (ex: Receita de Venda Consignado) e a categoria de saída (ex: Pagamento Parceiros Consignados) — dinheiro que passa pela conta mas não é seu. Configure em ⚙️ Saldo de Terceiros." style="cursor:help;">ℹ️</span></th>
-                        <th>Saldo Real <span title="Saldo Atual menos o Saldo de Terceiros — quanto do saldo em conta é realmente seu." style="cursor:help;">ℹ️</span></th>
-                        <th>Status</th><th>Ações</th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
+            <div class="bk-hero" id="bk-hero" style="display:none"></div>
+            <div class="bk-sec-head">
+                <div class="bk-sec-tit">Contas <small id="bk-qtd"></small></div>
+                <div class="bk-sec-sub">Clique na conta para ver e editar os lançamentos</div>
             </div>
+            <div id="cardsSaldoBancos" class="bk-grid"></div>
             <div class="card">
                 <div class="card-title">📄 Extrato Bancário</div>
                 <div class="filter-container" style="padding:0 0 16px;">
@@ -8703,6 +8944,8 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         const vindoDoDetalheDRE = _dreDetalheRetornoPendente;
         _dreDetalheRetornoPendente = false;
         const vindoDoBancoLanc = _bancoLancRetornoPendente;
+        const vindoDoTerc = _tercRetornoPendente;
+        _tercRetornoPendente = false;
         _bancoLancRetornoPendente = false;
         // Mesma ideia para o modal genérico de lançamentos (DFC / Projetado / Diário / Categorias)
         const vindoDoDetalheLanc = _detLancRetornoPendente;
@@ -8742,6 +8985,10 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
                 await carregarBancos();
                 _renderLancamentosBanco();
                 document.getElementById('modalLancamentosBanco').classList.add('active');
+            }
+            if (vindoDoTerc) {
+                await carregarBancos();
+                abrirLancamentosTerceiros(_tm.banco);
             }
         }
     }
@@ -11576,47 +11823,513 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
         });
     }
 
+    // ── Bancos — layout novo (resumo consolidado + cards por conta) ──────────
+    const _bkHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    const _bkAddDias = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+    const _bkBRL = v => 'R$ ' + (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const _bkSinal = v => (v >= 0 ? '+ ' : '− ') + _bkBRL(Math.abs(v));
+    const _bkData = d => { if (!d) return '—'; const p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
+    const _BK_MESES = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const _BK_CORES = ['#FF7A42', '#3B82F6', '#10B981', '#8B5CF6', '#0EA5A4', '#EC4899', '#F59E0B', '#0891b2', '#65a30d', '#64748B'];
+    const _bkArg = id => typeof id === 'number' ? String(id) : "'" + _bancoEsc(id) + "'";
+    // Movimentos baixados por conta (mesmos critérios de _calcularSaldosBancos)
+    function _bkMovimentos() {
+        const m = [];
+        (dadosCache.contasRecebidas || []).forEach(c => { if (c.status === 'recebido' && c.banco_id != null) m.push({ b: String(c.banco_id), d: (c.data_recebimento || '').slice(0, 10), v: parseFloat(c.valor || 0) }); });
+        (dadosCache.contasPagas || []).forEach(c => { if (c.status === 'pago' && c.banco_id != null) m.push({ b: String(c.banco_id), d: (c.data_pagamento || '').slice(0, 10), v: -parseFloat(c.valor || 0) }); });
+        (dadosCache.transferencias || []).forEach(t => {
+            const v = parseFloat(t.valor || 0), d = (t.data || '').slice(0, 10);
+            if (t.banco_origem_id != null) m.push({ b: String(t.banco_origem_id), d, v: -v, t: true });
+            if (t.banco_destino_id != null) m.push({ b: String(t.banco_destino_id), d, v: v, t: true });
+        });
+        return m;
+    }
+    // Saldo no fim de cada dia, de 'ini' até 'fim', terminando exatamente no saldo atual
+    function _bkSerie(movs, ids, saldoAtual, ini, fim) {
+        const set = new Set(ids.map(String));
+        const porDia = {}; let depois = 0;
+        movs.forEach(mv => {
+            if (!set.has(mv.b) || !mv.d) return;
+            if (mv.d > fim) depois += mv.v;
+            else if (mv.d > ini) porDia[mv.d] = (porDia[mv.d] || 0) + mv.v;
+        });
+        // saldo no fim de 'ini' = saldo atual − tudo que entrou depois de 'ini'
+        let s = saldoAtual - depois - Object.values(porDia).reduce((a, x) => a + x, 0);
+        const out = [Math.round(s * 100) / 100];
+        for (let d = _bkAddDias(ini, 1); d <= fim; d = _bkAddDias(d, 1)) { s += (porDia[d] || 0); out.push(Math.round(s * 100) / 100); }
+        return out;
+    }
+    let _bkSparkN = 0;
+    function _bkSpark(vals, cor, w, h, cls) {
+        if (!vals.length) return '';
+        const min = Math.min(...vals), max = Math.max(...vals), rg = (max - min) || 1, pad = 3;
+        const step = vals.length > 1 ? w / (vals.length - 1) : w;
+        const pts = vals.map((v, i) => [i * step, pad + (h - pad * 2) * (1 - (v - min) / rg)]);
+        const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+        const id = 'bkg' + (++_bkSparkN), last = pts[pts.length - 1];
+        const zeroY = (min < 0 && max > 0) ? (pad + (h - pad * 2) * (1 - (0 - min) / rg)).toFixed(1) : null;
+        return '<svg class="' + (cls || 'bk-spark') + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+            '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + cor + '" stop-opacity=".28"/><stop offset="1" stop-color="' + cor + '" stop-opacity="0"/></linearGradient></defs>' +
+            (zeroY ? '<line x1="0" x2="' + w + '" y1="' + zeroY + '" y2="' + zeroY + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke" opacity=".6"/>' : '') +
+            '<path d="' + line + ' L ' + w + ' ' + h + ' L 0 ' + h + ' Z" fill="url(#' + id + ')"/>' +
+            '<path d="' + line + '" fill="none" stroke="' + cor + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+            (cls ? '' : '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.8" fill="' + cor + '"/>') + '</svg>';
+    }
+    // Gráfico do resumo: linha e área verdes acima de zero e vermelhas abaixo de zero
+    function _bkSparkSinal(vals, w, h) {
+        if (!vals.length) return '';
+        const VERDE = '#22c55e', VERM = '#ef4444', pad = 4;
+        const min = Math.min(...vals), max = Math.max(...vals);
+        const rg = (max - min) || 1, step = vals.length > 1 ? w / (vals.length - 1) : w;
+        const y = v => pad + (h - pad * 2) * (1 - (v - min) / rg);
+        const pts = vals.map((v, i) => [i * step, y(v)]);
+        const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+        // posição do zero (fora do gráfico quando tudo é positivo ou tudo é negativo)
+        const z = min >= 0 ? h + 1 : max <= 0 ? -1 : y(0);
+        const zf = Math.max(0, Math.min(1, z / h));
+        const id = 'bks' + (++_bkSparkN);
+        const zero = (min < 0 && max > 0) ? '<line x1="0" x2="' + w + '" y1="' + z.toFixed(1) + '" y2="' + z.toFixed(1) + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke" opacity=".55"/>' : '';
+        const last = vals[vals.length - 1];
+        return '<svg class="bk-hero-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+            '<defs>' +
+              '<linearGradient id="' + id + 'l" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="' + h + '">' +
+                '<stop offset="' + zf + '" stop-color="' + VERDE + '"/><stop offset="' + zf + '" stop-color="' + VERM + '"/></linearGradient>' +
+              '<linearGradient id="' + id + 'a" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="' + h + '">' +
+                '<stop offset="0" stop-color="' + VERDE + '" stop-opacity=".30"/><stop offset="' + zf + '" stop-color="' + VERDE + '" stop-opacity=".04"/>' +
+                '<stop offset="' + zf + '" stop-color="' + VERM + '" stop-opacity=".04"/><stop offset="1" stop-color="' + VERM + '" stop-opacity=".30"/></linearGradient>' +
+            '</defs>' + zero +
+            // área preenchida entre a linha e o zero
+            '<path d="' + line + ' L ' + w + ' ' + Math.min(h, Math.max(0, z)).toFixed(1) + ' L 0 ' + Math.min(h, Math.max(0, z)).toFixed(1) + ' Z" fill="url(#' + id + 'a)"/>' +
+            '<path d="' + line + '" fill="none" stroke="url(#' + id + 'l)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+            '</svg>';
+    }
+    const _BK_IC = {
+        ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+        doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>',
+        edt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+        ac:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg>',
+        del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>'
+    };
+    // Abre o Extrato Bancário (mais abaixo) já filtrado na conta
+    function bkVerExtrato(id) {
+        const sel = document.getElementById('extratoFiltrobancoId');
+        if (sel) { sel.value = String(id); }
+        try { gerarExtrato(); } catch (e) {}
+        const card = sel ? sel.closest('.card') : null;
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function atualizarCardsSaldoBancos(saldos, saldosTerceiros) {
         const container = document.getElementById('cardsSaldoBancos');
         if (!container) return;
-        container.innerHTML = '';
-        let totalGeral = 0;
-        let totalTerceiros = 0;
+        container.classList.add('bk-grid');
+        const hero = document.getElementById('bk-hero');
+        const qtdEl = document.getElementById('bk-qtd');
+        const bancos = dadosCache.bancos || [];
+        const btnAdd = '<button type="button" class="bk-add" onclick="openModalBanco()"><span>+</span>Adicionar banco</button>';
+        if (!bancos.length) {
+            container.innerHTML = '<div class="bk-vazio"><div>🏦</div><b>Nenhum banco cadastrado.</b><br><span style="font-size:12px">Cadastre seus bancos e caixas para acompanhar os saldos.</span></div>';
+            if (hero) hero.style.display = 'none';
+            if (qtdEl) qtdEl.textContent = '';
+            return;
+        }
+        _bkSparkN = 0;
         const configAtiva = !!(configSaldoTerceiros.catEntradaId || configSaldoTerceiros.catSaidaId);
-        (dadosCache.bancos || []).filter(b => b.ativo).forEach(banco => {
-            const saldo = saldos ? (saldos[banco.id] !== undefined ? saldos[banco.id] : parseFloat(banco.saldo_inicial || 0)) : parseFloat(banco.saldo_inicial || 0);
-            totalGeral += saldo;
-            const saldoTerc = saldosTerceiros && saldosTerceiros[banco.id] !== undefined ? saldosTerceiros[banco.id] : 0;
-            totalTerceiros += saldoTerc;
-            const cor = saldo >= 0 ? '#28a745' : '#dc3545';
-            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + cor + ';cursor:pointer;" title="Clique para ver e editar os lançamentos desta caixa" onclick="abrirLancamentosBanco(' + banco.id + ')">' +
-                '<div class="banco-card-topo">' + bancoLogoHtml(banco) + '<div><div class="stat-label">' + _bancoEsc(banco.nome) + '</div>' +
-                '<div style="font-size:11px;color:#999;">' + (banco.tipo || '') + '</div></div></div>' +
-                '<div class="stat-value" style="color:' + cor + ';font-size:20px;">R$ ' + saldo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-                '<div style="font-size:11px;color:#999;margin-top:4px;">Inicial: R$ ' + parseFloat(banco.saldo_inicial||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) +
-                ' · <span style="color:#8e44ad;">Saldo de Terceiros: R$ ' + saldoTerc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</span>' +
-                '</div>' +
-                '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>');
+        const hoje = _bkHoje(), iniMes = hoje.slice(0, 8) + '01';
+        const ini30 = _bkAddDias(hoje, -29), ini90 = _bkAddDias(hoje, -89);
+        const mesNome = _BK_MESES[parseInt(hoje.slice(5, 7), 10)] + '/' + hoje.slice(2, 4);
+        const movs = _bkMovimentos();
+
+        const contas = bancos.map((b, i) => {
+            const saldo = saldos && saldos[b.id] !== undefined ? saldos[b.id] : parseFloat(b.saldo_inicial || 0);
+            const terc = saldosTerceiros && saldosTerceiros[b.id] !== undefined ? saldosTerceiros[b.id] : 0;
+            const id = String(b.id);
+            let ent = 0, sai = 0, ult = '';
+            movs.forEach(m => {
+                if (m.b !== id || !m.d) return;
+                if (m.d > ult) ult = m.d;
+                if (m.d >= iniMes && m.d <= hoje) { if (m.v >= 0) ent += m.v; else sai -= m.v; }
+            });
+            const cor = _BK_CORES[i % _BK_CORES.length];
+            return { b, saldo, terc, ent, sai, ult, cor, ativo: !!b.ativo, serie: _bkSerie(movs, [b.id], saldo, ini30, hoje) };
         });
-        if ((dadosCache.bancos || []).filter(b => b.ativo).length > 1) {
-            const corTotal = totalGeral >= 0 ? '#FF7A42' : '#dc3545';
-            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + corTotal + ';cursor:pointer;" title="Clique para ver os lançamentos de todas as caixas" onclick="abrirLancamentosBanco(\'\')">' +
-                '<div class="stat-label">💰 Saldo Total</div>' +
-                '<div style="font-size:11px;color:#999;margin-bottom:4px;">Todos os bancos</div>' +
-                '<div class="stat-value" style="color:' + corTotal + ';font-size:20px;">R$ ' + totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-                '<div style="font-size:10px;color:#FF7A42;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>');
+        const ativas = contas.filter(c => c.ativo);
+        const total = ativas.reduce((s, c) => s + c.saldo, 0);
+        const totTerc = ativas.reduce((s, c) => s + c.terc, 0);
+        const somaPos = ativas.reduce((s, c) => s + Math.max(0, c.saldo), 0);
+        const idsAtivos = new Set(ativas.map(c => String(c.b.id)));
+        let entMes = 0, saiMes = 0;
+        movs.forEach(m => {
+            if (m.t || !idsAtivos.has(m.b) || !m.d || m.d < iniMes || m.d > hoje) return;
+            if (m.v >= 0) entMes += m.v; else saiMes -= m.v;
+        });
+        const serie90 = _bkSerie(movs, ativas.map(c => c.b.id), total, ini90, hoje);
+        const s30 = serie90[serie90.length - 30] != null ? serie90[serie90.length - 30] : serie90[0];
+        const var30 = total - s30;
+        const minS = Math.min(...serie90), maxS = Math.max(...serie90);
+        const negs = ativas.filter(c => c.saldo < -0.005);
+
+        if (hero) {
+            hero.style.display = '';
+            const comp = ativas.filter(c => c.saldo > 0.005).sort((a, b) => b.saldo - a.saldo);
+            const st4 = configAtiva
+                ? '<div class="bk-hs click" onclick="abrirLancamentosTerceiros()" title="Ver lançamentos do Saldo de Terceiros"><span>A repassar a terceiros</span><b class="ter">' + _bkBRL(totTerc) + '</b></div>' +
+                  '<div class="bk-hs" title="Saldo total menos tudo o que ainda precisa ser repassado a terceiros"><span>Após repasses</span><b class="' + (total - totTerc >= 0 ? 'pos' : 'neg') + '">' + _bkBRL(total - totTerc) + '</b></div>'
+                : '<div class="bk-hs"><span>Resultado ' + mesNome + '</span><b class="' + (entMes - saiMes >= 0 ? 'pos' : 'neg') + '">' + _bkSinal(entMes - saiMes) + '</b></div>' +
+                  '<div class="bk-hs" title="' + negs.map(c => _bancoEsc(c.b.nome)).join(', ') + '"><span>Contas no negativo</span><b class="' + (negs.length ? 'neg' : 'pos') + '">' + (negs.length ? negs.length + ' · ' + _bkBRL(negs.reduce((s, c) => s + c.saldo, 0)) : 'Nenhuma ✓') + '</b></div>';
+            hero.innerHTML =
+                '<div class="bk-hero-grid">' +
+                  '<div>' +
+                    '<div class="bk-hero-lbl">Saldo total em caixa</div>' +
+                    '<div class="bk-hero-val ' + (total < 0 ? 'neg' : '') + '" style="cursor:pointer" onclick="abrirLancamentosBanco(\'\')" title="Ver os lançamentos de todas as contas">' + _bkBRL(total) + '</div>' +
+                    '<div class="bk-hero-var ' + (var30 >= 0 ? 'up' : 'down') + '">' + (var30 >= 0 ? '▲' : '▼') + ' ' + _bkBRL(Math.abs(var30)) + ' <span>em 30 dias</span></div>' +
+                    '<div class="bk-hero-meta">Posição em ' + _bkData(hoje) + ' · ' + ativas.length + ' conta' + (ativas.length === 1 ? '' : 's') + ' ativa' + (ativas.length === 1 ? '' : 's') + (negs.length && configAtiva ? ' · <span style="color:#fca5a5">' + negs.length + ' no negativo</span>' : '') + '</div>' +
+                  '</div>' +
+                  '<div class="bk-hero-chart">' +
+                    '<div class="bk-hero-lbl"><span>Evolução do saldo · 90 dias</span><b><span style="color:' + (minS < 0 ? '#fca5a5' : '#86efac') + '">' + _bkBRL(minS) + '</span> – <span style="color:' + (maxS < 0 ? '#fca5a5' : '#86efac') + '">' + _bkBRL(maxS) + '</span></b></div>' +
+                    _bkSparkSinal(serie90, 400, 96) +
+                    '<div class="bk-hero-axis"><span>' + _bkData(ini90).slice(0, 5) + '</span><span>' + _bkData(_bkAddDias(hoje, -45)).slice(0, 5) + '</span><span>Hoje</span></div>' +
+                  '</div>' +
+                  '<div class="bk-hero-stats">' +
+                    '<div class="bk-hs"><span>Entradas ' + mesNome + '</span><b class="pos">+ ' + _bkBRL(entMes) + '</b></div>' +
+                    '<div class="bk-hs"><span>Saídas ' + mesNome + '</span><b class="neg">− ' + _bkBRL(saiMes) + '</b></div>' +
+                    st4 +
+                  '</div>' +
+                '</div>' +
+                (comp.length ? '<div class="bk-comp"><div class="bk-hero-lbl" style="margin-bottom:8px">Onde está o dinheiro</div>' +
+                  '<div class="bk-comp-bar">' + comp.map(c => '<i style="width:' + (c.saldo / somaPos * 100).toFixed(2) + '%;background:' + c.cor + '" title="' + _bancoEsc(c.b.nome) + ': ' + _bkBRL(c.saldo) + '"></i>').join('') + '</div>' +
+                  '<div class="bk-comp-leg">' + comp.map(c => '<span><em style="background:' + c.cor + '"></em>' + _bancoEsc(c.b.nome) + ' <b>' + (c.saldo / somaPos * 100).toFixed(1) + '%</b></span>').join('') + '</div></div>' : '');
         }
-        if (configAtiva) {
-            const corTerc = totalTerceiros >= 0 ? '#8e44ad' : '#dc3545';
-            container.insertAdjacentHTML('beforeend', '<div class="stat-card" style="border-left-color:' + corTerc + ';cursor:pointer;" title="Clique para ver os lançamentos que compõem o Saldo de Terceiros" onclick="abrirLancamentosTerceiros()">' +
-                '<div class="stat-label">👤 Saldo de Terceiros</div>' +
-                '<div style="font-size:11px;color:#999;margin-bottom:4px;">Não é seu — a devolver/repassar</div>' +
-                '<div class="stat-value" style="color:' + corTerc + ';font-size:20px;">R$ ' + totalTerceiros.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-                '<div style="font-size:10px;color:#8e44ad;margin-top:6px;font-weight:600;">👆 ver lançamentos</div>' +
-                '</div>');
+        if (qtdEl) {
+            const inat = contas.length - ativas.length;
+            qtdEl.textContent = '· ' + ativas.length + ' ativa' + (ativas.length === 1 ? '' : 's') + (inat ? ' · ' + inat + ' inativa' + (inat === 1 ? '' : 's') : '');
         }
+
+        // Ativas primeiro (ordem de cadastro), inativas no fim
+        const ordem = ativas.concat(contas.filter(c => !c.ativo));
+        container.innerHTML = ordem.map(c => {
+            const b = c.b, arg = _bkArg(b.id), neg = c.saldo < -0.005;
+            const sub = [b.agencia ? 'Ag ' + b.agencia : '', b.conta ? 'CC ' + b.conta : ''].filter(Boolean).map(_bancoEsc).join(' · ') || 'Inicial: ' + _bkBRL(parseFloat(b.saldo_inicial || 0));
+            const pct = c.ativo && somaPos > 0 && c.saldo > 0 ? c.saldo / somaPos * 100 : 0;
+            const dias = c.ult ? Math.round((new Date(hoje + 'T12:00:00') - new Date(c.ult + 'T12:00:00')) / 86400000) : null;
+            const ultTxt = c.ult ? '<b title="' + _bkData(c.ult) + '">' + _bkData(c.ult).slice(0, 5) + '</b> · ' + (dias === 0 ? 'hoje' : dias === 1 ? 'ontem' : 'há ' + dias + ' dias') : 'sem movimentação';
+            // Terceiros "dentro" da conta nunca passa do saldo que a conta tem de fato.
+            // O que exceder é dívida com terceiros sem dinheiro nesta conta para cobrir.
+            const tercConta = c.terc > 0 ? Math.min(c.terc, Math.max(0, c.saldo)) : 0;
+            const semCobertura = c.terc > 0 ? c.terc - tercConta : 0;
+            const real = c.saldo - tercConta;
+            const tercHtml = configAtiva
+                ? '<div class="bk-ter" onclick="abrirLancamentosTerceiros(' + arg + ')" title="Ver os lançamentos de terceiros deste banco"><div title="Dinheiro de terceiros que está nesta conta (limitado ao saldo da conta) — clique para ver os lançamentos"><span>Terceiros na conta</span><b>' + _bkBRL(tercConta) + '</b></div>' +
+                  '<div class="real ' + (real < 0 ? 'neg' : '') + '" title="Saldo atual menos os terceiros que estão nesta conta"><span>Saldo real</span><b>' + _bkBRL(real) + '</b></div>' +
+                  (semCobertura > 0.005 ? '<p class="bk-ter-aviso" title="Recebido de terceiros por esta conta e ainda não repassado, mas o dinheiro já não está aqui (saiu por outros pagamentos/transferências, ou o repasse foi pago por outro banco).">⚠ ' + _bkBRL(semCobertura) + ' a repassar sem saldo nesta conta</p>' : '') + '</div>'
+                : '';
+            return '<div class="bk-card' + (neg ? ' neg' : '') + (c.ativo ? '' : ' inativa') + '" style="--bk:' + c.cor + '">' +
+                '<div class="bk-top">' + bancoLogoHtml(b, 'lg') +
+                  '<div class="bk-id" onclick="abrirLancamentosBanco(' + arg + ')" title="Ver e editar os lançamentos desta conta">' +
+                    '<div class="bk-nome">' + _bancoEsc(b.nome) + '</div><div class="bk-subt">' + sub + '</div></div>' +
+                  '<span class="bk-tipo' + (c.ativo ? '' : ' off') + '">' + (c.ativo ? _bancoEsc(b.tipo || 'Conta') : 'Inativa') + '</span>' +
+                '</div>' +
+                '<div class="bk-saldo-box" onclick="abrirLancamentosBanco(' + arg + ')" title="Ver e editar os lançamentos desta conta">' +
+                  '<div style="min-width:0"><div class="bk-saldo-lbl">Saldo atual</div><div class="bk-saldo' + (neg ? ' neg' : '') + '">' + _bkBRL(c.saldo) + '</div></div>' +
+                  _bkSpark(c.serie, neg ? '#dc2626' : c.cor, 110, 40) +
+                '</div>' +
+                (c.ativo ? '<div class="bk-share"><div class="bk-share-bar"><i style="width:' + pct.toFixed(1) + '%"></i></div><b>' + pct.toFixed(1) + '%</b> do total</div>' : '<div class="bk-share">Conta inativa — fora do saldo total</div>') +
+                tercHtml +
+                '<div class="bk-mes"><div class="e"><span>Entradas ' + mesNome + '</span><b>+ ' + _bkBRL(c.ent) + '</b></div>' +
+                  '<div class="s"><span>Saídas ' + mesNome + '</span><b>− ' + _bkBRL(c.sai) + '</b></div></div>' +
+                '<div class="bk-foot"><div class="bk-ult">Últ. mov.: ' + ultTxt + '</div><div class="bk-acts">' +
+                  '<button class="bk-ic" onclick="abrirLancamentosBanco(' + arg + ')" title="Lançamentos">' + _BK_IC.ext + '</button>' +
+                  '<button class="bk-ic" onclick="bkVerExtrato(' + arg + ')" title="Extrato desta conta">' + _BK_IC.doc + '</button>' +
+                  '<button class="bk-ic" onclick="editarBanco(' + arg + ')" title="Editar">' + _BK_IC.edt + '</button>' +
+                  '<button class="bk-ic ac" onclick="openModalAcertoSaldo(' + arg + ')" title="Acerto de saldo (bater com o extrato real)">' + _BK_IC.ac + '</button>' +
+                  '<button class="bk-ic del" onclick="deletarBanco(' + arg + ')" title="Deletar">' + _BK_IC.del + '</button>' +
+                '</div></div>' +
+            '</div>';
+        }).join('') + btnAdd;
+    }
+
+    // ================================================================
+    // SALDO DE TERCEIROS — janela dedicada de lançamentos
+    // Entradas = recebimentos na categoria de entrada configurada;
+    // Repasses = pagamentos na categoria de saída configurada.
+    // (mesmo critério de _calcularSaldosTerceirosBancos)
+    // ================================================================
+    var _tm = { tipo: '', per: 'tudo', banco: '', busca: '', movs: [] };
+    var _tercRetornoPendente = false;
+    const _TM_MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+    function abrirLancamentosTerceiros(bancoId) {
+        _tm.tipo = ''; _tm.per = 'tudo'; _tm.busca = '';
+        _tm.banco = (bancoId === undefined || bancoId === null || bancoId === '') ? '' : String(bancoId);
+        tmMontar();
+        document.getElementById('modalTerceiros').classList.add('active');
+        document.addEventListener('keydown', _tmEsc);
+    }
+    function tmFechar() {
+        document.getElementById('modalTerceiros').classList.remove('active');
+        document.removeEventListener('keydown', _tmEsc);
+    }
+    function _tmEsc(e) {
+        if (e.key !== 'Escape') return;
+        if (document.querySelector('.modal.active:not(#modalTerceiros)')) return;
+        tmFechar();
+    }
+    function _tmMovimentos() {
+        const catE = configSaldoTerceiros.catEntradaId, catS = configSaldoTerceiros.catSaidaId;
+        const bancos = dadosCache.bancos || [];
+        const bk = id => bancos.find(b => String(b.id) === String(id)) || null;
+        const movs = [];
+        if (catE) (dadosCache.contasRecebidas || []).forEach(c => {
+            if (c.status !== 'recebido' || !c.banco_id || String(c.categoria_id) !== String(catE)) return;
+            const cli = (dadosCache.clientes || []).find(x => x.id === c.cliente_id);
+            movs.push({ id: c.id, t: 'e', fonte: 'receber', d: (c.data_recebimento || '').slice(0, 10), desc: c.descricao || '—',
+                parte: cli ? cli.nome : '', banco: bk(c.banco_id), bancoId: String(c.banco_id), v: parseFloat(c.valor || 0), forma: c.tipo_recebimento || '' });
+        });
+        if (catS) (dadosCache.contasPagas || []).forEach(c => {
+            if (c.status !== 'pago' || !c.banco_id || String(c.categoria_id) !== String(catS)) return;
+            const fo = (dadosCache.fornecedores || []).find(x => x.id === c.fornecedor_id);
+            movs.push({ id: c.id, t: 's', fonte: 'pagar', d: (c.data_pagamento || '').slice(0, 10), desc: c.descricao || '—',
+                parte: fo ? fo.nome : '', banco: bk(c.banco_id), bancoId: String(c.banco_id), v: parseFloat(c.valor || 0), forma: c.tipo_pagamento || '' });
+        });
+        // saldo "a repassar" acumulado, em ordem cronológica (entradas antes dos repasses no mesmo dia)
+        movs.sort((a, b) => (a.d || '').localeCompare(b.d || '') || (a.t === b.t ? 0 : a.t === 'e' ? -1 : 1));
+        let ac = 0; const acB = {};
+        movs.forEach(m => {
+            const dv = m.t === 'e' ? m.v : -m.v;
+            ac += dv; m.acum = ac;
+            acB[m.bancoId] = (acB[m.bancoId] || 0) + dv; m.acumB = acB[m.bancoId];
+        });
+        return movs;
+    }
+    function _tmCatNome(id) {
+        const c = (dadosCache.categorias || []).find(x => String(x.id) === String(id));
+        return c ? c.nome : '—';
+    }
+    function _tmPeriodo() {
+        const h = _bkHoje();
+        if (_tm.per === 'mes') return [h.slice(0, 8) + '01', h];
+        if (_tm.per === '3m') return [_bkAddDias(h, -89), h];
+        if (_tm.per === '12m') return [_bkAddDias(h, -364), h];
+        if (_tm.per === 'ano') return [h.slice(0, 4) + '-01-01', h];
+        return ['', ''];
+    }
+
+    // Monta a janela inteira (indicadores, painéis, filtros) — a lista é atualizada por tmLista()
+    function tmMontar() {
+        const body = document.getElementById('tmBody');
+        const catE = configSaldoTerceiros.catEntradaId, catS = configSaldoTerceiros.catSaidaId;
+        document.getElementById('tmSub').innerHTML = (catE || catS)
+            ? 'Entrada: <b>' + _bancoEsc(catE ? _tmCatNome(catE) : '—') + '</b> &nbsp;·&nbsp; Repasse: <b>' + _bancoEsc(catS ? _tmCatNome(catS) : '—') + '</b>'
+            : 'Categorias ainda não configuradas';
+        if (!catE && !catS) {
+            body.innerHTML = '<div class="tm-lista"><div class="tm-vazio"><div>⚙️</div><b>Configure o Saldo de Terceiros</b><br>Escolha a categoria de entrada (ex.: Receita de Venda Consignado) e a de repasse (ex.: Pagamento Parceiros Consignados).<br><br><button class="btn btn-primary" onclick="tmFechar();abrirConfigSaldoTerceiros()">⚙️ Configurar agora</button></div></div>';
+            document.getElementById('tmRodape').textContent = '';
+            return;
+        }
+        const todos = _tm.movs = _tmMovimentos();
+        const bSel = _tm.banco ? (dadosCache.bancos || []).find(b => String(b.id) === _tm.banco) : null;
+        // Com um banco escolhido, tudo na janela passa a ser só daquele banco
+        const movs = _tm.banco ? todos.filter(m => m.bancoId === _tm.banco) : todos;
+        const tIco = document.querySelector('#modalTerceiros .tm-ico');
+        const tTit = document.getElementById('tmTitulo');
+        if (bSel) {
+            tIco.innerHTML = bancoLogoHtml(bSel, 'lg');
+            tTit.innerHTML = 'Saldo de Terceiros · ' + _bancoEsc(bSel.nome) + ' <button class="tm-hbtn" style="margin-left:10px;vertical-align:3px" onclick="tmSet(\'banco\',\'\')">← Todos os bancos</button>';
+        } else {
+            tIco.textContent = '👤';
+            tTit.textContent = 'Saldo de Terceiros';
+        }
+        const totE = movs.filter(m => m.t === 'e').reduce((s, m) => s + m.v, 0);
+        const totS = movs.filter(m => m.t === 's').reduce((s, m) => s + m.v, 0);
+        const aRep = totE - totS;
+        const nE = movs.filter(m => m.t === 'e').length, nS = movs.length - nE;
+
+        // Saldos reais dos bancos (para saber quanto do valor a repassar tem dinheiro para cobrir)
+        const bancos = dadosCache.bancos || [];
+        const saldos = _calcularSaldosBancos(bancos, dadosCache.contasRecebidas || [], dadosCache.contasPagas || [], dadosCache.transferencias || []);
+        const caixa = bSel ? (saldos[bSel.id] || 0) : bancos.filter(b => b.ativo).reduce((s, b) => s + (saldos[b.id] || 0), 0);
+        const cobPct = aRep > 0 ? Math.max(0, Math.min(1, Math.max(0, caixa) / aRep)) : 1;
+        const cobCor = cobPct >= 1 ? '#16a34a' : cobPct >= 0.5 ? '#d97706' : '#dc2626';
+
+        // Por banco
+        const porB = {};
+        todos.forEach(m => {
+            const k = m.bancoId; if (!porB[k]) porB[k] = { b: m.banco, e: 0, s: 0 };
+            if (m.t === 'e') porB[k].e += m.v; else porB[k].s += m.v;
+        });
+        const linhasB = Object.entries(porB).map(([k, o]) => {
+            const terc = o.e - o.s, saldo = saldos[k] !== undefined ? saldos[k] : 0;
+            const naConta = terc > 0 ? Math.min(terc, Math.max(0, saldo)) : 0;
+            const chip = terc <= 0.005 ? '<span class="tm-chip neu">Repassado</span>'
+                : naConta >= terc - 0.005 ? '<span class="tm-chip ok">Coberto</span>'
+                : naConta > 0.005 ? '<span class="tm-chip parc">Parcial</span>' : '<span class="tm-chip sem">Sem saldo</span>';
+            return { k, o, terc, saldo, chip };
+        }).sort((a, b) => b.terc - a.terc);
+
+        // Mês a mês (últimos 12 meses com movimento)
+        const porM = {};
+        movs.forEach(m => { if (!m.d) return; const k = m.d.slice(0, 7); if (!porM[k]) porM[k] = { e: 0, s: 0, ac: 0 }; if (m.t === 'e') porM[k].e += m.v; else porM[k].s += m.v; porM[k].ac = _tm.banco ? m.acumB : m.acum; });
+        const meses = Object.keys(porM).sort().slice(-12).reverse();
+        const maxM = Math.max(1, ...meses.map(k => Math.max(porM[k].e, porM[k].s)));
+
+        const segBtn = (grp, v, txt, cur) => '<button type="button" data-v="' + v + '" class="' + (cur === v ? 'on' : '') + '" onclick="tmSet(\'' + grp + '\',\'' + v + '\')">' + txt + '</button>';
+        body.innerHTML =
+            '<div class="tm-kpis">' +
+              '<div class="tm-kpi" style="--c:#16a34a"><span>Recebido de terceiros</span><b>+ ' + _bkBRL(totE) + '</b><small>' + nE + ' recebimento' + (nE === 1 ? '' : 's') + '</small></div>' +
+              '<div class="tm-kpi" style="--c:#dc2626"><span>Repassado</span><b>− ' + _bkBRL(totS) + '</b><small>' + nS + ' repasse' + (nS === 1 ? '' : 's') + '</small></div>' +
+              '<div class="tm-kpi dest" style="--c:' + (aRep >= 0 ? '#7e22ce' : '#dc2626') + '"><span>A repassar</span><b>' + _bkBRL(aRep) + '</b><small>' + (aRep > 0.005 ? (bSel ? 'recebido por esta conta e ainda não repassado' : 'devido aos parceiros hoje') : aRep < -0.005 ? 'repassado a mais que o recebido' : 'tudo em dia') + '</small></div>' +
+              '<div class="tm-kpi" style="--c:' + cobCor + '"><span>' + (bSel ? 'Coberto pelo saldo da conta' : 'Coberto pelo caixa') + '</span><b>' + (aRep > 0.005 ? Math.round(cobPct * 100) + '%' : '—') + '</b>' +
+                '<small>' + (bSel ? 'saldo da conta: ' : 'caixa total: ') + _bkBRL(caixa) + (aRep > 0.005 && cobPct < 1 ? ' · faltam ' + _bkBRL(aRep - Math.max(0, caixa)) : '') + '</small>' +
+                '<div class="tm-cob"><i style="width:' + (cobPct * 100).toFixed(1) + '%;background:' + cobCor + '"></i></div></div>' +
+            '</div>' +
+            '<div class="tm-cols">' +
+              '<div class="tm-panel"><div class="tm-ptit"><span>Por banco</span><em>clique para filtrar</em></div>' +
+                (linhasB.length ? '<div class="tm-bt-wrap"><table class="tm-bt"><thead><tr><th>Banco</th><th>Recebido</th><th>Repassado</th><th>A repassar</th><th>Saldo da conta</th><th></th></tr></thead><tbody>' +
+                  linhasB.map(l => '<tr class="clk' + (_tm.banco === l.k ? ' on' : '') + '" data-b="' + _bancoEsc(l.k) + '" onclick="tmSet(\'banco\',this.dataset.b)">' +
+                    '<td><span class="tm-bn">' + (l.o.b ? bancoLogoHtml(l.o.b, 'sm') : '') + _bancoEsc(l.o.b ? l.o.b.nome : 'Banco removido') + '</span></td>' +
+                    '<td style="color:#16a34a">' + _bkBRL(l.o.e) + '</td><td style="color:#dc2626">' + _bkBRL(l.o.s) + '</td>' +
+                    '<td style="font-weight:800;color:' + (l.terc >= 0 ? '#7e22ce' : '#dc2626') + '">' + _bkBRL(l.terc) + '</td>' +
+                    '<td style="color:' + (l.saldo < 0 ? '#dc2626' : '#6b7280') + '">' + _bkBRL(l.saldo) + '</td><td>' + l.chip + '</td></tr>').join('') +
+                  '</tbody></table></div>' : '<div class="tm-vazio" style="padding:20px">Sem lançamentos.</div>') +
+              '</div>' +
+              '<div class="tm-panel"><div class="tm-ptit"><span>Mês a mês</span><em>a repassar no fim do mês</em></div>' +
+                (meses.length ? '<div class="tm-mes">' + meses.map(k => {
+                    const o = porM[k], lb = _BK_MESES[parseInt(k.slice(5, 7), 10)] + '/' + k.slice(2, 4);
+                    return '<div class="tm-ml" title="Recebido ' + _bkBRL(o.e) + ' · Repassado ' + _bkBRL(o.s) + '"><span>' + lb + '</span>' +
+                      '<div class="tm-bars"><i class="e" style="width:' + (o.e / maxM * 100).toFixed(1) + '%"></i><i class="s" style="width:' + (o.s / maxM * 100).toFixed(1) + '%"></i></div>' +
+                      '<b style="' + (o.ac < 0 ? 'color:#dc2626' : '') + '">' + _bkBRL(o.ac) + '</b></div>';
+                  }).join('') + '</div><div class="tm-leg"><span><i style="background:#22c55e"></i>Recebido</span><span><i style="background:#f87171"></i>Repassado</span></div>'
+                  : '<div class="tm-vazio" style="padding:20px">Sem lançamentos.</div>') +
+              '</div>' +
+            '</div>' +
+            '<div class="tm-bar">' +
+              '<div class="tm-seg tipo" id="tmSegTipo">' + segBtn('tipo', '', 'Todos', _tm.tipo) + segBtn('tipo', 'e', '↓ Recebimentos', _tm.tipo) + segBtn('tipo', 's', '↑ Repasses', _tm.tipo) + '</div>' +
+              '<div class="tm-seg" id="tmSegPer">' + segBtn('per', 'tudo', 'Tudo', _tm.per) + segBtn('per', 'mes', 'Este mês', _tm.per) + segBtn('per', '3m', '90 dias', _tm.per) + segBtn('per', '12m', '12 meses', _tm.per) + segBtn('per', 'ano', 'Este ano', _tm.per) + '</div>' +
+              '<label class="tm-in"><select id="tmBanco" onchange="tmSet(\'banco\',this.value)"><option value="">Todos os bancos</option>' +
+                linhasB.map(l => '<option value="' + _bancoEsc(l.k) + '"' + (_tm.banco === l.k ? ' selected' : '') + '>' + _bancoEsc(l.o.b ? l.o.b.nome : 'Banco removido') + '</option>').join('') + '</select></label>' +
+              '<label class="tm-in busca">🔎<input id="tmBusca" type="text" placeholder="Buscar descrição, cliente, parceiro ou valor…" value="' + _bancoEsc(_tm.busca) + '" oninput="_tm.busca=this.value;tmLista()"></label>' +
+            '</div>' +
+            '<div class="tm-fil" id="tmFil"></div>' +
+            '<div class="tm-lista" id="tmLista"></div>';
+        tmLista();
+    }
+
+    function tmSet(grp, v) {
+        if (grp === 'banco') _tm.banco = (_tm.banco === String(v) && v !== '') ? '' : String(v);
+        else _tm[grp] = v;
+        const segId = grp === 'tipo' ? 'tmSegTipo' : grp === 'per' ? 'tmSegPer' : null;
+        if (segId) document.querySelectorAll('#' + segId + ' button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+        if (grp === 'banco') { tmMontar(); return; }
+        tmLista();
+    }
+    function tmLimpar() {
+        _tm.tipo = ''; _tm.per = 'tudo'; _tm.banco = ''; _tm.busca = '';
+        tmMontar();
+    }
+    function _tmFiltrados() {
+        const [ini, fim] = _tmPeriodo();
+        const q = _tm.busca.trim().toLowerCase();
+        const qNum = q.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
+        return _tm.movs.filter(m => {
+            if (_tm.tipo && m.t !== _tm.tipo) return false;
+            if (_tm.banco && m.bancoId !== _tm.banco) return false;
+            if (ini && (!m.d || m.d < ini || m.d > fim)) return false;
+            if (q) {
+                const txt = (m.desc + ' ' + m.parte + ' ' + (m.banco ? m.banco.nome : '') + ' ' + m.forma).toLowerCase();
+                const valOk = qNum && !isNaN(parseFloat(qNum)) && Math.abs(m.v - parseFloat(qNum)) < 0.01;
+                if (!txt.includes(q) && !valOk) return false;
+            }
+            return true;
+        });
+    }
+
+    function tmLista() {
+        const el = document.getElementById('tmLista'); if (!el) return;
+        const lista = _tmFiltrados();
+        // chips de filtro ativo
+        const chips = [];
+        if (_tm.tipo) chips.push(_tm.tipo === 'e' ? 'Só recebimentos' : 'Só repasses');
+        if (_tm.per !== 'tudo') chips.push({ mes: 'Este mês', '3m': 'Últimos 90 dias', '12m': 'Últimos 12 meses', ano: 'Este ano' }[_tm.per]);
+        if (_tm.banco) { const b = (dadosCache.bancos || []).find(x => String(x.id) === _tm.banco); chips.push(b ? b.nome : 'Banco'); }
+        if (_tm.busca.trim()) chips.push('“' + _tm.busca.trim() + '”');
+        const fil = document.getElementById('tmFil');
+        const fE = lista.filter(m => m.t === 'e').reduce((s, m) => s + m.v, 0), fS = lista.filter(m => m.t === 's').reduce((s, m) => s + m.v, 0);
+        fil.innerHTML = chips.length
+            ? 'Filtros: ' + chips.map(c => '<span class="tm-fchip">' + _bancoEsc(c) + '</span>').join('') + ' <button onclick="tmLimpar()">limpar</button>' +
+              '<span style="margin-left:auto">No filtro: <b style="color:#16a34a">+ ' + _bkBRL(fE) + '</b> · <b style="color:#dc2626">− ' + _bkBRL(fS) + '</b> · saldo <b style="color:#7e22ce">' + _bkSinal(fE - fS) + '</b></span>'
+            : '';
+        const base = _tm.banco ? _tm.movs.filter(m => m.bancoId === _tm.banco).length : _tm.movs.length;
+        document.getElementById('tmRodape').textContent = lista.length + ' de ' + base + ' lançamento' + (base === 1 ? '' : 's');
+
+        if (!lista.length) {
+            el.innerHTML = '<div class="tm-vazio"><div>🔍</div>' + (_tm.movs.length ? 'Nenhum lançamento com esses filtros.' : 'Nenhum lançamento nas categorias configuradas.') + '</div>';
+            return;
+        }
+        // mais recentes primeiro, agrupados por mês
+        const ord = lista.slice().sort((a, b) => (b.d || '').localeCompare(a.d || '') || (a.t === b.t ? 0 : a.t === 's' ? -1 : 1));
+        const grupos = []; let atual = null;
+        ord.forEach(m => {
+            const k = m.d ? m.d.slice(0, 7) : 'sem-data';
+            if (!atual || atual.k !== k) { atual = { k, itens: [], e: 0, s: 0 }; grupos.push(atual); }
+            atual.itens.push(m); if (m.t === 'e') atual.e += m.v; else atual.s += m.v;
+        });
+        const sem = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+        const html = grupos.map(g => {
+            const mn = g.k === 'sem-data' ? '' : _TM_MESES[parseInt(g.k.slice(5, 7), 10) - 1];
+            const nome = g.k === 'sem-data' ? 'Sem data' : mn.charAt(0).toUpperCase() + mn.slice(1) + ' de ' + g.k.slice(0, 4);
+            return '<tr class="tm-grp"><td colspan="6"><div class="tm-grp-in"><b>' + nome + '</b><span>' + g.itens.length + ' lançamento' + (g.itens.length === 1 ? '' : 's') + '</span>' +
+                '<div class="tm-grp-tot"><span style="color:#16a34a">+ ' + _bkBRL(g.e) + '</span><span style="color:#dc2626">− ' + _bkBRL(g.s) + '</span></div></div></td></tr>' +
+              g.itens.map(m => {
+                const dObj = m.d ? new Date(m.d + 'T12:00:00') : null;
+                const arg = typeof m.id === 'number' ? m.id : "'" + _bancoEsc(m.id) + "'";
+                const tab = m.fonte === 'receber' ? 'contas_a_receber' : 'contas_a_pagar';
+                return '<tr class="row">' +
+                  '<td style="width:52px"><span class="tm-dt"><b>' + (m.d ? m.d.slice(8, 10) : '—') + '</b><small>' + (dObj ? sem[dObj.getDay()] : '') + '</small></span></td>' +
+                  '<td><div class="tm-nm"><span class="tm-ic ' + m.t + '">' + (m.t === 'e' ? '↓' : '↑') + '</span><div style="min-width:0">' +
+                    '<div class="tm-desc" title="' + _bancoEsc(m.desc) + '">' + _bancoEsc(m.desc) + '</div>' +
+                    '<div class="tm-parte">' + (m.t === 'e' ? 'Recebido' : 'Repasse') + (m.parte ? ' · ' + _bancoEsc(m.parte) : '') + (m.forma ? ' · ' + _bancoEsc(m.forma) : '') + '</div></div></div></td>' +
+                  '<td class="hide-m"><span class="tm-bk">' + (m.banco ? bancoLogoHtml(m.banco, 'sm') + _bancoEsc(m.banco.nome) : '—') + '</span></td>' +
+                  '<td class="r"><span class="tm-val ' + m.t + '">' + (m.t === 'e' ? '+ ' : '− ') + _bkBRL(m.v) + '</span></td>' +
+                  '<td class="r hide-m"><span class="tm-acum' + ((_tm.banco ? m.acumB : m.acum) < -0.005 ? ' neg' : '') + '" title="' + (_tm.banco ? 'A repassar nesta conta' : 'Total a repassar') + ' logo após este lançamento">' + _bkBRL(_tm.banco ? m.acumB : m.acum) + '</span></td>' +
+                  '<td class="tm-acts">' +
+                    '<button class="tm-ab" onclick="tmEditar(' + arg + ',\'' + m.fonte + '\')" title="Editar">✏️</button> ' +
+                    '<button class="tm-ab rv" onclick="tmReverter(' + arg + ',\'' + m.fonte + '\')" title="Reverter para pendente">↩</button> ' +
+                    '<button class="tm-ab dl" onclick="tmExcluir(' + arg + ',\'' + tab + '\')" title="Excluir">🗑</button>' +
+                  '</td></tr>';
+              }).join('');
+        }).join('');
+        el.innerHTML = '<table class="tm-tab"><thead><tr><th>Dia</th><th>Lançamento</th><th class="hide-m">Banco</th><th class="r">Valor</th><th class="r hide-m">A repassar</th><th></th></tr></thead><tbody>' + html + '</tbody></table>';
+    }
+
+    function tmEditar(id, tipo) {
+        _tercRetornoPendente = true;
+        tmFechar();
+        editarLancamento(id, tipo);
+    }
+    async function tmReverter(id, tipo) {
+        if (tipo === 'receber') await reverterRecebimento(id); else await reverterPagamento(id);
+        await carregarBancos();
+        tmMontar();
+    }
+    async function tmExcluir(id, tabela) {
+        await deletarConta(id, tabela);
+        await carregarBancos();
+        tmMontar();
+    }
+    function tmExportar() {
+        const lista = _tmFiltrados().slice().sort((a, b) => (a.d || '').localeCompare(b.d || ''));
+        if (!lista.length) { alert('Nenhum lançamento para exportar.'); return; }
+        const n = v => v.toFixed(2).replace('.', ',');
+        const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+        const linhas = [['Data', 'Tipo', 'Descrição', 'Cliente/Parceiro', 'Banco', 'Forma', 'Valor', 'A repassar acumulado'].map(q).join(';')];
+        lista.forEach(m => linhas.push([q(_bkData(m.d)), q(m.t === 'e' ? 'Recebimento' : 'Repasse'), q(m.desc), q(m.parte), q(m.banco ? m.banco.nome : ''), q(m.forma),
+            (m.t === 'e' ? '' : '-') + n(m.v), n(_tm.banco ? m.acumB : m.acum)].join(';')));
+        const blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'saldo-de-terceiros-' + _bkHoje() + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     }
 
     // ================================================================
@@ -11635,12 +12348,6 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
 
     // Abre os lançamentos que compõem o Saldo de Terceiros: recebimentos na categoria de
     // entrada configurada (crédito) e pagamentos na categoria de saída configurada (débito).
-    function abrirLancamentosTerceiros() {
-        _bancoLancModalAtual = '__terceiros__';
-        _renderLancamentosBanco();
-        document.getElementById('modalLancamentosBanco').classList.add('active');
-    }
-
     function _renderLancamentosBanco() {
         const bancoId = _bancoLancModalAtual;
         const tbody = document.querySelector('#tabelaLancamentosBanco tbody');
@@ -19706,6 +20413,31 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     </div>
 </div>
 
+<!-- ══ SALDO DE TERCEIROS — lançamentos (janela dedicada) ══ -->
+<div class="modal" id="modalTerceiros" onclick="if(event.target===this)tmFechar()">
+    <div class="tm-box" role="dialog" aria-modal="true" aria-labelledby="tmTitulo">
+        <div class="tm-head">
+            <div class="tm-ico">👤</div>
+            <div style="min-width:0">
+                <div class="tm-tit" id="tmTitulo">Saldo de Terceiros</div>
+                <div class="tm-sub" id="tmSub"></div>
+            </div>
+            <div class="tm-head-r">
+                <button class="tm-hbtn" onclick="tmFechar();abrirConfigSaldoTerceiros()" title="Escolher as categorias de entrada e de repasse">⚙️ Categorias</button>
+                <button class="tm-x" onclick="tmFechar()" title="Fechar (Esc)" aria-label="Fechar">&times;</button>
+            </div>
+        </div>
+        <div class="tm-body" id="tmBody"></div>
+        <div class="tm-foot">
+            <span id="tmRodape"></span>
+            <div class="btns">
+                <button class="btn btn-secondary" onclick="tmExportar()">⬇ Exportar Excel (CSV)</button>
+                <button class="btn btn-secondary" onclick="tmFechar()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="modalLancamentosBanco">
     <div class="modal-content" style="max-width:1000px;">
         <div class="modal-header">
@@ -19729,7 +20461,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
     <div class="modal-content" style="max-width:500px;">
         <div class="modal-header">
             <span id="editLancTituloModal">Editar Lançamento</span>
-            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;closeModal('modalEditarLancamento')">&times;</button>
+            <button class="modal-close" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;_tercRetornoPendente=false;closeModal('modalEditarLancamento')">&times;</button>
         </div>
         <form onsubmit="salvarEdicaoLancamento(event)">
             <input type="hidden" id="editLancId">
@@ -19780,7 +20512,7 @@ GRANT ALL ON SEQUENCE transferencias_id_seq TO anon;</pre>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">💾 Salvar</button>
-                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;closeModal('modalEditarLancamento')">Cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="_dreDetalheRetornoPendente=false;_detLancRetornoPendente=false;_tercRetornoPendente=false;closeModal('modalEditarLancamento')">Cancelar</button>
             </div>
         </form>
     </div>
